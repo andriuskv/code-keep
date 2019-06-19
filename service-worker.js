@@ -55,7 +55,7 @@ self.__precacheManifest = [
   },
   {
     "url": "manifest.json",
-    "revision": "7ca11fe3cd9b5bff394c57fb0c11c5e0"
+    "revision": "2cd23f47c23af9e30e10ca4ffabd6e8f"
   },
   {
     "url": "static/css/8.66f2e322.chunk.css",

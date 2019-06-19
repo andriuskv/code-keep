@@ -12,7 +12,7 @@ cd ..
 
 echo "Copy build to gh-pages"
 rm -rf ./gh-pages/*
-cp -r ./dist/. ./gh-pages
+cp -r ./build/. ./gh-pages
 
 cd ./gh-pages
 git config --global user.name "Travis CI"

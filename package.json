@@ -2,6 +2,7 @@
   "name": "moros",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://andriuskv.github.io/code-keep/",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build && rm ./build/precache* && cp ./public/*.png ./build && npm run generate-sw",

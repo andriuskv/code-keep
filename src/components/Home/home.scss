@@ -1,0 +1,80 @@
+@import "../../styles/mixins.scss";
+
+.home {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: var(--space-xl);
+
+  @include breakpoint-small {
+    font-size: 14px;
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+
+    .home-image-container {
+      max-width: 60%;
+    }
+  }
+}
+
+.home-intro-main-title {
+  color:var(--color-primary);
+  font-size: var(--text-xxl);
+
+  &::after {
+    content: "";
+    display: block;
+    height: 4px;
+    width: 40px;
+    margin: var(--space-xl) 0;
+    background-color: var(--color-primary);
+  }
+}
+
+.home-intro-title {
+  margin-bottom: var(--space-md);
+  font-size: var(--text-xxxl);
+  font-weight: 500;
+}
+
+.home-intro-subtitle {
+  font-size: var(--text-xl);
+}
+
+.home-intro-btn {
+  display: inline-block;
+  margin-top: var(--space-xxxl);
+  padding: var(--space-md) var(--space-xxl);
+  font-size: var(--text-md);
+}
+
+.home-image-container {
+  overflow: hidden;
+  z-index: -1;
+  position: absolute;
+  right: 0;
+  max-width: 50%;
+  max-height: calc(100% - var(--header-height));
+  padding: 0 var(--space-md);
+
+  &.shadow::after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: block;
+    content: "";
+    box-shadow: inset 0 -20px 24px 0 var(--color-grey-darkest),
+                inset 0 12px 16px 0 var(--color-grey-darkest);
+  }
+}
+
+.home-image {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+}

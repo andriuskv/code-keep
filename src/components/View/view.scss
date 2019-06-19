@@ -1,0 +1,50 @@
+.view {
+  padding: var(--space-xl);
+
+  .CodeMirror {
+    min-height: auto;
+  }
+}
+
+.view-title {
+  margin-top: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  text-align: center;
+  font-size: var(--text-xl);
+  font-weight: 500;
+}
+
+.view-description {
+  margin-bottom: var(--space-md);
+}
+
+.view-date {
+  margin-bottom: var(--space-sm);
+  color: var(--color-grey-lighter);
+  font-size: var(--text-xs);
+  font-weight: 500;
+}
+
+.view-editor {
+  opacity: 0;
+  visibility: hidden;
+  margin-bottom: var(--space-xl);
+  border-radius: 4px;
+  background-color: var(--color-grey-dark);
+
+  &.loaded {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.view-editor-header {
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--color-grey);
+
+  span {
+    color: var(--color-grey-lighter);
+    font-size: var(--text-sm);
+    font-weight: 500;
+  }
+}

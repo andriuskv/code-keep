@@ -13,9 +13,10 @@
 
 .cm-s-dracula {
   --selection-color: var(--color-grey-light-99);
+  --background-color: var(--editor-background-color, var(--color-grey-dark));
 
   &.CodeMirror, .CodeMirror-gutters {
-    background-color: inherit !important;
+    background-color: var(--background-color) !important;
   }
 
   .CodeMirror-linenumber {

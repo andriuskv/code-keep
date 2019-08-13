@@ -10,15 +10,6 @@ function importEditorMode(mode) {
   if (mode === "default" || mode === "null") {
     return;
   }
-  else if (mode === "text/x-scss") {
-    mode = "css";
-  }
-  else if (mode === "text/x-sh") {
-    mode = "shell";
-  }
-  else if (/text\/x-(java|kotlin|scala|csrc|c\+\+src|csharp|objectivec)/.test(mode)) {
-    mode = "clike";
-  }
   return import(`codemirror/mode/${mode}/${mode}.js`);
 }
 

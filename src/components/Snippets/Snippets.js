@@ -89,7 +89,7 @@ export default function Snippets(props) {
               </div>
               <Link to={`/snippets/${snippet.id}`} className="snippet-link">
                 <Editor file={snippet.files[0]} settings={snippet.settings}
-                  readOnly preview handleLoad={() => handleLoad(index)} />
+                  readOnly handleLoad={() => handleLoad(index)} />
               </Link>
               <div className="snippet-footer">
                 <button className="btn icon-text-btn" onClick={() => editSnippet(snippet.id)}>

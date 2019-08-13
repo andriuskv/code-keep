@@ -1,0 +1,156 @@
+{
+  "c": {
+    "mimeType": "text/x-c",
+    "extension": "c",
+    "mode": "clike",
+    "type": "c",
+    "displayName": "C"
+  },
+  "c#": {
+    "mimeType": "text/x-c++",
+    "extension": "cs",
+    "mode": "clike",
+    "type": "c#",
+    "displayName": "C#"
+  },
+  "c++": {
+    "mimeType": "text/x-c",
+    "extension": "cpp",
+    "mode": "clike",
+    "type": "c++",
+    "displayName": "C++"
+  },
+  "css": {
+    "mimeType": "text/css",
+    "extension": "css",
+    "mode": "css",
+    "type": "css",
+    "displayName": "CSS"
+  },
+  "go": {
+    "mimeType": "text/plain",
+    "extension": "go",
+    "mode": "go",
+    "type": "go",
+    "displayName": "Go"
+  },
+  "haskell": {
+    "mimeType": "text/plain",
+    "extension": "hs",
+    "mode": "haskell",
+    "type": "haskell",
+    "displayName": "Haskell"
+  },
+  "html": {
+    "mimeType": "text/html",
+    "extension": "html",
+    "mode": "htmlmixed",
+    "type": "html",
+    "displayName": "HTML"
+  },
+  "java": {
+    "mimeType": "text/x-java",
+    "extension": "java",
+    "mode": "clike",
+    "type": "java",
+    "displayName": "Java"
+  },
+  "javascript": {
+    "mimeType": "text/javascript",
+    "extension": "js",
+    "mode": "javascript",
+    "type": "javascript",
+    "displayName": "JavaScript"
+  },
+  "jsx": {
+    "mimeType": "text/javascript",
+    "extension": "js",
+    "mode": "jsx",
+    "type": "jsx",
+    "displayName": "JSX"
+  },
+  "kotlin": {
+    "mimeType": "text/plain",
+    "extension": "kt",
+    "mode": "clike",
+    "type": "kotlin",
+    "displayName": "Kotlin"
+  },
+  "markdown": {
+    "mimeType": "text/plain",
+    "extension": "md",
+    "mode": "gfm",
+    "type": "markdown",
+    "displayName": "Markdown"
+  },
+  "objectivec": {
+    "mimeType": "text/x-objective-c",
+    "extension": "m",
+    "mode": "clike",
+    "type": "objectivec",
+    "displayName": "Objective-C"
+  },
+  "php": {
+    "mimeType": "text/x-php",
+    "extension": "php",
+    "mode": "php",
+    "type": "php",
+    "displayName": "PHP"
+  },
+  "default": {
+    "mimeType": "text/plain",
+    "extension": "txt",
+    "mode": "default",
+    "type": "default",
+    "displayName": "Plain Text"
+  },
+  "python": {
+    "mimeType": "text/x-python",
+    "extension": "py",
+    "mode": "python",
+    "type": "python",
+    "displayName": "Python"
+  },
+  "ruby": {
+    "mimeType": "text/x-ruby",
+    "extension": "rb",
+    "mode": "ruby",
+    "type": "ruby",
+    "displayName": "Ruby"
+  },
+  "rust": {
+    "mimeType": "text/plain",
+    "extension": "rs",
+    "mode": "rust",
+    "type": "rust",
+    "displayName": "Rust"
+  },
+  "scala": {
+    "mimeType": "text/x-c",
+    "extension": "scala",
+    "mode": "clike",
+    "type": "scala",
+    "displayName": "Scala"
+  },
+  "scss": {
+    "mimeType": "text/x-scss",
+    "extension": "scss",
+    "mode": "css",
+    "type": "scss",
+    "displayName": "SCSS"
+  },
+  "shell": {
+    "mimeType": "application/x-sh",
+    "extension": "sh",
+    "mode": "shell",
+    "type": "shell",
+    "displayName": "Shell"
+  },
+  "swift": {
+    "mimeType": "text/plain",
+    "extension": "swift",
+    "mode": "swift",
+    "type": "swift",
+    "displayName": "Swift"
+  }
+}

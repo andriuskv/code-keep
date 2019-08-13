@@ -1,0 +1,38 @@
+:root {
+  --header-height: 52px;
+
+  --space-unit: 8px;
+  --space-sm: calc(0.5 * var(--space-unit));
+  --space-md: calc(1 * var(--space-unit));
+  --space-lg: calc(1.5 * var(--space-unit));
+  --space-xl: calc(2 * var(--space-unit));
+  --space-xxl: calc(3 * var(--space-unit));
+  --space-xxxl: calc(4 * var(--space-unit));
+
+  --text-base-size: 1em;
+  --text-xs: calc(0.8125 * var(--text-base-size));
+  --text-sm: calc(0.875 * var(--text-base-size));
+  --text-md: calc(1 * var(--text-base-size));
+  --text-lg: calc(1.125 * var(--text-base-size));
+  --text-xl: calc(1.375 * var(--text-base-size));
+  --text-xxl: calc(1.75 * var(--text-base-size));
+  --text-xxxl: calc(2.5 * var(--text-base-size));
+
+  --color-primary: hsl(210, 88%, 50%);
+  --color-accent: hsl(33, 100%, 50%);
+  --color-white: hsl(210, 5%, 92%);
+
+  --color-grey-darkest: hsl(217, 20%, 18%);
+  --color-grey-darker: hsl(219, 16%, 21%);
+  --color-grey-dark: hsl(218, 17%, 23%);
+  --color-grey: hsl(220, 15%, 28%);
+  --color-grey-light: hsl(221, 12%, 31%);
+  --color-grey-lighter: hsl(224, 8%, 60%);
+
+  --color-grey-darkest-60: hsla(217, 20%, 18%, 0.6);
+  --color-grey-light-99: hsla(221, 12%, 31%, 0.99);
+
+  --color-black-10: hsla(0, 0%, 0%, 0.1);
+
+  --color-danger: hsl(0, 86%, 70%);
+}

@@ -1,25 +1,26 @@
 {
-  "name": "moros",
+  "name": "code-keep",
   "version": "0.1.0",
   "private": true,
   "homepage": "https://andriuskv.github.io/code-keep/",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build && rm ./build/precache* && cp ./public/*.png ./build && npm run generate-sw",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
     "generate-sw": "workbox generateSW workbox-config.js"
   },
   "dependencies": {
-    "codemirror": "^5.47.0",
-    "focus-visible": "^5.0.0",
+    "codemirror": "^5.48.2",
+    "file-saver": "^2.0.2",
+    "focus-visible": "^5.0.2",
+    "jszip": "^3.2.2",
     "normalize.css": "^8.0.1",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
     "react-router-dom": "^5.0.1",
-    "react-scripts": "3.0.1"
+    "react-scripts": "3.1.0"
   },
   "devDependencies": {
+    "eslint-plugin-react-hooks": "^1.7.0",
     "node-sass": "^4.12.0",
     "workbox-cli": "^4.3.1"
   },

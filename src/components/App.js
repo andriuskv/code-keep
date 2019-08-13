@@ -5,6 +5,7 @@ import Home from "./Home";
 import Snippets from "./Snippets";
 import View from "./View";
 import Form from "./Form";
+import NoMatch from "./NoMatch";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="/snippets/create" component={Form} key="create" />
           <Route path="/snippets/:id" exact component={View} />
           <Route path="/snippets/:id/edit" component={Form} key="edit" />
+          <Route component={NoMatch} />
         </Switch>
       </main>
     </HashRouter>

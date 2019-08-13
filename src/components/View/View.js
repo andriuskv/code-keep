@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./view.scss";
+import { setDocumentTitle } from "../../utils";
 import Editor from "../Editor";
 import DateDiff from "../DateDiff";
 
@@ -14,7 +15,11 @@ export default function View(props) {
       const snippet = snippets.find(snippet => snippet.id === id);
 
       if (snippet) {
+        setDocumentTitle(snippet.title);
         setSnippet(snippet);
+      }
+      else {
+        props.history.replace("/snippets");
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

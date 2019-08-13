@@ -2,6 +2,10 @@ function getRandomString() {
   return Math.random().toString(32).slice(2, 10);
 }
 
+function setDocumentTitle(title) {
+  document.title = `${title} | CodeKeep`;
+}
+
 function importEditorMode(mode) {
   if (mode === "default" || mode === "null") {
     return;
@@ -29,6 +33,7 @@ function resetEditorIndentation(cm) {
 
 export {
   getRandomString,
+  setDocumentTitle,
   importEditorMode,
   resetEditorIndentation
 };

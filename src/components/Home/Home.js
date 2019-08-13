@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./home.scss";
 import img from "../../assets/home-image.png";
 
 export default function Home() {
   const isFirefox = navigator.userAgent.includes("Firefox");
+
+  useEffect(() => {
+    document.title = "CodeKeep - Code Snippet Manager";
+  }, []);
 
   return (
     <div className="home">

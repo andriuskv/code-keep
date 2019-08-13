@@ -1,6 +1,7 @@
 import React, { Fragment, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./snippets.scss";
+import { setDocumentTitle } from "../../utils";
 import Icon from "../Icon";
 import Editor from "../Editor";
 import DateDiff from "../DateDiff";
@@ -29,6 +30,7 @@ export default function Snippets(props) {
       setSnippets(snippets);
     }
     setLoaded(true);
+    setDocumentTitle("Your Snippets");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

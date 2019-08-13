@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./form.scss";
-import { getRandomString, importEditorMode, resetEditorIndentation } from "../../utils";
+import { getRandomString, setDocumentTitle, importEditorMode, resetEditorIndentation } from "../../utils";
 import { getSetting, getSettings, saveSettings } from "../../services/settings";
 import Icon from "../Icon";
 import Settings from "../Settings";
@@ -22,11 +22,13 @@ export default function Form(props) {
       const snippet = snippets.find(snippet => snippet.id === id);
 
       if (snippet) {
+        setDocumentTitle(`Editing ${snippet.title}`);
         setSnippet({ ...snippet, fontSize: getSetting("fontSize"), updating: true });
         saveSettings({...getSettings(), ...snippet.settings });
         return;
       }
     }
+    setDocumentTitle("Create a new snippet");
     setSnippet({
       ...snippet,
       files: [getNewFile()],

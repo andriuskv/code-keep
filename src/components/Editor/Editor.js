@@ -7,7 +7,7 @@ import "./editor.scss";
 import { importEditorMode, resetEditorIndentation } from "../../utils";
 import { getSettings } from "../../services/settings";
 
-export default function Editor({ file, settings, readOnly, preview, handleLoad }) {
+export default function Editor({ file, settings, readOnly, handleLoad }) {
   const { id, mode, value } = file;
 
   useEffect(() => {
@@ -17,8 +17,7 @@ export default function Editor({ file, settings, readOnly, preview, handleLoad }
 
   async function init() {
     const { indentSize, indentWithSpaces, wrapLines } = { ...getSettings(), ...settings };
-
-    await importEditorMode(mode.name);
+    await importEditorMode(mode);
 
     const cm = CodeMirror(document.getElementById(`cm-${id}`), {
       value,
@@ -28,7 +27,7 @@ export default function Editor({ file, settings, readOnly, preview, handleLoad }
       cursorBlinkRate: readOnly ? -1 : CodeMirror.defaults.cursorBlinkRate,
       lineNumbers: true,
       showCursorWhenSelecting: true,
-      lineWrapping: readOnly ? !preview : wrapLines,
+      lineWrapping: readOnly ? false : wrapLines,
       indentUnit: indentSize,
       tabSize: indentSize,
       autoCloseBrackets: true,

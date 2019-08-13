@@ -5,6 +5,7 @@ import { getSetting, getSettings, saveSettings } from "../../services/settings";
 import Icon from "../Icon";
 import Settings from "../Settings";
 import Editor from "../Editor";
+import fileInfo from "../../file-info.json";
 
 export default function Form(props) {
   const [snippet, setSnippet] = useState({
@@ -48,9 +49,7 @@ export default function Form(props) {
       id: getRandomString(),
       value: "",
       cm: null,
-      mode: {
-        name: length > 1 ? snippet.files[length - 1].mode.name : "javascript"
-      }
+      ...fileInfo[length > 1 ? snippet.files[length - 1].type : "javascript"]
     };
   }
 
@@ -65,35 +64,28 @@ export default function Form(props) {
       setSnippet({ ...snippet, titleInvalid: true });
       return;
     }
+    let i = 1;
     const { indentSize, indentWithSpaces, wrapLines } = snippet.settings || getSettings();
     const files = snippet.files.map(file => {
-      const newFile = {
-        id: file.id,
-        mode: file.mode,
-        value: file.cm.getValue().trimEnd()
-      };
-
-      if (file.name) {
-        newFile.name = file.name;
-      }
-      return newFile;
+      file.name = file.name || `file${i++}.${file.extension}`;
+      delete file.cm;
+      return file;
     });
-    const newSnippet = {
-      id: snippet.id || getRandomString(),
-      created: snippet.created || new Date(),
-      title: snippet.title,
-      description: snippet.description,
-      files,
-      settings: {
-        indentSize,
-        indentWithSpaces,
-        wrapLines
-      }
-    };
 
     props.history.push({
       pathname: "/snippets",
-      state: newSnippet
+      state: {
+        id: snippet.id || getRandomString(),
+        created: snippet.created || new Date(),
+        title: snippet.title,
+        description: snippet.description,
+        files,
+        settings: {
+          indentSize,
+          indentWithSpaces,
+          wrapLines
+        }
+      }
     });
   }
 
@@ -116,16 +108,13 @@ export default function Form(props) {
     setSnippet({ ...snippet, settingsVisible: true });
   }
 
-  async function handleModeChange({ target }, index) {
+  async function handleFileTypeChange({ target }, index) {
     const file = files[index];
-    const mode = {
-      name: target.value
-    };
+    const info = fileInfo[target.value];
+    files[index] = { ...file, ...info };
 
-    await importEditorMode(mode.name);
-
-    file.mode = mode;
-    file.cm.setOption("mode", mode);
+    await importEditorMode(info.mode);
+    file.cm.setOption("mode", info.mode);
     setSnippet({ ...snippet });
   }
 
@@ -187,28 +176,11 @@ export default function Form(props) {
               spellCheck="false"
               defaultValue={file.name}
               onChange={e => handleFilenameChange(e, index)} />
-            <select className="select" onChange={e => handleModeChange(e, index)} value={file.mode.name}>
-              <option value="text/x-csrc">C</option>
-              <option value="text/x-csharp">C#</option>
-              <option value="text/x-c++src">C++</option>
-              <option value="text/x-scss">CSS</option>
-              <option value="go">Go</option>
-              <option value="haskell">Haskell</option>
-              <option value="htmlmixed">HTML</option>
-              <option value="text/x-java">Java</option>
-              <option value="javascript">JavaScript</option>
-              <option value="jsx">JSX</option>
-              <option value="text/x-kotlin">Kotlin</option>
-              <option value="gfm">Markdown</option>
-              <option value="text/x-objectivec">Objective-C</option>
-              <option value="php">PHP</option>
-              <option value="default">Plain Text</option>
-              <option value="python">Python</option>
-              <option value="ruby">Ruby</option>
-              <option value="rust">Rust</option>
-              <option value="text/x-scala">Scala</option>
-              <option value="text/x-sh">Shell</option>
-              <option value="swift">Swift</option>
+            <select className="select" onChange={e => handleFileTypeChange(e, index)} value={file.type}>
+              {Object.keys(fileInfo).map((key, i) => {
+                const info = fileInfo[key];
+                return <option value={info.type} key={i}>{info.displayName}</option>;
+              })}
             </select>
             {files.length > 1 && (
               <button className="btn icon-btn danger-btn" title="Remove file" onClick={() => removeFile(index)}>

@@ -2,6 +2,7 @@ import React, { Fragment, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./snippets.scss";
 import { setDocumentTitle } from "../../utils";
+import { saveSnippet, fetchSnippets, deleteSnippet } from "../../services/db";
 import Icon from "../Icon";
 import Editor from "../Editor";
 import DateDiff from "../DateDiff";
@@ -11,28 +12,33 @@ export default function Snippets(props) {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const newSnippet = props.location.state;
-    const snippets = JSON.parse(localStorage.getItem("snippets")) || [];
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    if (newSnippet) {
-      const index = snippets.findIndex(snippet => newSnippet.id === snippet.id);
+
+  async function init() {
+    const snippets = await fetchSnippets();
+    const snippet = props.location.state;
+
+    if (snippet) {
+      const index = snippets.findIndex(({ id }) => snippet.id === id);
 
       if (index >= 0) {
-        snippets.splice(index, 1, newSnippet);
+        snippets.splice(index, 1, snippet);
       }
       else {
-        snippets.push(newSnippet);
+        snippets.unshift(snippet);
       }
       setSnippets([...snippets]);
-      localStorage.setItem("snippets", JSON.stringify(snippets));
+      saveSnippet(snippet);
     }
     else {
       setSnippets(snippets);
     }
     setLoaded(true);
     setDocumentTitle("Your Snippets");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }
 
   function editSnippet(id) {
     props.history.push({
@@ -41,16 +47,9 @@ export default function Snippets(props) {
   }
 
   function removeSnippet(index) {
+    deleteSnippet(snippets[index].id);
     snippets.splice(index, 1);
     setSnippets([...snippets]);
-
-    const snippetsToSave = snippets.map(oldSnippet => {
-      const snippet = { ...oldSnippet };
-
-      delete snippet.loaded;
-      return snippet;
-    });
-    localStorage.setItem("snippets", JSON.stringify(snippetsToSave));
   }
 
   function handleLoad(index) {

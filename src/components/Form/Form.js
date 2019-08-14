@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./form.scss";
 import { getRandomString, setDocumentTitle, importEditorMode, resetEditorIndentation } from "../../utils";
+import { fetchSnippet } from "../../services/db";
 import { getSetting, getSettings, saveSettings } from "../../services/settings";
 import Icon from "../Icon";
 import Settings from "../Settings";
@@ -16,11 +17,15 @@ export default function Form(props) {
   const { files } = snippet;
 
   useEffect(() => {
+    init();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function init() {
     const { id } = props.match.params;
 
     if (id) {
-      const snippets = JSON.parse(localStorage.getItem("snippets")) || [];
-      const snippet = snippets.find(snippet => snippet.id === id);
+      const snippet = await fetchSnippet(id);
 
       if (snippet) {
         setDocumentTitle(`Editing ${snippet.title}`);
@@ -35,8 +40,7 @@ export default function Form(props) {
       files: [getNewFile()],
       fontSize: getSetting("fontSize")
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }
 
   function addFile() {
     files.push(getNewFile());
@@ -67,6 +71,7 @@ export default function Form(props) {
     let i = 1;
     const { indentSize, indentWithSpaces, wrapLines } = snippet.settings || getSettings();
     const files = snippet.files.map(file => {
+      file.value = file.cm.getValue().trimEnd();
       file.name = file.name || `file${i++}.${file.extension}`;
       delete file.cm;
       return file;

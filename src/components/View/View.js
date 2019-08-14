@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./view.scss";
 import { setDocumentTitle } from "../../utils";
+import { fetchSnippet } from "../../services/db";
 import Icon from "../Icon";
 import Editor from "../Editor";
 import DateDiff from "../DateDiff";
@@ -9,11 +10,15 @@ export default function View(props) {
   const [snippet, setSnippet] = useState(null);
 
   useEffect(() => {
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function init() {
     const { id } = props.match.params;
 
     if (id) {
-      const snippets = JSON.parse(localStorage.getItem("snippets")) || [];
-      const snippet = snippets.find(snippet => snippet.id === id);
+      const snippet = await fetchSnippet(id);
 
       if (snippet) {
         setDocumentTitle(snippet.title);
@@ -23,8 +28,7 @@ export default function View(props) {
         props.history.replace("/snippets");
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }
 
   function handleLoad() {
     snippet.loaded = true;

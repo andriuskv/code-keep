@@ -7,7 +7,7 @@ import "./editor.scss";
 import { importEditorMode, resetEditorIndentation } from "../../utils";
 import { getSettings } from "../../services/settings";
 
-export default function Editor({ file, settings, readOnly, handleLoad }) {
+export default function Editor({ file, settings, height, readOnly, handleLoad }) {
   const { id, mode, value } = file;
 
   useEffect(() => {
@@ -55,9 +55,13 @@ export default function Editor({ file, settings, readOnly, handleLoad }) {
     }
 
     if (handleLoad) {
-      handleLoad(cm, id);
+      handleLoad({
+        cm,
+        file,
+        height: cm.getWrapperElement().offsetHeight
+      });
     }
   }
 
-  return <div id={`cm-${id}`} className="cm-container"></div>;
+  return <div id={`cm-${id}`} className="cm-container" style={{height: height || "auto"}}></div>;
 }

@@ -52,9 +52,14 @@ export default function Snippets(props) {
     setSnippets([...snippets]);
   }
 
-  function handleLoad(index) {
-    snippets[index].loaded = true;
-    setSnippets([...snippets]);
+  function handleLoad(snippet, { height }) {
+    const [file] = snippet.files;
+
+    if (file.height !== height) {
+      file.height = height;
+      setSnippets([...snippets]);
+      saveSnippet(snippet);
+    }
   }
 
   if (!loaded) {
@@ -77,7 +82,7 @@ export default function Snippets(props) {
       <ul className="snippets">
         {snippets.map((snippet, index) => {
           return (
-            <li className={`snippet${snippet.loaded ? " loaded" : ""}`} key={snippet.id}>
+            <li className="snippet" key={snippet.id}>
               <h3 className="snippet-title">{snippet.title}</h3>
               {snippet.description && (
                 <p className="snippet-description">{snippet.description}</p>
@@ -88,7 +93,7 @@ export default function Snippets(props) {
               </div>
               <Link to={`/snippets/${snippet.id}`} className="snippet-link">
                 <Editor file={snippet.files[0]} settings={snippet.settings}
-                  readOnly handleLoad={() => handleLoad(index)} />
+                  height={snippet.files[0].height} readOnly handleLoad={data => handleLoad(snippet, data)} />
               </Link>
               <div className="snippet-footer">
                 <button className="btn icon-text-btn" onClick={() => editSnippet(snippet.id)}>

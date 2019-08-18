@@ -57,10 +57,21 @@ export default function Form(props) {
     };
   }
 
-  async function setEditorInstance(instance, id) {
-    const file = files.find(file => id === file.id);
-    file.cm = instance;
+  async function setEditorInstance({ cm, file }) {
+    file.cm = cm;
     setSnippet({ ...snippet, loaded: true });
+  }
+
+  function getFileName({ name, extension }, index) {
+    if (name) {
+      const arr = name.split(".");
+
+      if (arr[1] !== extension) {
+        return `${arr[0]}.${extension}`;
+      }
+      return name;
+    }
+    return `file${index + 1}.${extension}`;
   }
 
   function handleSubmit() {
@@ -68,11 +79,10 @@ export default function Form(props) {
       setSnippet({ ...snippet, titleInvalid: true });
       return;
     }
-    let i = 1;
     const { indentSize, indentWithSpaces, wrapLines } = snippet.settings || getSettings();
-    const files = snippet.files.map(file => {
+    const files = snippet.files.map((file, index) => {
       file.value = file.cm.getValue().trimEnd();
-      file.name = file.name || `file${i++}.${file.extension}`;
+      file.name = getFileName(file, index);
       delete file.cm;
       return file;
     });
@@ -145,7 +155,9 @@ export default function Form(props) {
       if (snippet.fontSize !== settings.fontSize) {
         data.fontSize = settings.fontSize;
       }
-      updateEditorOptions(settings);
+      requestAnimationFrame(() => {
+        updateEditorOptions(settings);
+      });
       setSnippet({ ...snippet, ...data });
     }
   }

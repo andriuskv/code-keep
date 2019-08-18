@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { Markup } from "interweave";
 import "./view.scss";
-import { setDocumentTitle } from "../../utils";
-import { fetchSnippet } from "../../services/db";
+import { setDocumentTitle, markdownToHtml } from "../../utils";
+import { saveSnippet, fetchSnippet } from "../../services/db";
 import Icon from "../Icon";
+import Dropdown from "./Dropdown";
 import Editor from "../Editor";
 import DateDiff from "../DateDiff";
 
@@ -30,38 +32,38 @@ export default function View(props) {
     }
   }
 
-  function handleLoad() {
-    snippet.loaded = true;
-    setSnippet({ ...snippet });
-  }
-
-  function copyFileContent(value) {
-    navigator.clipboard.writeText(value).catch(error => {
-      console.log(error);
-    });
-  }
-
-  function downloadFile(file) {
-    const url = URL.createObjectURL(new Blob([file.value], { type: file.mimeType }));
-    const link = document.createElement("a");
-    link.download = file.name;
-    link.href = url;
-    link.click();
-
-    setTimeout(() => {
-      URL.revokeObjectURL(link.href);
-    }, 100);
+  function handleLoad({ file, height }) {
+    if (file.height !== height) {
+      file.height = height;
+      setSnippet({ ...snippet });
+      saveSnippet(snippet);
+    }
   }
 
   async function downloadFiles() {
-    const [{ saveAs }, { default: JSZip }] = await Promise.all([import("file-saver"), import("jszip")]);
+    const [{ saveAs }, { default: JSZip }] = await Promise.all([
+      import("file-saver"),
+      import("jszip")
+    ]);
     const zip = new JSZip();
 
     snippet.files.forEach(file => {
       zip.folder("files").file(file.name, new Blob([file.value], { type: file.mimeType }));
     });
     const archive = await zip.generateAsync({ type:"blob" });
-    saveAs(archive, "files.zip");
+    saveAs(archive, `${snippet.title}.zip`);
+  }
+
+  async function previewMarkdown(file) {
+    if (file.renderAsMarkdown) {
+      delete file.markdown;
+      delete file.renderAsMarkdown;
+    }
+    else {
+      file.markdown = await markdownToHtml(file.value);
+      file.renderAsMarkdown = true;
+    }
+    setSnippet({ ...snippet });
   }
 
   if (!snippet) {
@@ -80,24 +82,16 @@ export default function View(props) {
         <button onClick={downloadFiles} className="btn view-header-btn">Download ZIP</button>
       </div>
       {snippet.files.map(file => (
-        <div className={`view-editor${snippet.loaded ? " loaded" : ""}`} key={file.id}>
-          {file.name && (
-            <div className="view-editor-header">
-              <Icon name="file" />
-              <span className="view-editor-header-filename">{file.name}</span>
-              <button onClick={() => copyFileContent(file.value)}
-                className="btn icon-text-btn view-editor-header-btn">
-                <Icon name="clipboard" />
-                <span>Copy</span>
-              </button>
-              <button onClick={() => downloadFile(file)}
-                className="btn icon-text-btn view-editor-header-btn">
-                <Icon name="download" />
-                <span>Download</span>
-              </button>
-            </div>
-          )}
-          <Editor file={file} settings={snippet.settings} handleLoad={handleLoad} readOnly />
+        <div className="view-editor" key={file.id}>
+          <div className="view-editor-header">
+            <Icon name="file" />
+            <span className="view-editor-header-filename">{file.name}</span>
+            <Dropdown file={file} previewMarkdown={previewMarkdown} />
+          </div>
+          {file.renderAsMarkdown ? (
+            <div className="markdown-body"><Markup content={file.markdown} /></div>
+          ) : <Editor file={file} settings={snippet.settings} height={file.height}
+            handleLoad={handleLoad} readOnly />}
         </div>
       ))}
     </div>

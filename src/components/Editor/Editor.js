@@ -7,7 +7,7 @@ import "./editor.scss";
 import { importEditorMode, resetEditorIndentation } from "../../utils";
 import { getSettings } from "../../services/settings";
 
-export default function Editor({ file, settings, height, readOnly, handleLoad }) {
+export default function Editor({ file, settings, height, readOnly, preview, handleLoad }) {
   const { id, mode, value } = file;
 
   useEffect(() => {
@@ -33,6 +33,7 @@ export default function Editor({ file, settings, height, readOnly, handleLoad })
       autoCloseBrackets: true,
       indentWithTabs: !indentWithSpaces,
       viewportMargin: readOnly ? CodeMirror.defaults.viewportMargin : Infinity,
+      scrollbarStyle: preview ? "null" : "native",
       theme: "dracula",
       disableInput: readOnly,
       inputStyle: "textarea",

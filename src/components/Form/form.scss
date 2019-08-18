@@ -1,3 +1,5 @@
+@import "../../styles/mixins.scss";
+
 .form {
   position: relative;
   padding: var(--space-xl) var(--space-md);
@@ -68,11 +70,20 @@
     border-radius: 4px;
     margin-right: auto;
     padding: var(--space-sm) var(--space-md);
+
+    @include breakpoint-small {
+      width: 120px;
+    }
   }
 
   .icon-btn {
     margin-left: var(--space-md);
   }
+}
+
+.form-markdown-preview-btn.active {
+  background-color: var(--color-grey-darkest);
+  color: var(--color-white);
 }
 
 .form-footer {

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Markup } from "interweave";
 import "./view.scss";
 import { setDocumentTitle, markdownToHtml } from "../../utils";
 import { saveSnippet, fetchSnippet } from "../../services/db";
@@ -7,6 +6,7 @@ import Icon from "../Icon";
 import Dropdown from "./Dropdown";
 import Editor from "../Editor";
 import DateDiff from "../DateDiff";
+import Markdown from "../Markdown";
 
 export default function View(props) {
   const [snippet, setSnippet] = useState(null);
@@ -88,10 +88,10 @@ export default function View(props) {
             <span className="view-editor-header-filename">{file.name}</span>
             <Dropdown file={file} previewMarkdown={previewMarkdown} />
           </div>
-          {file.renderAsMarkdown ? (
-            <div className="markdown-body"><Markup content={file.markdown} /></div>
-          ) : <Editor file={file} settings={snippet.settings} height={file.height}
-            handleLoad={handleLoad} readOnly />}
+          {file.renderAsMarkdown ? <Markdown content={file.markdown} /> :
+            <Editor file={file} settings={snippet.settings}
+              height={file.height} handleLoad={handleLoad} readOnly />
+          }
         </div>
       ))}
     </div>

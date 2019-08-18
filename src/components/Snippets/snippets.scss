@@ -86,7 +86,6 @@
 }
 
 .snippet-link {
-  overflow: hidden;
   display: block;
   min-height: 29px;
   padding-right: var(--space-sm);
@@ -101,7 +100,6 @@
 
   .cm-container {
     pointer-events: none;
-    overflow: hidden;
     max-height: 218px;
   }
 }

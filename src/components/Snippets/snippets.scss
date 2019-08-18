@@ -42,8 +42,6 @@
 }
 
 .snippet {
-  opacity: 0;
-  visibility: hidden;
   padding: var(--space-xl) var(--space-xl) var(--space-md) var(--space-xl);
   border-radius: 4px;
   background-color: var(--color-grey-dark);
@@ -56,11 +54,6 @@
 
   .CodeMirror {
     min-height: auto;
-  }
-
-  &.loaded {
-    opacity: 1;
-    visibility: visible;
   }
 }
 
@@ -95,6 +88,7 @@
 .snippet-link {
   overflow: hidden;
   display: block;
+  min-height: 29px;
   padding-right: var(--space-sm);
   border-radius: 4px;
   box-shadow: 0 0 0 1px var(--color-grey-light);

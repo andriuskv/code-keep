@@ -22,9 +22,20 @@ function resetEditorIndentation(cm) {
   cm.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 0 }, { scroll: false });
 }
 
+async function markdownToHtml(markdown) {
+  const [{ Converter }] = await Promise.all([
+    import("showdown"),
+    import("github-markdown-css")
+  ]);
+  const converter = new Converter();
+  converter.setFlavor("github");
+  return converter.makeHtml(markdown);
+}
+
 export {
   getRandomString,
   setDocumentTitle,
   importEditorMode,
-  resetEditorIndentation
+  resetEditorIndentation,
+  markdownToHtml
 };

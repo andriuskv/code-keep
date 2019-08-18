@@ -146,13 +146,13 @@ main {
   border-radius: 50%;
   color: var(--color-grey-lighter);
 
-  &:hover, &:focus {
+  &:hover, &.focus-visible {
     color: var(--color-white);
   }
 }
 
 .danger-btn {
-  &:hover, &:focus {
+  &:hover, &.focus-visible {
     color: var(--color-danger);
   }
 }

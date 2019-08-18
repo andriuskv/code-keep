@@ -1,0 +1,56 @@
+@import "../../../styles/mixins.scss";
+
+.view-editor-header-menu {
+  position: relative;
+}
+
+.view-editor-header-menu-toggle-btn {
+  display: none;
+
+  @include breakpoint-small {
+    display: block;
+  }
+}
+
+.view-editor-header-menu-items {
+  display: flex;
+
+  @include breakpoint-small {
+    z-index: 3;
+    position: absolute;
+    right: 0;
+    display: none;
+    padding: var(--space-md);
+    border-radius: 4px;
+    background-color: var(--color-grey-dark);
+    box-shadow: 0 1px 4px 0 var(--color-black-10);
+    transform: translateY(var(--space-sm));
+
+    &.visible {
+      display: block;
+    }
+  }
+}
+
+.view-editor-header-btn {
+  padding: var(--space-sm) var(--space-lg);
+  margin-left: var(--space-md);
+
+  &:hover, &.focus-visible {
+    color: var(--color-white);
+  }
+
+  &.active {
+    color: var(--color-white);
+  }
+
+  @include breakpoint-small {
+    justify-content: flex-start;
+    width: 100%;
+    margin-left: 0;
+
+    &:not(:last-of-type) {
+      margin-bottom: var(--space-md);
+    }
+  }
+}

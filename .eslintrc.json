@@ -94,6 +94,7 @@
             "allowTemplateLiterals": true
         }],
         "radix": [2, "always"],
+        "require-atomic-updates": 0,
         "semi": 2,
         "space-before-blocks": 2,
         "space-infix-ops": 2,

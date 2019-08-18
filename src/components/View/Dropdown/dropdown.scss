@@ -16,13 +16,13 @@
   display: flex;
 
   @include breakpoint-small {
-    z-index: 3;
+    z-index: 7;
     position: absolute;
     right: 0;
     display: none;
     padding: var(--space-md);
     border-radius: 4px;
-    background-color: var(--color-grey-dark);
+    background-color: var(--color-grey);
     box-shadow: 0 1px 4px 0 var(--color-black-10);
     transform: translateY(var(--space-sm));
 
@@ -36,11 +36,7 @@
   padding: var(--space-sm) var(--space-lg);
   margin-left: var(--space-md);
 
-  &:hover, &.focus-visible {
-    color: var(--color-white);
-  }
-
-  &.active {
+  &.active, &:hover, &.focus-visible {
     color: var(--color-white);
   }
 
@@ -48,9 +44,14 @@
     justify-content: flex-start;
     width: 100%;
     margin-left: 0;
+    color: var(--color-white);
 
     &:not(:last-of-type) {
       margin-bottom: var(--space-md);
+    }
+
+    &.active, &:hover, &.focus-visible {
+      background-color: var(--color-grey-dark);
     }
   }
 }

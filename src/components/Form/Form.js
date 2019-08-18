@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "./form.scss";
-import { getRandomString, setDocumentTitle, importEditorMode, resetEditorIndentation } from "../../utils";
+import { getRandomString, setDocumentTitle, importEditorMode, resetEditorIndentation, markdownToHtml } from "../../utils";
 import { fetchSnippet } from "../../services/db";
 import { getSetting, getSettings, saveSettings } from "../../services/settings";
 import Icon from "../Icon";
 import Settings from "../Settings";
 import Editor from "../Editor";
+import Markdown from "../Markdown";
 import fileInfo from "../../file-info.json";
 
 export default function Form(props) {
@@ -53,7 +54,7 @@ export default function Form(props) {
       id: getRandomString(),
       value: "",
       cm: null,
-      ...fileInfo[length > 1 ? snippet.files[length - 1].type : "javascript"]
+      ...fileInfo[length > 0 ? snippet.files[length - 1].type : "javascript"]
     };
   }
 
@@ -83,6 +84,7 @@ export default function Form(props) {
     const files = snippet.files.map((file, index) => {
       file.value = file.cm.getValue().trimEnd();
       file.name = getFileName(file, index);
+      delete file.formHeight;
       delete file.cm;
       return file;
     });
@@ -128,6 +130,9 @@ export default function Form(props) {
     const info = fileInfo[target.value];
     files[index] = { ...file, ...info };
 
+    if (file.name) {
+      files[index].name = getFileName(files[index]);
+    }
     await importEditorMode(info.mode);
     file.cm.setOption("mode", info.mode);
     setSnippet({ ...snippet });
@@ -167,6 +172,20 @@ export default function Form(props) {
     setSnippet({ ...snippet });
   }
 
+  async function previewMarkdown(file) {
+    if (file.renderAsMarkdown) {
+      delete file.markdown;
+      delete file.renderAsMarkdown;
+    }
+    else {
+      file.formHeight = file.cm.getWrapperElement().clientHeight;
+      file.value = file.cm.getValue().trimEnd();
+      file.markdown = await markdownToHtml(file.value);
+      file.renderAsMarkdown = true;
+    }
+    setSnippet({ ...snippet });
+  }
+
   return (
     <div className="form" style={{ "--cm-font-size": `${snippet.fontSize}px` }}>
       <button className="btn icon-text-btn form-settings-btn" onClick={showSettings}>
@@ -191,7 +210,7 @@ export default function Form(props) {
           <div className="form-editor-toolbar">
             <input type="text" className="input" placeholder="Filename" autoComplete="off"
               spellCheck="false"
-              defaultValue={file.name}
+              value={file.name}
               onChange={e => handleFilenameChange(e, index)} />
             <select className="select" onChange={e => handleFileTypeChange(e, index)} value={file.type}>
               {Object.keys(fileInfo).map((key, i) => {
@@ -199,13 +218,21 @@ export default function Form(props) {
                 return <option value={info.type} key={i}>{info.displayName}</option>;
               })}
             </select>
+            {file.mode === "gfm" && (
+              <button onClick={() => previewMarkdown(file)} title="Preview changes"
+                className={`btn icon-btn form-markdown-preview-btn${file.renderAsMarkdown ? " active" : ""}`}>
+                <Icon name="eye" />
+              </button>
+            )}
             {files.length > 1 && (
               <button className="btn icon-btn danger-btn" title="Remove file" onClick={() => removeFile(index)}>
                 <Icon name="trash" />
               </button>
             )}
           </div>
-          <Editor file={file} handleLoad={setEditorInstance} settings={snippet.settings} />
+          {file.renderAsMarkdown ? <Markdown content={file.markdown} /> :
+            <Editor file={file} height={file.formHeight} handleLoad={setEditorInstance} settings={snippet.settings} />
+          }
         </div>
       ))}
       {snippet.loaded && (

@@ -1,9 +1,43 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { Link, NavLink } from "react-router-dom";
 import "./header.scss";
 import img from "../../assets/header-image.png";
+import { useUser } from "../../context/user-context";
+import Icon from "../Icon";
+import Dropdown from "../Dropdown";
+import UserDropdown from "./UserDropdown";
 
 export default function Header() {
+  const { username, loading } = useUser();
+
+  function renderItems() {
+    if (loading) {
+      return null;
+    }
+
+    if (username) {
+      return (
+        <Fragment>
+          <li className="header-nav-item">
+            <NavLink to={username ? `/users/${username}` : "/snippets"} exact className="btn text-btn header-link" activeClassName="active">Snippets</NavLink>
+          </li>
+          <li className="header-nav-item"><UserDropdown /></li>
+        </Fragment>
+      );
+    }
+    return (
+      <li className="header-nav-item">
+        <Dropdown
+          toggle={{ content: <Icon name="menu" />, className: "btn icon-btn header-nav-dropdown-toggle-btn" }}
+          body={{ className: "header-nav-dropdown" }}>
+          <NavLink to={username ? `/users/${username}` : "/snippets"} exact className="btn text-btn header-link" activeClassName="active">Snippets</NavLink>
+          <NavLink to="/login" className="btn text-btn header-link" activeClassName="active">Log In</NavLink>
+          <NavLink to="/register" className="btn text-btn header-link" activeClassName="active">Sign Up</NavLink>
+        </Dropdown>
+      </li>
+    );
+  }
+
   return (
     <header className="header">
       <nav className="header-nav">
@@ -13,9 +47,7 @@ export default function Header() {
               <img src={img} alt="CodeKeep" />
             </Link>
           </li>
-          <li className="header-nav-item">
-            <NavLink to="/snippets" exact className="header-link" activeClassName="active">Your Snippets</NavLink>
-          </li>
+          {renderItems()}
         </ul>
       </nav>
     </header>

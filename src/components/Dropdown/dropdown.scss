@@ -1,0 +1,9 @@
+@import "../../styles/mixins.scss";
+
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown {
+  z-index: 7;
+}

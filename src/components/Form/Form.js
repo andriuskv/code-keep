@@ -1,66 +1,102 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import "./form.scss";
 import { getRandomString, setDocumentTitle, importEditorMode, resetEditorIndentation, markdownToHtml } from "../../utils";
-import { fetchSnippet } from "../../services/db";
+import { fetchUser } from "../../services/userService";
+import { fetchIDBSnippet, saveSnippet } from "../../services/snippetIDBService";
+import { fetchServerSnippet, createServerSnippet } from "../../services/snippetServerService";
 import { getSetting, getSettings, saveSettings } from "../../services/settings";
+import { useUser } from "../../context/user-context";
 import Icon from "../Icon";
 import Settings from "../Settings";
 import Editor from "../Editor";
 import Markdown from "../Markdown";
+import NoMatch from "../NoMatch";
 import fileInfo from "../../file-info.json";
+import spinner from "../../assets/ring.svg";
 
 export default function Form(props) {
-  const [snippet, setSnippet] = useState({
-    title: "",
-    description: "",
-    files: []
+  const [state, setState] = useState({
+    loading: true
   });
-  const { files } = snippet;
+  const { username } = useUser();
+  const { files } = state;
 
   useEffect(() => {
     init();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function init() {
-    const { id } = props.match.params;
-
-    if (id) {
-      const snippet = await fetchSnippet(id);
+    if (props.match.path === "/snippets/:id/edit") {
+      const { id } = props.match.params;
+      const snippet = await fetchIDBSnippet(id);
 
       if (snippet) {
         setDocumentTitle(`Editing ${snippet.title}`);
-        setSnippet({ ...snippet, fontSize: getSetting("fontSize"), updating: true });
+        setState({ ...snippet, fontSize: getSetting("fontSize"), updating: true });
         saveSettings({...getSettings(), ...snippet.settings });
-        return;
       }
     }
-    setDocumentTitle("Create a new snippet");
-    setSnippet({
-      ...snippet,
-      files: [getNewFile()],
-      fontSize: getSetting("fontSize")
-    });
+    else if (props.match.path === "/users/:username/:snippetId/edit") {
+      const { username, snippetId } = props.match.params;
+      const user = await fetchUser(username);
+
+      if (user.code) {
+        setState({ error: true });
+        return;
+      }
+      const data = await fetchServerSnippet(snippetId, user._id, "edit");
+
+      if (data.code === 401) {
+        props.history.replace({
+          pathname: "/login",
+          search: `?redirect=${props.match.url}`
+        });
+      }
+      else if (data.code === 400 || data.code === 404) {
+        setState({ error: true });
+      }
+      else {
+        setDocumentTitle(`Editing ${data.title}`);
+        setState({
+          ...data,
+          fontSize: getSetting("fontSize"),
+          username: user.username,
+          remote: true,
+          updating: true
+        });
+        saveSettings({...getSettings(), ...data.settings });
+      }
+    }
+    else {
+      setDocumentTitle("Create a new snippet");
+      setState({
+        title: "",
+        description: "",
+        files: [getNewFile()],
+        fontSize: getSetting("fontSize")
+      });
+    }
   }
 
   function addFile() {
     files.push(getNewFile());
-    setSnippet({ ...snippet });
+    setState({ ...state });
   }
 
   function getNewFile() {
-    const { length } = snippet.files;
+    const type = state.files ? state.files[state.files.length - 1].type : "javascript";
     return {
       id: getRandomString(),
       value: "",
       cm: null,
-      ...fileInfo[length > 0 ? snippet.files[length - 1].type : "javascript"]
+      ...fileInfo[type]
     };
   }
 
   async function setEditorInstance({ cm, file }) {
     file.cm = cm;
-    setSnippet({ ...snippet, loaded: true });
+    setState({ ...state, loaded: true });
   }
 
   function getFileName({ name, extension }, index) {
@@ -75,35 +111,65 @@ export default function Form(props) {
     return `file${index + 1}.${extension}`;
   }
 
-  function handleSubmit() {
-    if (!snippet.title.trim()) {
-      setSnippet({ ...snippet, titleInvalid: true });
+  async function handleSubmit(location) {
+    if (!state.title.trim()) {
+      setState({ ...state, titleInvalid: true });
       return;
     }
-    const { indentSize, indentWithSpaces, wrapLines } = snippet.settings || getSettings();
-    const files = snippet.files.map((file, index) => {
-      file.value = file.cm.getValue().trimEnd();
-      file.name = getFileName(file, index);
-      delete file.formHeight;
-      delete file.cm;
-      return file;
-    });
+    const { indentSize, indentWithSpaces, wrapLines } = state.settings || getSettings();
+    const files = state.files.map((file, index) => ({
+      id: file.id,
+      name: getFileName(file, index),
+      value: file.cm.getValue().trimEnd(),
+      displayName: file.displayName,
+      extension: file.extension,
+      mimeType: file.mimeType,
+      mode: file.mode,
+      type: file.type
+    }));
 
-    props.history.push({
-      pathname: "/snippets",
-      state: {
-        id: snippet.id || getRandomString(),
-        created: snippet.created || new Date(),
-        title: snippet.title,
-        description: snippet.description,
-        files,
-        settings: {
-          indentSize,
-          indentWithSpaces,
-          wrapLines
-        }
+    const newSnippet = {
+      id: state.id || getRandomString(),
+      created: state.created || new Date(),
+      title: state.title,
+      description: state.description,
+      files,
+      settings: {
+        indentSize,
+        indentWithSpaces,
+        wrapLines
       }
-    });
+    };
+    const pathname = username ? `/users/${username}` : "/snippets";
+
+    if (state.remote || location === "remote") {
+      try {
+        delete state.submitMessage;
+        setState({ ...state, submitButtonDisaled: true });
+        const data = await createServerSnippet(newSnippet);
+
+        if (data.code === 200) {
+          props.history.push({ pathname });
+          return;
+        }
+        setState({
+          ...state,
+          submitButtonDisaled: false,
+          submitMessage: "Something went wrong. Try again later."
+        });
+      } catch (e) {
+        console.log(e);
+        setState({
+          ...state,
+          submitButtonDisaled: false,
+          submitMessage: "Something went wrong. Try again later."
+        });
+      }
+    }
+    else {
+      saveSnippet({ ...newSnippet, isLocal: true });
+      props.history.push({ pathname });
+    }
   }
 
   function handleInputChange({ target }) {
@@ -113,16 +179,16 @@ export default function Form(props) {
     if (name === "title") {
       data.titleInvalid = !value.trim();
     }
-    setSnippet({ ...snippet, ...data });
+    setState({ ...state, ...data });
   }
 
   function removeFile(index) {
     files.splice(index, 1);
-    setSnippet({ ...snippet });
+    setState({ ...state });
   }
 
   function showSettings() {
-    setSnippet({ ...snippet, settingsVisible: true });
+    setState({ ...state, settingsVisible: true });
   }
 
   async function handleFileTypeChange({ target }, index) {
@@ -135,7 +201,7 @@ export default function Form(props) {
     }
     await importEditorMode(info.mode);
     file.cm.setOption("mode", info.mode);
-    setSnippet({ ...snippet });
+    setState({ ...state });
   }
 
   async function updateEditorOptions({ wrapLines, indentSize, indentWithSpaces }) {
@@ -157,19 +223,19 @@ export default function Form(props) {
         settings
       };
 
-      if (snippet.fontSize !== settings.fontSize) {
+      if (state.fontSize !== settings.fontSize) {
         data.fontSize = settings.fontSize;
       }
       requestAnimationFrame(() => {
         updateEditorOptions(settings);
       });
-      setSnippet({ ...snippet, ...data });
+      setState({ ...state, ...data });
     }
   }
 
   function handleFilenameChange({ target }, index) {
     files[index].name = target.value;
-    setSnippet({ ...snippet });
+    setState({ ...state });
   }
 
   async function previewMarkdown(file) {
@@ -183,11 +249,19 @@ export default function Form(props) {
       file.markdown = await markdownToHtml(file.value);
       file.renderAsMarkdown = true;
     }
-    setSnippet({ ...snippet });
+    setState({ ...state });
+  }
+
+  if (state.loading) {
+    return null;
+  }
+
+  if (state.error) {
+    return <NoMatch />;
   }
 
   return (
-    <div className="form" style={{ "--cm-font-size": `${snippet.fontSize}px` }}>
+    <div className="form" style={{ "--cm-font-size": `${state.fontSize}px` }}>
       <button className="btn icon-text-btn form-settings-btn" onClick={showSettings}>
         <Icon name="settings" />
         <span>Settings</span>
@@ -195,13 +269,13 @@ export default function Form(props) {
       <div className="form-input-group">
         <label className="form-input-group-item">
           <div className="form-input-group-item-title">Title</div>
-          <input type="text" className="input" value={snippet.title} name="title"
+          <input type="text" className="input" value={state.title} name="title"
             onChange={handleInputChange} />
-          {snippet.titleInvalid && <div className="form-input-group-item-error">Required</div>}
+          {state.titleInvalid && <div className="form-input-group-item-error">Required</div>}
         </label>
         <label className="form-input-group-item">
           <div className="form-input-group-item-title">Description</div>
-          <input type="text" className="input" value={snippet.description} name="description"
+          <input type="text" className="input" value={state.description} name="description"
             onChange={handleInputChange} />
         </label>
       </div>
@@ -231,17 +305,42 @@ export default function Form(props) {
             )}
           </div>
           {file.renderAsMarkdown ? <Markdown content={file.markdown} /> :
-            <Editor file={file} height={file.formHeight} handleLoad={setEditorInstance} settings={snippet.settings} />
+            <Editor file={file} height={file.formHeight} handleLoad={setEditorInstance} settings={state.settings} />
           }
         </div>
       ))}
-      {snippet.loaded && (
-        <div className="form-footer">
-          <button className="btn" onClick={addFile}>Add File</button>
-          <button className="btn" onClick={handleSubmit}>{snippet.updating ? "Update" : "Create"}</button>
+      {state.loaded && (
+        <div>
+          {state.submitMessage && (
+            <div className="form-footer-message">{state.submitMessage}</div>
+          )}
+          <div className="form-footer-btns">
+            <button className="btn" onClick={addFile}>Add File</button>
+            {state.updating ? (
+              <button className="btn" onClick={handleSubmit}>Update</button>
+            ) : (
+              <Fragment>
+                <button className="btn form-submit-btn" disabled={state.submitButtonDisaled}
+                  onClick={() => handleSubmit("local")}>
+                  <span>Create Local</span>
+                  {state.submitButtonDisaled && (
+                    <img src={spinner} className="form-submit-btn-spinner" alt="" />
+                  )}
+                </button>
+                {username ? (
+                  <button className="btn form-submit-btn" disabled={state.submitButtonDisaled}
+                    onClick={() => handleSubmit("remote")}>
+                    <span>Create Remote</span>
+                    {state.submitButtonDisaled && (
+                      <img src={spinner} className="form-submit-btn-spinner" alt="" />
+                    )}
+                  </button>) : null}
+              </Fragment>
+            )}
+          </div>
         </div>
       )}
-      {snippet.settingsVisible && <Settings hide={hideSettings} snippetSettings={snippet.settings} />}
+      {state.settingsVisible && <Settings hide={hideSettings} snippetSettings={state.settings} />}
     </div>
   );
 }

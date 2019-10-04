@@ -1,3 +1,9 @@
+@mixin text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 @mixin breakpoint-small {
     @media (max-width: 680px) { @content; }
 }

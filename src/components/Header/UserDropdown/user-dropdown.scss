@@ -1,0 +1,82 @@
+@import "../../../styles/mixins.scss";
+
+.header-dropdown-toggle-btn {
+  padding: var(--space-md);
+
+  &.active {
+    --background-color: var(--color-grey-light);
+  }
+}
+
+.header-dropdown {
+  position: absolute;
+  right: 0;
+  display: none;
+  flex-direction: column;
+  width: 212px;
+  padding: var(--space-md) 0;
+  border-radius: 4px;
+  background-color: var(--color-grey);
+  box-shadow: 0 1px 4px 0 var(--color-black-10);
+  transform: translateY(var(--space-sm));
+
+  &.visible {
+    display: flex;
+  }
+}
+
+.header-dropdown-name {
+  @include text-truncate;
+
+  margin: 0 var(--space-md) var(--space-sm) var(--space-md);
+  font-weight: 500;
+  font-size: var(--text-xl);
+}
+
+.header-dropdown-email {
+  @include text-truncate;
+
+  margin: 0 var(--space-md);
+  font-size: var(--text-sm);
+  color: var(--color-grey-lighter);
+}
+
+.header-dropdown-divider {
+  margin: var(--space-md) 0;
+  border-bottom: 1px solid var(--color-grey-light);
+}
+
+.header-dropdown-link {
+  display: block;
+  margin: 0 var(--space-md);
+  white-space: nowrap;
+  text-align: center;
+
+  &:hover, &.focus-visible {
+    background-color: var(--color-grey-dark);
+  }
+}
+
+.header-dropdown-btn {
+  position: relative;
+  margin: var(--space-md) var(--space-md) 0 var(--space-md);
+
+  &:hover, &.focus-visible {
+    background-color: var(--color-grey-dark);
+  }
+}
+
+.header-dropdown-btn-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 80%;
+  transform: translate(-50%, -50%);
+}
+
+.header-dropdown-message {
+  margin: var(--space-md) var(--space-md) 0 var(--space-md);
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+  text-align: center;
+}

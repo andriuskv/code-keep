@@ -1,0 +1,120 @@
+.user-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 372px;
+  margin: auto;
+}
+
+.user-form-image {
+  margin: 0 auto;
+}
+
+.user-form-title {
+  margin-top: var(--space-xl);
+  font-weight: 500;
+  font-size: var(--text-xl);
+  text-align: center;
+}
+
+.user-form-message {
+  display: flex;
+  align-items: center;
+  margin: var(--space-xl) auto 0 auto;
+  padding: var(--space-sm) var(--space-sm) var(--space-sm) var(--space-xl);
+  border-radius: 999px;
+  background-color: var(--message-background-color);
+  box-shadow: 0 0 0 1px var(--message-color);
+  color: var(--message-color);
+  font-size: var(--text-sm);
+  text-align: center;
+
+  &.error {
+    --message-background-color: var(--color-danger-10);
+    --message-color: var(--color-danger);
+  }
+
+  &.success {
+    --message-background-color: var(--color-success-10);
+    --message-color: var(--color-success);
+  }
+}
+
+.user-form-message-btn {
+  margin-left: 4px;
+  color: inherit;
+
+  &:hover, &.focus-visible {
+    --background-color: var(--message-background-color);
+  }
+}
+
+.user-form-field-groups {
+  display: flex;
+  margin-top: var(--space-xl);
+
+  .user-form-field-group {
+    margin-top: 0;
+
+    &:first-of-type {
+      margin-right: var(--space-md);
+    }
+  }
+
+  & + .user-form-field-message {
+    text-align: center;
+  }
+}
+
+.user-form-field-group {
+  display: block;
+  margin-top: var(--space-xl);
+}
+
+.user-form-field-name {
+  margin-left: var(--space-md);
+  margin-bottom: var(--space-md);
+  font-weight: 500;
+  font-size: var(--text-sm);
+}
+
+.user-form-field {
+  width: 100%;
+}
+
+.user-form-field-message {
+  padding: 0 var(--space-md);
+  margin-top: var(--space-md);
+  color: var(--color-danger);
+  font-size: var(--text-sm);
+}
+
+.user-form-submit-btn {
+  position: relative;
+  margin-top: var(--space-xl);
+  margin-left: auto;
+}
+
+.user-form-submit-btn-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 80%;
+  transform: translate(-50%, -50%);
+}
+
+.user-form-bottom {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-xl);
+}
+
+.user-form-bottom-link {
+  margin-left: var(--space-sm);
+  color: var(--color-primary-light);
+  font-weight: 500;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

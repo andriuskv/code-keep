@@ -1,5 +1,7 @@
+@import "../../styles/mixins.scss";
+
 .view {
-  padding: var(--space-xl);
+  width: 100%;
 
   .CodeMirror {
     min-height: auto;
@@ -8,14 +10,39 @@
 
 .view-header {
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: space-between;
+  margin-top: var(--space-xl);
   margin-bottom: var(--space-xl);
+
+  @include breakpoint-small {
+    margin-top: 0;
+  }
+
+  a:hover, a.focus-visible {
+    text-decoration: underline;
+    box-shadow: none;
+  }
+}
+
+.view-header-user-username {
+  margin-bottom: var(--space-xl);
+  font-size: var(--text-xl);
+  font-weight: 500;
+}
+
+.view-title-container {
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: var(--space-md);
+}
+
+.view-title-icon {
+  margin-right: var(--space-sm);
 }
 
 .view-title {
-  margin-bottom: var(--space-md);
-  font-size: var(--text-xl);
+  font-size: var(--text-md);
   font-weight: 500;
 }
 
@@ -58,4 +85,11 @@
   color: var(--color-white);
   font-size: var(--text-sm);
   font-weight: 500;
+}
+
+.view-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }

@@ -1,3 +1,5 @@
+@import "../../styles/mixins.scss";
+
 .header {
   padding-left: var(--space-xl);
   padding-right: var(--space-xl);
@@ -7,7 +9,6 @@
 
 .header-nav-items {
   display: flex;
-  justify-content: space-between;
 }
 
 .header-nav-item {
@@ -15,6 +16,14 @@
   align-items: center;
   height: var(--header-height);
   transition: 0.2s background-color;
+
+  &:first-of-type {
+    margin-right: auto;
+  }
+
+  &:not(:first-of-type) {
+    margin-left: var(--space-md);
+  }
 }
 
 .header-home-link {
@@ -29,19 +38,61 @@
 }
 
 .header-link {
-  padding: var(--space-md) var(--space-xl);
-  border-radius: 999px;
-  font-weight: 500;
-  font-size: var(--text-sm);
-  transition: 0.2s background-color, 0.2s color;
-  color: var(--color-grey-lighter);
+  --text-color: var(--color-grey-lighter);
+
+  color: var(--text-color);
 
   &:hover, &.focus-visible {
-    background-color: var(--color-grey-light);
-    color: var(--color-white);
+    --background-color: var(--color-grey-light);
+    --text-color: var(--color-white);
   }
 
   &.active {
-    color: var(--color-white);
+    --text-color: var(--color-white);
+  }
+}
+
+.header-nav-dropdown-toggle-btn {
+  display: none;
+  padding: var(--space-md);
+
+  @include breakpoint-small {
+    display: block;
+  }
+}
+
+.header-nav-dropdown {
+  .header-link {
+    margin-left: var(--space-md);
+  }
+
+  @include breakpoint-small {
+    position: absolute;
+    right: 0;
+    display: none;
+    flex-direction: column;
+    min-width: 140px;
+    padding: var(--space-md);
+    border-radius: 4px;
+    background-color: var(--color-grey);
+    box-shadow: 0 1px 4px 0 var(--color-black-10);
+    transform: translateY(var(--space-sm));
+
+    &.visible {
+      display: flex;
+    }
+
+    .header-link {
+      margin-left: 0;
+      text-align: center;
+
+      &:not(:last-of-type) {
+        margin-bottom: var(--space-md);
+      }
+
+      &:hover, &.focus-visible {
+        --background-color: var(--color-grey-dark);
+      }
+    }
   }
 }

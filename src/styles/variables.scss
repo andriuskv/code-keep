@@ -2,6 +2,7 @@
   --header-height: 52px;
 
   --space-unit: 8px;
+  --space-xs: calc(0.25 * var(--space-unit));
   --space-sm: calc(0.5 * var(--space-unit));
   --space-md: calc(1 * var(--space-unit));
   --space-lg: calc(1.5 * var(--space-unit));
@@ -19,6 +20,7 @@
   --text-xxxl: calc(2.5 * var(--text-base-size));
 
   --color-primary: hsl(210, 88%, 50%);
+  --color-primary-light: hsl(210, 88%, 64%);
   --color-accent: hsl(33, 100%, 50%);
   --color-white: hsl(210, 5%, 92%);
 
@@ -35,4 +37,8 @@
   --color-black-10: hsla(0, 0%, 0%, 0.1);
 
   --color-danger: hsl(0, 86%, 70%);
+  --color-danger-10: hsla(0, 86%, 70%, 0.1);
+
+  --color-success: hsl(135, 94%, 65%);
+  --color-success-10: hsla(135, 94%, 65%, 0.1);
 }

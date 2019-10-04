@@ -1,8 +1,7 @@
 @import "../../styles/mixins.scss";
 
 .form {
-  position: relative;
-  padding: var(--space-xl) var(--space-md);
+  width: 100%;
 
   .CodeMirror-scroll {
     min-height: 332px;
@@ -86,7 +85,34 @@
   color: var(--color-white);
 }
 
-.form-footer {
+.form-footer-btns {
   display: flex;
-  justify-content: space-between;
+
+  .btn:first-of-type {
+    margin-right: auto;
+  }
+
+  .btn:last-of-type {
+    margin-left: var(--space-md);
+  }
+}
+
+.form-footer-message {
+  margin-bottom: var(--space-md);
+  color: var(--color-danger);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  text-align: right;
+}
+
+.form-submit-btn {
+  position: relative;
+}
+
+.form-submit-btn-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 80%;
+  transform: translate(-50%, -50%);
 }

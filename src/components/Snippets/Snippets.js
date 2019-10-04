@@ -1,89 +1,160 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./snippets.scss";
 import { setDocumentTitle } from "../../utils";
-import { saveSnippet, fetchSnippets, deleteSnippet } from "../../services/db";
+import { fetchUser } from "../../services/userService";
+import { fetchIDBSnippets } from "../../services/snippetIDBService";
+import { fetchSnippets, deleteSnippet } from "../../services/snippetService";
+import { fetchServerSnippets } from "../../services/snippetServerService";
+import { useUser } from "../../context/user-context";
 import Icon from "../Icon";
 import Editor from "../Editor";
 import DateDiff from "../DateDiff";
+import NoMatch from "../NoMatch";
+import spinner from "../../assets/ring.svg";
 
 export default function Snippets(props) {
-  const [snippets, setSnippets] = useState([]);
-  const [loaded, setLoaded] = useState(false);
+  const [state, setState] = useState({
+    snippets: [],
+    loading: true,
+    user: null
+  });
+  const user = useUser();
 
   useEffect(() => {
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+  }, [user, props.match.url]);
 
   async function init() {
-    const snippets = await fetchSnippets();
-    const snippet = props.location.state;
+    const { username } = props.match.params;
 
-    if (snippet) {
-      const index = snippets.findIndex(({ id }) => snippet.id === id);
+    if (user.status === "logged-out") {
+      return;
+    }
 
-      if (index >= 0) {
-        snippets.splice(index, 1, snippet);
-      }
-      else {
-        snippets.unshift(snippet);
-      }
-      setSnippets([...snippets]);
-      saveSnippet(snippet);
+    if (props.match.url === "/snippets") {
+      setState({
+        snippets: await fetchIDBSnippets(),
+        user: { isLocal: true }
+      });
+      setDocumentTitle("Your Snippets");
     }
-    else {
-      setSnippets(snippets);
+    else if (username) {
+      if (username === user.username) {
+        initAuthUser();
+      }
+      else if (!user.loading) {
+        initUser(username);
+      }
     }
-    setLoaded(true);
-    setDocumentTitle("Your Snippets");
   }
 
-  function editSnippet(id) {
+  async function initAuthUser() {
+    try {
+      const data = await fetchSnippets(user._id);
+      const newState = {
+        snippets: data.snippets,
+        user: { ...user, isLoggedIn: true }
+      };
+
+      if (data.code === 500) {
+        newState.snippetsMessage = "Could not retrieve remote snippets.";
+      }
+      setState(newState);
+      setDocumentTitle(`${user.username} Snippets`);
+    } catch (e) {
+      console.log(e);
+      setState({ message: "Something went wrong. Try again later." });
+    }
+  }
+
+  async function initUser(username) {
+    try {
+      const user = await fetchUser(username);
+
+      if (user.code === 404) {
+        setState({});
+      }
+      else if (user.code === 500) {
+        setState({ message: "Something went wrong. Try again later." });
+      }
+      else {
+        const data = await fetchServerSnippets(user._id);
+
+        if (data.code === 500) {
+          setState({ message: "Something went wrong. Try again later." });
+        }
+        else {
+          setState({ snippets: data.snippets, user });
+          setDocumentTitle(`${user.username} Snippets`);
+        }
+      }
+    } catch (e) {
+      console.log(e);
+      setState({ message: "Something went wrong. Try again later." });
+    }
+  }
+
+  function editSnippet(id, isLocal) {
+    const path = isLocal ? `/snippets/${id}/edit` : `/users/${state.user.username}/${id}/edit`;
+
     props.history.push({
-      pathname: `/snippets/${id}/edit`
+      pathname: path
     });
   }
 
-  function removeSnippet(index) {
-    deleteSnippet(snippets[index].id);
-    snippets.splice(index, 1);
-    setSnippets([...snippets]);
-  }
+  async function removeSnippet(index, isLocal) {
+    const { snippets } = state;
+    const deleted = await deleteSnippet(snippets[index].id, isLocal);
 
-  function handleLoad(snippet, { height }) {
-    const [file] = snippet.files;
-
-    if (file.height !== height) {
-      file.height = height;
-      setSnippets([...snippets]);
-      saveSnippet(snippet);
+    if (deleted) {
+      snippets.splice(index, 1);
+      setState({ ...state, snippets: [...snippets] });
     }
   }
 
-  if (!loaded) {
-    return null;
+  function hideSnippetsMessage() {
+    delete state.snippetsMessage;
+    setState({ ...state });
   }
-  else if (loaded && !snippets.length) {
+
+  function renderHeader() {
+    const { user } = state;
+
+    if (user.isLocal) {
+      return (
+        <div className="snippets-header">
+          <h2 className="snippets-header-title">Your Local Snippets</h2>
+          <Link to="/snippets/create" className="btn btn-secondary">Create Snippet</Link>
+        </div>
+      );
+    }
     return (
-      <div className="snippets-message-container">
-        <h2>You don't have any snippets yet.</h2>
-        <Link to="/snippets/create" className="btn btn-secondary">Create New Snippet</Link>
+      <div className="snippets-header">
+        <h2 className="snippets-header-title">{user.username}</h2>
+        {user.isLoggedIn && (
+          <Link to="/snippets/create" className="btn btn-secondary">Create Snippet</Link>
+        )}
       </div>
     );
   }
-  return (
-    <Fragment>
-      <div className="snippets-header">
-        <h2 className="snippets-header-title">Your Snippets</h2>
-        <Link to="/snippets/create" className="btn btn-secondary">Create New Snippet</Link>
-      </div>
-      <ul className="snippets">
+
+  function renderSnippets() {
+    const { user, snippets } = state;
+
+    if (!snippets.length) {
+      return null;
+    }
+    return (
+      <ul>
         {snippets.map((snippet, index) => {
           return (
             <li className="snippet" key={snippet.id}>
-              <h3 className="snippet-title">{snippet.title}</h3>
+              <div className="snippet-title-container">
+                {snippet.isLocal && <Icon name="home" className="snippet-title-icon" title="This snippet is local to your device." />}
+                <h3 className="snippet-title">{snippet.title}</h3>
+              </div>
               {snippet.description && (
                 <p className="snippet-description">{snippet.description}</p>
               )}
@@ -91,25 +162,78 @@ export default function Snippets(props) {
                 <span className="snippet-info-item">{snippet.files.length} {`File${snippet.files.length > 1 ? "s" : ""}`}</span>
                 <span><DateDiff start={snippet.created} /></span>
               </div>
-              <Link to={`/snippets/${snippet.id}`} className="snippet-link">
+              <Link to={snippet.isLocal ? `/snippets/${snippet.id}` : `/users/${user.username}/${snippet.id}`} className="snippet-link">
                 <Editor file={snippet.files[0]} settings={snippet.settings}
-                  height={snippet.files[0].height}
-                  handleLoad={data => handleLoad(snippet, data)} readOnly preview />
+                  height={snippet.files[0].height} readOnly preview />
               </Link>
-              <div className="snippet-footer">
-                <button className="btn icon-text-btn" onClick={() => editSnippet(snippet.id)}>
-                  <Icon name="edit" />
-                  <span>Edit</span>
-                </button>
-                <button className="btn icon-text-btn danger-btn snippet-remove-btn" onClick={() => removeSnippet(index)}>
-                  <Icon name="trash" />
-                  <span>Remove</span>
-                </button>
-              </div>
+              {user.isLocal || user.isLoggedIn ? (
+                <div className="snippet-footer">
+                  <button className="btn icon-text-btn" onClick={() => editSnippet(snippet.id, snippet.isLocal)}>
+                    <Icon name="edit" />
+                    <span>Edit</span>
+                  </button>
+                  <button className="btn icon-text-btn danger-btn snippet-remove-btn" onClick={() => removeSnippet(index, snippet.isLocal)}>
+                    <Icon name="trash" />
+                    <span>Remove</span>
+                  </button>
+                </div>
+              ) : null}
             </li>
           );
         })}
       </ul>
-    </Fragment>
+    );
+  }
+
+  function renderMessage() {
+    const { user } = state;
+
+    if (user.isLoggedIn || user.isLocal) {
+      return (
+        <div className="snippets-message-container">
+          <h2>You don't have any snippets yet.</h2>
+          <Link to="/snippets/create" className="btn btn-secondary">Create Snippet</Link>
+        </div>
+      );
+    }
+    return (
+      <div className="snippets-message-container">
+        <h2>This user doesn't have any snippets.</h2>
+      </div>
+    );
+  }
+
+  if (state.loading) {
+    return <img src={spinner} className="snippets-spinner" alt="" />;
+  }
+
+  if (!state.user || state.message) {
+    return <NoMatch message={state.message} />;
+  }
+  else if (state.snippets.length) {
+    return (
+      <div className="snippets-container">
+        {renderHeader()}
+        {state.snippetsMessage && (
+          <div className="snippets-message">
+            <span>{state.snippetsMessage}</span>
+            <button type="button" className="btn icon-btn snippets-message-btn"
+              onClick={() => hideSnippetsMessage()}>
+              <Icon name="close" />
+            </button>
+          </div>
+        )}
+        {renderSnippets()}
+      </div>
+    );
+  }
+  else if (state.user.isLocal) {
+    return renderMessage();
+  }
+  return (
+    <div className="snippets-container">
+      {renderHeader()}
+      {renderMessage()}
+    </div>
   );
 }

@@ -1,0 +1,19 @@
+.no-match {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  margin: auto;
+}
+
+.no-match-image {
+  width: 100%;
+  max-width: 384px;
+}
+
+.no-match-message {
+  margin-top: var(--space-xl);
+  font-weight: 500;
+  font-size: var(--text-xl);
+}

@@ -4,15 +4,10 @@
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  height: 100%;
-  padding: var(--space-xl);
+  width: 100%;
 
   @include breakpoint-small {
-    font-size: 14px;
-    align-items: flex-start;
-    flex-direction: column;
-    justify-content: center;
+    font-size: var(--text-sm);
 
     .home-image-container {
       max-width: 60%;

@@ -2,30 +2,36 @@
   "name": "code-keep",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://andriuskv.github.io/code-keep/",
   "scripts": {
+    "start-dev-server": "nodemon --inspect ./server.js",
     "start": "react-scripts start",
     "build": "react-scripts build && rm ./build/precache* && cp ./public/*.png ./build && npm run generate-sw",
     "generate-sw": "workbox generateSW workbox-config.js"
   },
   "dependencies": {
-    "codemirror": "^5.48.2",
+    "codemirror": "^5.49.0",
+    "connect-mongo": "^3.0.0",
+    "express": "^4.17.1",
+    "express-session": "^1.16.2",
     "file-saver": "^2.0.2",
     "focus-visible": "^5.0.2",
     "github-markdown-css": "^3.0.1",
     "idb-keyval": "^3.2.0",
-    "interweave": "^11.1.0",
+    "interweave": "^11.2.0",
     "jszip": "^3.2.2",
+    "mongoose": "^5.7.3",
     "normalize.css": "^8.0.1",
-    "react": "^16.9.0",
-    "react-dom": "^16.9.0",
-    "react-router-dom": "^5.0.1",
-    "react-scripts": "3.1.1",
-    "showdown": "^1.9.0"
+    "react": "^16.10.2",
+    "react-dom": "^16.10.2",
+    "react-router-dom": "^5.1.2",
+    "react-scripts": "3.2.0",
+    "showdown": "^1.9.0",
+    "validator": "^11.1.0"
   },
   "devDependencies": {
-    "eslint-plugin-react-hooks": "^1.7.0",
+    "eslint-plugin-react-hooks": "^2.1.2",
     "node-sass": "^4.12.0",
+    "nodemon": "^1.19.3",
     "workbox-cli": "^4.3.1"
   },
   "browserslist": [
@@ -36,5 +42,6 @@
     "last 1 and_chr versions",
     "last 1 safari versions",
     "last 1 ios versions"
-  ]
+  ],
+  "proxy": "http://localhost:9000"
 }

@@ -1,9 +1,5 @@
 @import "../../../styles/mixins.scss";
 
-.view-editor-header-menu {
-  position: relative;
-}
-
 .view-editor-header-menu-toggle-btn {
   display: none;
 
@@ -16,7 +12,6 @@
   display: flex;
 
   @include breakpoint-small {
-    z-index: 7;
     position: absolute;
     right: 0;
     display: none;

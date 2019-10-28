@@ -3,7 +3,11 @@ import { Store, set, get, keys, del } from "idb-keyval";
 const store = new Store("code-keep", "snippets");
 
 function fetchIDBSnippets() {
-  return keys(store).then(keys => Promise.all(keys.map(fetchIDBSnippet)));
+  return keys(store).then(keys => Promise.all(keys.map(fetchIDBSnippet)))
+    .catch(e => {
+      console.log(e);
+      return [];
+    });
 }
 
 function fetchIDBSnippet(id) {

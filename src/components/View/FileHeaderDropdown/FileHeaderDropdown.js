@@ -1,9 +1,9 @@
 import React from "react";
-import "./dropdown.scss";
+import "./file-header-dropdown.scss";
 import Dropdown from "../../Dropdown";
 import Icon from "../../Icon";
 
-export default function ViewDropdown({ file, previewMarkdown }) {
+export default function FileHeaderDropdown({ file, previewMarkdown }) {
   function copyFileContent(value) {
     navigator.clipboard.writeText(value).catch(error => {
       console.log(error);
@@ -24,7 +24,7 @@ export default function ViewDropdown({ file, previewMarkdown }) {
 
   return (
     <Dropdown
-      toggle={{ content: <Icon name="menu" />, className: "btn icon-btn view-editor-header-menu-toggle-btn" }}
+      toggle={{ content: <Icon name="dots" />, title: "Toggle action menu", className: "btn icon-btn view-editor-header-menu-toggle-btn" }}
       body={{ className: "view-editor-header-menu-items" }}>
       {file.mode === "gfm" && (
         <button onClick={() => previewMarkdown(file)}

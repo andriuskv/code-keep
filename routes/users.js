@@ -90,7 +90,7 @@ router.get("/me", async ({ session: { user }}, res) => {
 
 router.get("/:username", async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.params.username });
+    const user = await User.findOne({ usernameLowerCase: { $regex: new RegExp(`^${req.params.username.toLowerCase()}$`, "i") } });
 
     if (user) {
       return res.json({
@@ -101,6 +101,7 @@ router.get("/:username", async (req, res) => {
     }
     res.json({ code: 404 });
   } catch (e) {
+    console.log(e);
     res.json({ code: 500 });
   }
 });
@@ -121,7 +122,7 @@ router.post("/login", async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({ username: req.body.username });
+    const user = await User.findOne({ usernameLowerCase: { $regex: new RegExp(`^${req.body.username.toLowerCase()}$`, "i") } });
 
     if (user && user.validatePassword(req.body.password)) {
       req.session.user = {

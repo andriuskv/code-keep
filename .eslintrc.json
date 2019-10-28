@@ -94,7 +94,6 @@
     "require-atomic-updates": 0,
     "semi": 2,
     "space-before-blocks": 2,
-    "space-infix-ops": 2,
     "strict": [2, "safe"],
     "space-in-parens": [2, "never"],
     "space-before-function-paren": [2, {

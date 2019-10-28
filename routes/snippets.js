@@ -4,8 +4,18 @@ const User = require("../models/User");
 const router = express.Router();
 
 router.get("/:userId", async (req, res) => {
+  const isPrivateValues = [false];
+
+  if (req.session.user) {
+    const getPrivate = req.session.user._id === req.params.userId;
+
+    if (getPrivate) {
+      isPrivateValues.push(getPrivate);
+    }
+  }
+
   try {
-    const snippets = await Snippet.find({ userId: req.params.userId });
+    const snippets = await Snippet.find({ $and: [{ userId: req.params.userId }, { isPrivate: {$in: isPrivateValues }}]});
 
     if (Array.isArray(snippets)) {
       res.json({
@@ -15,7 +25,8 @@ router.get("/:userId", async (req, res) => {
           title: snippet.title,
           description: snippet.description,
           files: snippet.files,
-          settings: snippet.settings
+          settings: snippet.settings,
+          isPrivate: snippet.isPrivate
         }))
       });
     }
@@ -65,10 +76,12 @@ router.post("/delete", async (req, res) => {
 
 router.post("/:snippetId/:status?", async (req, res) => {
   let userId = null;
+  let getPrivate = false;
 
   if (req.params.status === "edit") {
     if (req.session.user) {
       userId = req.session.user._id;
+      getPrivate = true;
     }
     else {
       return res.json({ code: 401 });
@@ -79,7 +92,11 @@ router.post("/:snippetId/:status?", async (req, res) => {
       const user = await User.findById(req.body.id);
 
       if (user) {
-        userId = user._id;
+        userId = user._id.toString();
+
+        if (req.session.user) {
+          getPrivate = req.session.user._id === userId;
+        }
       }
       else {
         return res.json({ code: 404, message: "User not found." });
@@ -89,12 +106,18 @@ router.post("/:snippetId/:status?", async (req, res) => {
       return res.json({ code: 500 });
     }
   }
-  sendSnippet(res, req.params.snippetId, userId);
+  sendSnippet(res, req.params.snippetId, userId, getPrivate);
 });
 
-async function sendSnippet(res, snippetId, userId) {
+async function sendSnippet(res, snippetId, userId, getPrivate) {
+  const isPrivateValues = [false];
+
+  if (getPrivate) {
+    isPrivateValues.push(true);
+  }
+
   try {
-    const snippet = await Snippet.findOne({ $and: [{ id: snippetId }, { userId }]});
+    const snippet = await Snippet.findOne({ $and: [{ id: snippetId }, { userId }, { isPrivate: {$in: isPrivateValues }}]});
 
     if (snippet) {
       res.send(snippet);

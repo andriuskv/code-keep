@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "./dropdown.scss";
+import { getRandomString } from "../../utils";
 
-export default function Dropdown({ toggle, body, children }) {
-  const [visible, setVisibility] = useState(false);
-  const memoizedWindowClickHandler = useCallback(handleWindowClick, []);
+export default function Dropdown({ toggle, body, children, hideOnNavigation = false }) {
+  const [{ id, visible}, setState] = useState({ visible: false, id: "" });
+  const memoizedWindowClickHandler = useCallback(handleWindowClick, [id]);
 
   useEffect(() => {
+    setState({ visible, id: getRandomString() });
+
     return () => {
       window.removeEventListener("click", memoizedWindowClickHandler);
     };
@@ -19,24 +22,31 @@ export default function Dropdown({ toggle, body, children }) {
     else {
       window.addEventListener("click", memoizedWindowClickHandler);
     }
-    setVisibility(!visible);
+    setState({ id, visible: !visible });
   }
 
   function handleWindowClick(event) {
-    if (!event.target.closest(".dropdown-container")) {
+    const closestContanier = event.target.closest(".dropdown-container");
+
+    if (!closestContanier || id !== closestContanier.id) {
+      const closestLink = event.target.closest("a");
+
+      if (!closestLink || hideOnNavigation) {
+        setState({ id, visible: false });
+      }
       window.removeEventListener("click", memoizedWindowClickHandler);
-      setVisibility(false);
     }
     else if (event.target.closest("a")) {
       window.removeEventListener("click", memoizedWindowClickHandler);
-      setVisibility(false);
+      setState({ id, visible: false });
     }
   }
 
   return (
-    <div className="dropdown-container">
+    <div id={id} className="dropdown-container">
       <button onClick={toggleDropdown}
-        className={`${toggle.className}${visible ? " active" : ""}`}>
+        title={toggle.title}
+        className={`dropdown-toggle-btn ${toggle.className}${visible ? " active" : ""}`}>
         {toggle.content}
       </button>
       <div className={`dropdown${body ? ` ${body.className}` : ""}${visible ? " visible" : ""}`}>{children}</div>

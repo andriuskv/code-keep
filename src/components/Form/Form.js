@@ -1,18 +1,18 @@
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useState, useEffect } from "react";
 import "./form.scss";
 import { getRandomString, setDocumentTitle, importEditorMode, resetEditorIndentation, markdownToHtml } from "../../utils";
 import { fetchUser } from "../../services/userService";
 import { fetchIDBSnippet, saveSnippet } from "../../services/snippetIDBService";
-import { fetchServerSnippet, createServerSnippet } from "../../services/snippetServerService";
+import { fetchServerSnippet, updateServerSnippet } from "../../services/snippetServerService";
 import { getSetting, getSettings, saveSettings } from "../../services/settings";
 import { useUser } from "../../context/user-context";
+import SubmitDropdown from "./SubmitDropdown";
 import Icon from "../Icon";
 import Settings from "../Settings";
 import Editor from "../Editor";
 import Markdown from "../Markdown";
 import NoMatch from "../NoMatch";
 import fileInfo from "../../file-info.json";
-import spinner from "../../assets/ring.svg";
 
 export default function Form(props) {
   const [state, setState] = useState({
@@ -111,7 +111,7 @@ export default function Form(props) {
     return `file${index + 1}.${extension}`;
   }
 
-  async function handleSubmit(location) {
+  async function handleSubmit(snippetType) {
     if (!state.title.trim()) {
       setState({ ...state, titleInvalid: true });
       return;
@@ -142,11 +142,12 @@ export default function Form(props) {
     };
     const pathname = username ? `/users/${username}` : "/snippets";
 
-    if (state.remote || location === "remote") {
+    if (state.remote || snippetType === "remote" || snippetType === "private") {
       try {
+        newSnippet.isPrivate = state.isPrivate || snippetType === "private";
         delete state.submitMessage;
         setState({ ...state, submitButtonDisaled: true });
-        const data = await createServerSnippet(newSnippet);
+        const data = await updateServerSnippet(newSnippet);
 
         if (data.code === 200) {
           props.history.push({ pathname });
@@ -319,23 +320,9 @@ export default function Form(props) {
             {state.updating ? (
               <button className="btn" onClick={handleSubmit}>Update</button>
             ) : (
-              <Fragment>
-                <button className="btn form-submit-btn" disabled={state.submitButtonDisaled}
-                  onClick={() => handleSubmit("local")}>
-                  <span>Create Local</span>
-                  {state.submitButtonDisaled && (
-                    <img src={spinner} className="form-submit-btn-spinner" alt="" />
-                  )}
-                </button>
-                {username ? (
-                  <button className="btn form-submit-btn" disabled={state.submitButtonDisaled}
-                    onClick={() => handleSubmit("remote")}>
-                    <span>Create Remote</span>
-                    {state.submitButtonDisaled && (
-                      <img src={spinner} className="form-submit-btn-spinner" alt="" />
-                    )}
-                  </button>) : null}
-              </Fragment>
+              <SubmitDropdown username={username}
+                submitButtonDisaled={state.submitButtonDisaled}
+                handleSubmit={handleSubmit} />
             )}
           </div>
         </div>

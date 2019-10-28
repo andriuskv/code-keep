@@ -12,7 +12,7 @@ function fetchServerSnippet(snippetId, userId, status) {
   }).then(res => res.json());
 }
 
-function createServerSnippet(snippet) {
+function updateServerSnippet(snippet) {
   return fetch("/snippets/create", {
     method: "POST",
     headers: {
@@ -36,6 +36,6 @@ function deleteServerSnippet(snippetId) {
 export {
   fetchServerSnippets,
   fetchServerSnippet,
-  createServerSnippet,
+  updateServerSnippet,
   deleteServerSnippet
 };

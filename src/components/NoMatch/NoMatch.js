@@ -6,7 +6,7 @@ import img from "../../assets/header-image.png";
 export default function NoMatch({ message }) {
   useEffect(() => {
     setDocumentTitle("Page not found");
-  }, []);
+  }, [message]);
 
   return (
     <div className="no-match">

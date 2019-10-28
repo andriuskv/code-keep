@@ -22,23 +22,27 @@ function UserDropdown(props) {
       }
       else {
         setLogoutButtonState(false);
-        setLogoutMessage("Couldn't logout. Try again later.");
+        setLogoutMessage("Could not logout. Try again later.");
       }
     } catch (e) {
       console.log(e);
       setLogoutButtonState(false);
-      setLogoutMessage("Couldn't logout. Try again later.");
+      setLogoutMessage("Could not logout. Try again later.");
     }
   }
 
   function getToggleButton() {
-    return { content: <Icon name="user" />, className: "btn icon-btn header-link header-dropdown-toggle-btn" };
+    return {
+      content: <Icon name="user" />,
+      title: "Toggle user menu",
+      className: "btn icon-btn header-link header-dropdown-toggle-btn"
+    };
   }
 
   return (
     <Dropdown
       toggle={getToggleButton()}
-      body={{className: "header-dropdown"}}>
+      body={{className: "header-dropdown"}} hideOnNavigation>
       <Fragment>
         <div className="header-dropdown-name">{username}</div>
         <div className="header-dropdown-email">{email}</div>

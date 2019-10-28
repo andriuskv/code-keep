@@ -27,6 +27,9 @@ const SnippetSchema = new mongoose.Schema({
   settings: {
     type: Object,
     required: true
+  },
+  isPrivate: {
+    type: Boolean
   }
 });
 

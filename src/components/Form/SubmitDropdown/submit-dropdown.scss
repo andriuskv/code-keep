@@ -1,0 +1,60 @@
+@import "../../../styles/mixins.scss";
+
+.form-submit-dropdown-toggle-btn {
+  display: none;
+
+  @include breakpoint-small {
+    display: block;
+  }
+}
+
+.form-submit-dropdown {
+  display: flex;
+
+  @include breakpoint-small {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + var(--space-md));
+    display: none;
+    padding: var(--space-md);
+    border-radius: 4px;
+    background-color: var(--color-grey);
+    box-shadow: 0 1px 4px 0 var(--color-black-10);
+
+    &.visible {
+      display: block;
+    }
+  }
+}
+
+.form-submit-btn {
+  --background-color: var(--color-grey);
+
+  position: relative;
+  margin-left: var(--space-md);
+
+  @include breakpoint-small {
+    justify-content: flex-start;
+    width: 100%;
+    min-height: 28px;
+    padding: var(--space-sm) var(--space-lg);
+    margin-left: 0;
+    white-space: nowrap;
+
+    &:hover, &.focus-visible {
+      background-color: var(--color-grey-dark);
+    }
+
+    &:not(:last-of-type) {
+      margin-bottom: var(--space-md);
+    }
+  }
+}
+
+.form-submit-btn-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 80%;
+  transform: translate(-50%, -50%);
+}

@@ -5,6 +5,7 @@
 
   .CodeMirror {
     min-height: auto;
+    padding-bottom: var(--space-sm);
   }
 }
 
@@ -81,7 +82,7 @@
 
 .view-editor-header-filename {
   margin-right: auto;
-  margin-left: var(--space-sm);
+  margin-left: var(--space-md);
   color: var(--color-white);
   font-size: var(--text-sm);
   font-weight: 500;

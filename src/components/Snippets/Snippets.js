@@ -4,13 +4,14 @@ import "./snippets.scss";
 import { setDocumentTitle } from "../../utils";
 import { fetchUser } from "../../services/userService";
 import { fetchIDBSnippets } from "../../services/snippetIDBService";
-import { fetchSnippets, deleteSnippet } from "../../services/snippetService";
-import { fetchServerSnippets } from "../../services/snippetServerService";
+import { fetchSnippets, deleteSnippet, sortSnippets } from "../../services/snippetService";
+import { fetchServerSnippets, updateServerSnippet } from "../../services/snippetServerService";
 import { useUser } from "../../context/user-context";
 import Icon from "../Icon";
 import Editor from "../Editor";
 import DateDiff from "../DateDiff";
 import NoMatch from "../NoMatch";
+import SnippetDropdown from "./SnippetDropdown";
 import spinner from "../../assets/ring.svg";
 
 export default function Snippets(props) {
@@ -86,7 +87,7 @@ export default function Snippets(props) {
           setState({ message: "Something went wrong. Try again later." });
         }
         else {
-          setState({ snippets: data.snippets, user });
+          setState({ snippets: sortSnippets(data.snippets), user });
           setDocumentTitle(`${user.username} Snippets`);
         }
       }
@@ -96,14 +97,6 @@ export default function Snippets(props) {
     }
   }
 
-  function editSnippet(id, isLocal) {
-    const path = isLocal ? `/snippets/${id}/edit` : `/users/${state.user.username}/${id}/edit`;
-
-    props.history.push({
-      pathname: path
-    });
-  }
-
   async function removeSnippet(index, isLocal) {
     const { snippets } = state;
     const deleted = await deleteSnippet(snippets[index].id, isLocal);
@@ -111,6 +104,19 @@ export default function Snippets(props) {
     if (deleted) {
       snippets.splice(index, 1);
       setState({ ...state, snippets: [...snippets] });
+    }
+  }
+
+  async function toggleSnippetPrivacy(snippet) {
+    snippet.isPrivate = !snippet.isPrivate;
+
+    const data = await updateServerSnippet({
+      id: snippet.id,
+      isPrivate: snippet.isPrivate
+    });
+
+    if (data.code === 200) {
+      setState({ ...state, snippets: [...state.snippets] });
     }
   }
 
@@ -151,9 +157,15 @@ export default function Snippets(props) {
         {snippets.map((snippet, index) => {
           return (
             <li className="snippet" key={snippet.id}>
-              <div className="snippet-title-container">
-                {snippet.isLocal && <Icon name="home" className="snippet-title-icon" title="This snippet is local to your device." />}
-                <h3 className="snippet-title">{snippet.title}</h3>
+              <div className="snippet-top">
+                <div className="snippet-title-container">
+                  {snippet.isPrivate && <Icon name="locked" className="snippet-title-icon" title="Only you can see this snippet" />}
+                  {snippet.isLocal && <Icon name="home" className="snippet-title-icon" title="This snippet is local to your device" />}
+                  <h3 className="snippet-title">{snippet.title}</h3>
+                </div>
+                <SnippetDropdown index={index} user={user} snippet={snippet}
+                  removeSnippet={removeSnippet}
+                  toggleSnippetPrivacy={toggleSnippetPrivacy} />
               </div>
               {snippet.description && (
                 <p className="snippet-description">{snippet.description}</p>
@@ -166,18 +178,6 @@ export default function Snippets(props) {
                 <Editor file={snippet.files[0]} settings={snippet.settings}
                   height={snippet.files[0].height} readOnly preview />
               </Link>
-              {user.isLocal || user.isLoggedIn ? (
-                <div className="snippet-footer">
-                  <button className="btn icon-text-btn" onClick={() => editSnippet(snippet.id, snippet.isLocal)}>
-                    <Icon name="edit" />
-                    <span>Edit</span>
-                  </button>
-                  <button className="btn icon-text-btn danger-btn snippet-remove-btn" onClick={() => removeSnippet(index, snippet.isLocal)}>
-                    <Icon name="trash" />
-                    <span>Remove</span>
-                  </button>
-                </div>
-              ) : null}
             </li>
           );
         })}

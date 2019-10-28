@@ -87,14 +87,7 @@
 
 .form-footer-btns {
   display: flex;
-
-  .btn:first-of-type {
-    margin-right: auto;
-  }
-
-  .btn:last-of-type {
-    margin-left: var(--space-md);
-  }
+  justify-content: space-between;
 }
 
 .form-footer-message {
@@ -103,16 +96,4 @@
   font-size: var(--text-sm);
   font-weight: 500;
   text-align: right;
-}
-
-.form-submit-btn {
-  position: relative;
-}
-
-.form-submit-btn-spinner {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  height: 80%;
-  transform: translate(-50%, -50%);
 }

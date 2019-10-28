@@ -45,5 +45,6 @@ function sortSnippets(snippets) {
 
 export {
   fetchSnippets,
-  deleteSnippet
+  deleteSnippet,
+  sortSnippets
 };

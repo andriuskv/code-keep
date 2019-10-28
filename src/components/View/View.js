@@ -7,7 +7,7 @@ import { fetchIDBSnippet } from "../../services/snippetIDBService";
 import { fetchServerSnippet } from "../../services/snippetServerService";
 import { useUser } from "../../context/user-context";
 import Icon from "../Icon";
-import Dropdown from "./Dropdown";
+import FileHeaderDropdown from "./FileHeaderDropdown";
 import Editor from "../Editor";
 import DateDiff from "../DateDiff";
 import Markdown from "../Markdown";
@@ -116,7 +116,8 @@ export default function View(props) {
             <h2 className="view-header-user-username">{state.username}</h2>
           </Link> : null }
           <div className="view-title-container">
-            {state.isLocal && <Icon name="home" className="view-title-icon" title="This snippet is local to your device." />}
+            {state.isPrivate && <Icon name="locked" className="view-title-icon" title="Only you can see this snippet" />}
+            {state.isLocal && <Icon name="home" className="view-title-icon" title="This snippet is local to your device" />}
             <h3 className="view-title">{state.title}</h3>
           </div>
           {state.description && (
@@ -131,7 +132,7 @@ export default function View(props) {
           <div className="view-editor-header">
             <Icon name="file" />
             <span className="view-editor-header-filename">{file.name}</span>
-            <Dropdown file={file} previewMarkdown={previewMarkdown} />
+            <FileHeaderDropdown file={file} previewMarkdown={previewMarkdown} />
           </div>
           {file.renderAsMarkdown ? <Markdown content={file.markdown} /> :
             <Editor file={file} settings={state.settings}

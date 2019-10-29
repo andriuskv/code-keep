@@ -30,6 +30,9 @@ const SnippetSchema = new mongoose.Schema({
   },
   isPrivate: {
     type: Boolean
+  },
+  fork: {
+    type: Object
   }
 });
 

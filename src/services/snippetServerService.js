@@ -12,7 +12,7 @@ function fetchServerSnippet(snippetId, userId, status) {
   }).then(res => res.json());
 }
 
-function updateServerSnippet(snippet) {
+function createServerSnippet(snippet) {
   return fetch("/snippets/create", {
     method: "POST",
     headers: {
@@ -22,13 +22,23 @@ function updateServerSnippet(snippet) {
   }).then(res => res.json());
 }
 
-function deleteServerSnippet(snippetId) {
+function updateServerSnippet(snippet) {
+  return fetch("/snippets/update", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(snippet)
+  }).then(res => res.json());
+}
+
+function deleteServerSnippet(data) {
   return fetch("/snippets/delete", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ id: snippetId })
+    body: JSON.stringify(data)
   }).then(res => res.json());
 }
 
@@ -36,6 +46,7 @@ function deleteServerSnippet(snippetId) {
 export {
   fetchServerSnippets,
   fetchServerSnippet,
+  createServerSnippet,
   updateServerSnippet,
   deleteServerSnippet
 };

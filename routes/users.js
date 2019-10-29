@@ -44,19 +44,12 @@ router.post("/register", async (req, res) => {
       usernameLowerCase: req.body.username.toLowerCase(),
       email: req.body.email
     });
+    const data = user.getUser();
     user.setPassword(req.body.password);
     await user.save();
 
-    req.session.user = {
-      _id: user._id,
-      username: user.username,
-      email: user.email
-    };
-    res.json({
-      _id: user._id,
-      username: user.username,
-      email: user.email
-    });
+    req.session.user = data;
+    res.json(data);
   } catch (e) {
     console.log(e);
     res.json({ code: 500 });
@@ -93,11 +86,7 @@ router.get("/:username", async (req, res) => {
     const user = await User.findOne({ usernameLowerCase: { $regex: new RegExp(`^${req.params.username.toLowerCase()}$`, "i") } });
 
     if (user) {
-      return res.json({
-        _id: user._id,
-        username: user.username,
-        email: user.email
-      });
+      return res.json(user.getUser());
     }
     res.json({ code: 404 });
   } catch (e) {
@@ -125,16 +114,9 @@ router.post("/login", async (req, res) => {
     const user = await User.findOne({ usernameLowerCase: { $regex: new RegExp(`^${req.body.username.toLowerCase()}$`, "i") } });
 
     if (user && user.validatePassword(req.body.password)) {
-      req.session.user = {
-        _id: user._id,
-        username: user.username,
-        email: user.email
-      };
-      return res.json({
-        _id: user._id,
-        username: user.username,
-        email: user.email
-      });
+      const data = user.getUser();
+      req.session.user = data;
+      return res.json(data);
     }
     return res.json({ code: 400 });
   } catch (e) {

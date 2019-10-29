@@ -21,12 +21,14 @@ router.get("/:userId", async (req, res) => {
       res.json({
         snippets: snippets.map(snippet => ({
           id: snippet.id,
+          userId: snippet.userId,
           created: snippet.created,
           title: snippet.title,
           description: snippet.description,
           files: snippet.files,
           settings: snippet.settings,
-          isPrivate: snippet.isPrivate
+          isPrivate: snippet.isPrivate,
+          fork: snippet.fork
         }))
       });
     }
@@ -41,17 +43,35 @@ router.post("/create", async (req, res) => {
     return res.json({ code: 401 });
   }
   try {
-    const snippet = await Snippet.findOneAndUpdate({ id: req.body.id }, req.body);
+    // If user tries to fork same snippet, ignore it.
+    if (req.body.fork) {
+      const snippet = await Snippet.findOne({ $and: [{ "fork.id": req.body.fork.id }, { userId: req.session.user._id }]});
+
+      if (snippet) {
+        return res.json({ code: 200, id: snippet.id });
+      }
+    }
+    const snippet = new Snippet({ ...req.body, userId: req.session.user._id });
+    await snippet.save();
+
+    res.json({ code: 200 });
+  } catch (e) {
+    console.log(e);
+    return res.json({ code: 500 });
+  }
+});
+
+router.post("/update", async (req, res) => {
+  if (!req.session.user) {
+    return res.json({ code: 401 });
+  }
+  try {
+    const snippet = await Snippet.findOneAndUpdate({ $and: [{ id: req.body.id }, { userId: req.session.user._id }]}, req.body);
 
     if (snippet) {
-      res.json({ code: 200 });
+      return res.json({ code: 200 });
     }
-    else {
-      const snippet = new Snippet({ ...req.body, userId: req.session.user._id });
-      await snippet.save();
-
-      res.json({ code: 200 });
-    }
+    res.json({ code: 404 });
   } catch (e) {
     console.log(e);
     return res.json({ code: 500 });
@@ -59,15 +79,12 @@ router.post("/create", async (req, res) => {
 });
 
 router.post("/delete", async (req, res) => {
-  if (!req.session.user) {
+  if (!req.session.user || req.session.user._id !== req.body.userId) {
     return res.json({ code: 401 });
   }
   try {
-    const snippet = await Snippet.findOneAndRemove({ id: req.body.id });
-
-    if (snippet) {
-      res.json({ code: 200 });
-    }
+    await Snippet.findOneAndRemove({ $and: [{ id: req.body.snippetId }, { userId: req.body.userId }]});
+    res.json({ code: 200 });
   } catch (e) {
     console.log(e);
     res.json({ code: 500 });

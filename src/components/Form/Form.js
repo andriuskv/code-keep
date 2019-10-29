@@ -3,7 +3,7 @@ import "./form.scss";
 import { getRandomString, setDocumentTitle, importEditorMode, resetEditorIndentation, markdownToHtml } from "../../utils";
 import { fetchUser } from "../../services/userService";
 import { fetchIDBSnippet, saveSnippet } from "../../services/snippetIDBService";
-import { fetchServerSnippet, updateServerSnippet } from "../../services/snippetServerService";
+import { fetchServerSnippet, updateServerSnippet, createServerSnippet } from "../../services/snippetServerService";
 import { getSetting, getSettings, saveSettings } from "../../services/settings";
 import { useUser } from "../../context/user-context";
 import SubmitDropdown from "./SubmitDropdown";
@@ -147,7 +147,8 @@ export default function Form(props) {
         newSnippet.isPrivate = state.isPrivate || snippetType === "private";
         delete state.submitMessage;
         setState({ ...state, submitButtonDisaled: true });
-        const data = await updateServerSnippet(newSnippet);
+        const callback = state.updating ? updateServerSnippet : createServerSnippet;
+        const data = await callback(newSnippet);
 
         if (data.code === 200) {
           props.history.push({ pathname });

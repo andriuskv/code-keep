@@ -24,7 +24,7 @@ export default function View(props) {
   useEffect(() => {
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, props.match.url]);
 
   async function init() {
     if (props.match.path === "/snippets/:id") {
@@ -123,7 +123,12 @@ export default function View(props) {
           {state.description && (
             <p className="view-description">{state.description}</p>
           )}
-          <div className="view-date"><DateDiff start={state.created} /></div>
+          <div className="view-info">
+            <span className="view-info-item"><DateDiff start={state.created} /></span>
+            {state.fork ? (
+              <span className="view-info-item"><Link to={`/users/${state.fork.usernameLowerCase}/${state.fork.id}`}>Forked from {state.fork.username}</Link></span>
+            ) : null}
+          </div>
         </div>
         <button onClick={downloadFiles} className="btn view-header-btn">Download ZIP</button>
       </div>

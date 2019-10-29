@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./snippets.scss";
-import { setDocumentTitle } from "../../utils";
+import { setDocumentTitle, getRandomString } from "../../utils";
 import { fetchUser } from "../../services/userService";
 import { fetchIDBSnippets } from "../../services/snippetIDBService";
 import { fetchSnippets, deleteSnippet, sortSnippets } from "../../services/snippetService";
-import { fetchServerSnippets, updateServerSnippet } from "../../services/snippetServerService";
+import { fetchServerSnippets, createServerSnippet, updateServerSnippet } from "../../services/snippetServerService";
 import { useUser } from "../../context/user-context";
 import Icon from "../Icon";
 import Editor from "../Editor";
@@ -99,7 +99,12 @@ export default function Snippets(props) {
 
   async function removeSnippet(index, isLocal) {
     const { snippets } = state;
-    const deleted = await deleteSnippet(snippets[index].id, isLocal);
+    const snippet = snippets[index];
+    const deleted = await deleteSnippet({
+      snippetId: snippet.id,
+      userId: snippet.userId,
+      isLocal
+    });
 
     if (deleted) {
       snippets.splice(index, 1);
@@ -117,6 +122,33 @@ export default function Snippets(props) {
 
     if (data.code === 200) {
       setState({ ...state, snippets: [...state.snippets] });
+    }
+  }
+
+  async function forkSnippet(index) {
+    const snippet = state.snippets[index];
+    const id = getRandomString();
+    const data = await createServerSnippet({
+      ...snippet,
+      files: snippet.files.map(file => {
+        file.id = getRandomString();
+        return file;
+      }),
+      userId: user._id,
+      created: new Date(),
+      id,
+      fork: {
+        id: snippet.id,
+        userId: snippet.userId,
+        username: state.user.username,
+        usernameLowerCase: state.user.usernameLowerCase
+      }
+    });
+
+    if (data.code === 200) {
+      props.history.push({
+        pathname:`/users/${user.username}/${data.id ? data.id : id}`
+      });
     }
   }
 
@@ -147,7 +179,7 @@ export default function Snippets(props) {
   }
 
   function renderSnippets() {
-    const { user, snippets } = state;
+    const { user: snippetUser, snippets } = state;
 
     if (!snippets.length) {
       return null;
@@ -163,18 +195,28 @@ export default function Snippets(props) {
                   {snippet.isLocal && <Icon name="home" className="snippet-title-icon" title="This snippet is local to your device" />}
                   <h3 className="snippet-title">{snippet.title}</h3>
                 </div>
-                <SnippetDropdown index={index} user={user} snippet={snippet}
-                  removeSnippet={removeSnippet}
-                  toggleSnippetPrivacy={toggleSnippetPrivacy} />
+                {snippetUser.username === user.username ? (
+                  <SnippetDropdown index={index} user={snippetUser} snippet={snippet}
+                    removeSnippet={removeSnippet}
+                    toggleSnippetPrivacy={toggleSnippetPrivacy} />
+                ) : (user.username ? (
+                  <button className="btn icon-text-btn snippet-fork-btn" onClick={() => forkSnippet(index)}>
+                    <Icon name="fork" />
+                    <span>Fork</span>
+                  </button>
+                ) : null)}
               </div>
               {snippet.description && (
                 <p className="snippet-description">{snippet.description}</p>
               )}
               <div className="snippet-info">
                 <span className="snippet-info-item">{snippet.files.length} {`File${snippet.files.length > 1 ? "s" : ""}`}</span>
-                <span><DateDiff start={snippet.created} /></span>
+                <span className="snippet-info-item"><DateDiff start={snippet.created} /></span>
+                {snippet.fork ? (
+                  <span className="snippet-info-item"><Link to={`/users/${snippet.fork.usernameLowerCase}/${snippet.fork.id}`}>Forked from {snippet.fork.username}</Link></span>
+                ) : null}
               </div>
-              <Link to={snippet.isLocal ? `/snippets/${snippet.id}` : `/users/${user.username}/${snippet.id}`} className="snippet-link">
+              <Link to={snippet.isLocal ? `/snippets/${snippet.id}` : `/users/${snippetUser.usernameLowerCase}/${snippet.id}`} className="snippet-link">
                 <Editor file={snippet.files[0]} settings={snippet.settings}
                   height={snippet.files[0].height} readOnly preview />
               </Link>

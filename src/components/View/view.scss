@@ -39,7 +39,7 @@
 }
 
 .view-title-icon {
-  margin-right: var(--space-sm);
+  margin-right: var(--space-md);
 }
 
 .view-title {
@@ -51,10 +51,20 @@
   margin-bottom: var(--space-sm);
 }
 
-.view-date {
-  color: var(--color-grey-lighter);
+.view-info {
   font-size: var(--text-xs);
   font-weight: 500;
+  color: var(--color-grey-lighter);
+}
+
+.view-info-item:not(:last-of-type) {
+  margin-right: var(--space-sm);
+
+  &::after {
+    content: "\2022";
+    display: inline;
+    margin-left: var(--space-sm);
+  }
 }
 
 .view-header-btn {

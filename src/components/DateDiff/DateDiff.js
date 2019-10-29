@@ -5,17 +5,17 @@ export default function DateDiff({ start }) {
   let id = 0;
 
   useEffect(() => {
+    clearTimeout(id);
+    setDateDiff(getDateDiff());
     update();
 
     return () => {
       clearTimeout(id);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [start]);
 
   function update() {
-    clearTimeout(id);
-
     id = setTimeout(() => {
       setDateDiff(getDateDiff());
       update();

@@ -28,18 +28,18 @@ export default function FileHeaderDropdown({ file, previewMarkdown }) {
       body={{ className: "view-editor-header-menu-items" }}>
       {file.mode === "gfm" && (
         <button onClick={() => previewMarkdown(file)}
-          className={`btn icon-text-btn view-editor-header-btn${file.renderAsMarkdown ? " active" : ""}`}>
+          className={`btn icon-text-btn dropdown-btn view-editor-header-btn${file.renderAsMarkdown ? " active" : ""}`}>
           <Icon name="eye" />
           <span>Preview</span>
         </button>
       )}
       <button onClick={() => copyFileContent(file.value)}
-        className="btn icon-text-btn view-editor-header-btn">
+        className="btn icon-text-btn dropdown-btn view-editor-header-btn">
         <Icon name="clipboard" />
         <span>Copy</span>
       </button>
       <button onClick={() => downloadFile(file)}
-        className="btn icon-text-btn view-editor-header-btn">
+        className="btn icon-text-btn dropdown-btn view-editor-header-btn">
         <Icon name="download" />
         <span>Download</span>
       </button>

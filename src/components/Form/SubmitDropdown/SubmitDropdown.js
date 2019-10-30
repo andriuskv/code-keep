@@ -9,7 +9,7 @@ export default function SubmitDropdown({submitButtonDisaled, username, handleSub
     <Dropdown
       toggle={{ content: "Create Snippet", className: "btn form-submit-dropdown-toggle-btn" }}
       body={{ className: "form-submit-dropdown" }}>
-      <button className="btn icon-text-btn form-submit-btn"
+      <button className="btn icon-text-btn dropdown-btn form-submit-btn"
         disabled={submitButtonDisaled}
         onClick={() => handleSubmit("local")}>
         <Icon name="home" />
@@ -20,7 +20,7 @@ export default function SubmitDropdown({submitButtonDisaled, username, handleSub
       </button>
       {username ? (
         <Fragment>
-          <button className="btn icon-text-btn form-submit-btn"
+          <button className="btn icon-text-btn dropdown-btn form-submit-btn"
             disabled={submitButtonDisaled}
             onClick={() => handleSubmit("private")}>
             <Icon name="locked" />
@@ -29,7 +29,7 @@ export default function SubmitDropdown({submitButtonDisaled, username, handleSub
               <img src={spinner} className="form-submit-btn-spinner" alt="" />
             )}
           </button>
-          <button className="btn form-submit-btn" disabled={submitButtonDisaled}
+          <button className="btn dropdown-btn form-submit-btn" disabled={submitButtonDisaled}
             onClick={() => handleSubmit("remote")}>
             <span>Create Remote</span>
             {submitButtonDisaled && (

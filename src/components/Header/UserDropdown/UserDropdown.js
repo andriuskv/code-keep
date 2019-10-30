@@ -48,7 +48,7 @@ function UserDropdown(props) {
         <div className="header-dropdown-email">{email}</div>
         <div className="header-dropdown-divider"></div>
         <Link to="/change/password" className="btn header-dropdown-link">Change Password</Link>
-        <button className="btn header-dropdown-btn"
+        <button className="btn dropdown-btn header-dropdown-btn"
           onClick={handleLogout} disabled={logoutButtonState}>
           <span>Logout</span>
           {logoutButtonState && (

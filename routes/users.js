@@ -1,6 +1,7 @@
 const express = require("express");
 const validator = require("validator");
 const User = require("../models/User");
+const reservedUsernames = require("../data/reserved_usernames.json");
 const router = express.Router();
 
 router.post("/register", async (req, res) => {
@@ -28,6 +29,10 @@ router.post("/register", async (req, res) => {
 
   if (req.body.password !== req.body.repeatedPassword) {
     return res.json({ code: 400, message: "Passwords don't match.", field: "password" });
+  }
+
+  if (reservedUsernames.includes(req.body.username.toLowerCase())) {
+    return res.json({ code: 400, message: "User with that username or email already exists.", field: "form" });
   }
 
   try {

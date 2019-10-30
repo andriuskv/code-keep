@@ -7,7 +7,7 @@ import spinner from "../../../assets/ring.svg";
 export default function SubmitDropdown({submitButtonDisaled, username, handleSubmit}) {
   return (
     <Dropdown
-      toggle={{ content: "Create Snippet", className: "btn form-submit-dropdown-toggle-btn" }}
+      toggle={{ content: "Create", className: "btn form-submit-dropdown-toggle-btn" }}
       body={{ className: "form-submit-dropdown" }}>
       <button className="btn icon-text-btn dropdown-btn form-submit-btn"
         disabled={submitButtonDisaled}

@@ -31,6 +31,7 @@ export default function Snippets(props) {
     const { username } = props.match.params;
 
     if (user.status === "logged-out") {
+      user.updateUserStatus();
       return;
     }
 

@@ -37,7 +37,7 @@ export default function Snippets(props) {
     if (props.match.url === "/snippets") {
       setState({
         snippets: await fetchIDBSnippets(),
-        user: { isLocal: true }
+        user: { isLocal: true, ...user, isLoggedIn: !!user.username }
       });
       setDocumentTitle("Your Snippets");
     }
@@ -152,6 +152,27 @@ export default function Snippets(props) {
     }
   }
 
+  async function uploadSnippet(index) {
+    const snippet = state.snippets[index];
+    const remoteSnippet = { ...snippet };
+    delete remoteSnippet.isLocal;
+    remoteSnippet.userId = user._id;
+    remoteSnippet.isPrivate = true;
+    const data = await createServerSnippet(remoteSnippet);
+
+    if (data.code === 200) {
+      const deleted = await deleteSnippet({
+        snippetId: snippet.id,
+        isLocal : true
+      });
+
+      if (deleted) {
+        state.snippets.splice(index, 1, remoteSnippet);
+        setState({ user: state.user, snippets: [...state.snippets] });
+      }
+    }
+  }
+
   function hideSnippetsMessage() {
     delete state.snippetsMessage;
     setState({ ...state });
@@ -195,8 +216,9 @@ export default function Snippets(props) {
                   {snippet.isLocal && <Icon name="home" className="snippet-title-icon" title="This snippet is local to your device" />}
                   <h3 className="snippet-title">{snippet.title}</h3>
                 </div>
-                {snippetUser.username === user.username ? (
+                {snippetUser.isLocal || snippetUser.username === user.username ? (
                   <SnippetDropdown index={index} user={snippetUser} snippet={snippet}
+                    uploadSnippet={uploadSnippet}
                     removeSnippet={removeSnippet}
                     toggleSnippetPrivacy={toggleSnippetPrivacy} />
                 ) : (user.username ? (

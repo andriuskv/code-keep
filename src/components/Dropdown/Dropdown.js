@@ -25,18 +25,21 @@ export default function Dropdown({ toggle, body, children, hideOnNavigation = fa
     setState({ id, visible: !visible });
   }
 
-  function handleWindowClick(event) {
-    const closestContanier = event.target.closest(".dropdown-container");
+  function handleWindowClick({ target }) {
+    const closestContanier = target.closest(".dropdown-container");
 
     if (!closestContanier || id !== closestContanier.id) {
-      const closestLink = event.target.closest("a");
+      const closestLink = target.closest("a");
 
       if (!closestLink || hideOnNavigation) {
         setState({ id, visible: false });
       }
       window.removeEventListener("click", memoizedWindowClickHandler);
     }
-    else if (event.target.closest("a")) {
+    else if (target.closest("[data-dropdown-keep]")) {
+      window.removeEventListener("click", memoizedWindowClickHandler);
+    }
+    else if (target.closest("a") || target.closest(".dropdown-btn")) {
       window.removeEventListener("click", memoizedWindowClickHandler);
       setState({ id, visible: false });
     }

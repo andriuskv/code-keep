@@ -4,7 +4,7 @@ import "./snippet-dropdown.scss";
 import Dropdown from "../../Dropdown";
 import Icon from "../../Icon";
 
-function SnippetDropdown({ history, index, user, snippet, removeSnippet, toggleSnippetPrivacy }) {
+function SnippetDropdown({ history, index, user, snippet, uploadSnippet, removeSnippet, toggleSnippetPrivacy }) {
   function editSnippet(id, isLocal) {
     history.push({
       pathname: isLocal ? `/snippets/${id}/edit` : `/users/${user.username}/${id}/edit`
@@ -15,17 +15,28 @@ function SnippetDropdown({ history, index, user, snippet, removeSnippet, toggleS
     <Dropdown
       toggle={{ content: <Icon name="dots" />, title: "Toggle action menu", className: "btn icon-btn" }}
       body={{ className: "snippet-dropdown" }}>
-      <button className="btn icon-text-btn snippet-dropdown-btn" onClick={() => editSnippet(snippet.id, snippet.isLocal)}>
+      <button className="btn icon-text-btn dropdown-btn snippet-dropdown-btn"
+        onClick={() => editSnippet(snippet.id, snippet.isLocal)} data-dropdown-keep>
         <Icon name="edit" />
         <span>Edit</span>
       </button>
-      {!snippet.isLocal && user.isLoggedIn ? (
-        <button className="btn icon-text-btn snippet-dropdown-btn" onClick={() => toggleSnippetPrivacy(snippet)}>
-          <Icon name={snippet.isPrivate ? "unlocked" : "locked"} />
-          <span>{snippet.isPrivate ? "Make Public" : "Make Private"}</span>
-        </button>
-      ) : null}
-      <button className="btn icon-text-btn danger-btn snippet-dropdown-btn" onClick={() => removeSnippet(index, snippet.isLocal)}>
+      {user.isLoggedIn && (
+        snippet.isLocal ? (
+          <button className="btn icon-text-btn dropdown-btn snippet-dropdown-btn"
+            onClick={() => uploadSnippet(index)}>
+            <Icon name="upload" />
+            <span>Upload</span>
+          </button>
+        ) : (
+          <button className="btn icon-text-btn dropdown-btn snippet-dropdown-btn"
+            onClick={() => toggleSnippetPrivacy(snippet)}>
+            <Icon name={snippet.isPrivate ? "unlocked" : "locked"} />
+            <span>{snippet.isPrivate ? "Make Public" : "Make Private"}</span>
+          </button>
+        )
+      )}
+      <button className="btn icon-text-btn danger-btn dropdown-btn snippet-dropdown-btn"
+        onClick={() => removeSnippet(index, snippet.isLocal)}>
         <Icon name="trash" />
         <span>Remove</span>
       </button>

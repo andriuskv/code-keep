@@ -35,7 +35,7 @@ function SnippetDropdown({ history, index, user, snippet, uploadSnippet, removeS
           </button>
         )
       )}
-      <button className="btn icon-text-btn danger-btn dropdown-btn snippet-dropdown-btn"
+      <button className="btn icon-text-btn dropdown-btn snippet-dropdown-btn"
         onClick={() => removeSnippet(index, snippet.isLocal)}>
         <Icon name="trash" />
         <span>Remove</span>

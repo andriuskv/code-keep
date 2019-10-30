@@ -12,6 +12,7 @@ import Editor from "../Editor";
 import DateDiff from "../DateDiff";
 import NoMatch from "../NoMatch";
 import SnippetDropdown from "./SnippetDropdown";
+import SnippetRemoveModal from "./SnippetRemoveModal";
 import spinner from "../../assets/ring.svg";
 
 export default function Snippets(props) {
@@ -98,17 +99,31 @@ export default function Snippets(props) {
     }
   }
 
-  async function removeSnippet(index, isLocal) {
-    const { snippets } = state;
-    const snippet = snippets[index];
+  function showSnippetRemoveModal(index, isLocal) {
+    setState({ ...state, removeModal: {
+      index,
+      isLocal
+    }});
+  }
+
+  function hideSnippetRemoveModal() {
+    delete state.removeModal;
+    setState({ ...state });
+  }
+
+  async function removeSnippet() {
+    const { snippets, removeModal } = state;
+    const { index, isLocal } = removeModal;
+    const { id, userId } = snippets[index];
     const deleted = await deleteSnippet({
-      snippetId: snippet.id,
-      userId: snippet.userId,
+      snippetId: id,
+      userId,
       isLocal
     });
 
     if (deleted) {
       snippets.splice(index, 1);
+      delete state.removeModal;
       setState({ ...state, snippets: [...snippets] });
     }
   }
@@ -220,7 +235,7 @@ export default function Snippets(props) {
                 {snippetUser.isLocal || snippetUser.username === user.username ? (
                   <SnippetDropdown index={index} user={snippetUser} snippet={snippet}
                     uploadSnippet={uploadSnippet}
-                    removeSnippet={removeSnippet}
+                    removeSnippet={showSnippetRemoveModal}
                     toggleSnippetPrivacy={toggleSnippetPrivacy} />
                 ) : (user.username ? (
                   <button className="btn icon-text-btn snippet-fork-btn" onClick={() => forkSnippet(index)}>
@@ -289,6 +304,7 @@ export default function Snippets(props) {
           </div>
         )}
         {renderSnippets()}
+        {state.removeModal ? <SnippetRemoveModal hide={hideSnippetRemoveModal} removeSnippet={removeSnippet} /> : null}
       </div>
     );
   }

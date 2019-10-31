@@ -29,7 +29,7 @@ export default function Header() {
       <li className="header-nav-item">
         <Dropdown
           toggle={{ content: <Icon name="menu" />, title: "Toggle navigation menu", className: "btn icon-btn header-nav-dropdown-toggle-btn" }}
-          body={{ className: "header-nav-dropdown" }} hideOnNavigation>
+          body={{ className: "header-nav-dropdown" }}>
           <NavLink to={username ? `/users/${username}` : "/snippets"} exact className="btn text-btn header-link" activeClassName="active">Snippets</NavLink>
           <NavLink to="/login" className="btn text-btn header-link" activeClassName="active">Log In</NavLink>
           <NavLink to="/register" className="btn text-btn header-link" activeClassName="active">Sign Up</NavLink>

@@ -1,10 +1,12 @@
 import React from "react";
-import { withRouter } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import "./snippet-dropdown.scss";
 import Dropdown from "../../Dropdown";
 import Icon from "../../Icon";
 
-function SnippetDropdown({ history, index, user, snippet, uploadSnippet, removeSnippet, toggleSnippetPrivacy }) {
+export default function SnippetDropdown({ index, user, snippet, uploadSnippet, removeSnippet, toggleSnippetPrivacy }) {
+  const history = useHistory();
+
   function editSnippet(id, isLocal) {
     history.push({
       pathname: isLocal ? `/snippets/${id}/edit` : `/users/${user.username}/${id}/edit`
@@ -16,7 +18,7 @@ function SnippetDropdown({ history, index, user, snippet, uploadSnippet, removeS
       toggle={{ content: <Icon name="dots" />, title: "Toggle action menu", className: "btn icon-btn" }}
       body={{ className: "snippet-dropdown" }}>
       <button className="btn icon-text-btn dropdown-btn snippet-dropdown-btn"
-        onClick={() => editSnippet(snippet.id, snippet.isLocal)} data-dropdown-keep>
+        onClick={() => editSnippet(snippet.id, snippet.isLocal)}>
         <Icon name="edit" />
         <span>Edit</span>
       </button>
@@ -43,5 +45,3 @@ function SnippetDropdown({ history, index, user, snippet, uploadSnippet, removeS
     </Dropdown>
   );
 }
-
-export default withRouter(SnippetDropdown);

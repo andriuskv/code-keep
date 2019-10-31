@@ -1,14 +1,15 @@
 import React, { useState } from "react";
-import { Link, withRouter } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { useUser } from "../../../context/user-context";
 import Icon from "../../Icon";
 import img from "../../../assets/header-image.png";
 import spinner from "../../../assets/ring.svg";
 
-function Register(props) {
+export default function Register() {
   const [fieldMessage, setFieldMessage] = useState({});
   const [submitButtonState, setSubmitButtonState] = useState(false);
   const { registerUser } = useUser();
+  const history = useHistory();
 
   function hideFieldMessage(name) {
     delete fieldMessage[name];
@@ -64,7 +65,7 @@ function Register(props) {
       setSubmitButtonState(false);
 
       if (data.username) {
-        props.history.push({
+        history.push({
           pathname: `/users/${data.username}`
         });
       }
@@ -137,5 +138,3 @@ function Register(props) {
     </form>
   );
 }
-
-export default withRouter(Register);

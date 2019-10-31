@@ -112,6 +112,9 @@ export default function Snippets(props) {
   }
 
   async function removeSnippet() {
+    if (state.snippetsMessage) {
+      hideSnippetsMessage();
+    }
     const { snippets, removeModal } = state;
     const { index, isLocal } = removeModal;
     const { id, userId } = snippets[index];
@@ -123,25 +126,40 @@ export default function Snippets(props) {
 
     if (deleted) {
       snippets.splice(index, 1);
-      delete state.removeModal;
-      setState({ ...state, snippets: [...snippets] });
     }
+    else {
+      state.snippetsMessage = "Snippet removal was unsuccessful.";
+    }
+    delete state.removeModal;
+    setState({ ...state });
   }
 
   async function toggleSnippetPrivacy(snippet) {
-    snippet.isPrivate = !snippet.isPrivate;
-
+    if (state.snippetsMessage) {
+      hideSnippetsMessage();
+    }
+    const value = !snippet.isPrivate;
     const data = await updateServerSnippet({
       id: snippet.id,
-      isPrivate: snippet.isPrivate
+      isPrivate: value
     });
 
     if (data.code === 200) {
-      setState({ ...state, snippets: [...state.snippets] });
+      snippet.isPrivate = value;
     }
+    else if (data.code === 401) {
+      state.snippetsMessage = "Seems like your session has expired. Relogin and try again.";
+    }
+    else {
+      state.snippetsMessage = "Something went wrong. Try again later.";
+    }
+    setState({ ...state });
   }
 
   async function forkSnippet(index) {
+    if (state.snippetsMessage) {
+      hideSnippetsMessage();
+    }
     const snippet = state.snippets[index];
     const id = getRandomString();
     const data = await createServerSnippet({
@@ -166,14 +184,32 @@ export default function Snippets(props) {
         pathname:`/users/${user.username}/${data.id ? data.id : id}`
       });
     }
+    else if (data.code === 401) {
+      state.snippetsMessage = "Seems like your session has expired. Relogin and try again.";
+      setState({ ...state });
+    }
+    else {
+      state.snippetsMessage = "Something went wrong. Try again later.";
+      setState({ ...state });
+    }
   }
 
   async function uploadSnippet(index) {
+    if (state.snippetsMessage) {
+      hideSnippetsMessage();
+    }
     const snippet = state.snippets[index];
-    const remoteSnippet = { ...snippet };
+    const remoteSnippet = {
+      ...snippet,
+      userId: user._id,
+      isPrivate: true,
+      id: getRandomString(),
+      files: snippet.files.map(file => {
+        file.id = getRandomString();
+        return file;
+      })
+    };
     delete remoteSnippet.isLocal;
-    remoteSnippet.userId = user._id;
-    remoteSnippet.isPrivate = true;
     const data = await createServerSnippet(remoteSnippet);
 
     if (data.code === 200) {
@@ -184,9 +220,19 @@ export default function Snippets(props) {
 
       if (deleted) {
         state.snippets.splice(index, 1, remoteSnippet);
-        setState({ user: state.user, snippets: [...state.snippets] });
+      }
+      else {
+        state.snippets.unshift(remoteSnippet);
+        state.snippetsMessage = "Upload was successful, but was unable to remove local snippet.";
       }
     }
+    else if (data.code === 401) {
+      state.snippetsMessage = "Seems like your session has expired. Relogin and try again.";
+    }
+    else {
+      state.snippetsMessage = "Something went wrong. Try again later.";
+    }
+    setState({ ...state });
   }
 
   function hideSnippetsMessage() {
@@ -200,14 +246,14 @@ export default function Snippets(props) {
     if (user.isLocal) {
       return (
         <div className="snippets-header">
-          <h2 className="snippets-header-title">Your Local Snippets</h2>
+          <h2 className="snippets-header-title">Your local snippets</h2>
           <Link to="/snippets/create" className="btn btn-secondary">Create Snippet</Link>
         </div>
       );
     }
     return (
       <div className="snippets-header">
-        <h2 className="snippets-header-title">{user.username}</h2>
+        <h2 className="snippets-header-title">{user.username}'s snippets</h2>
         {user.isLoggedIn && (
           <Link to="/snippets/create" className="btn btn-secondary">Create Snippet</Link>
         )}

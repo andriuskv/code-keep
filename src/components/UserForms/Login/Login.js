@@ -1,14 +1,16 @@
 import React, { useState } from "react";
-import { Link, withRouter } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { useUser } from "../../../context/user-context";
 import Icon from "../../Icon";
 import img from "../../../assets/header-image.png";
 import spinner from "../../../assets/ring.svg";
 
-function Login(props) {
+export default function Login() {
   const [fieldMessage, setFieldMessage] = useState({});
   const [submitButtonState, setSubmitButtonState] = useState(false);
   const { signInUser } = useUser();
+  const history = useHistory();
+  const location = useLocation();
 
   function hideFieldMessage(name) {
     delete fieldMessage[name];
@@ -32,13 +34,13 @@ function Login(props) {
       else if (data.code === 500) {
         setFieldMessage({ form: "Something went wrong. Try again later." });
       }
-      else if (props.location.search.startsWith("?redirect=")) {
-        props.history.push({
-          pathname: props.location.search.split("=")[1]
+      else if (location.search.startsWith("?redirect=")) {
+        history.push({
+          pathname: location.search.split("=")[1]
         });
       }
       else {
-        props.history.push({
+        history.push({
           pathname: `/users/${data.username}`
         });
       }
@@ -82,5 +84,3 @@ function Login(props) {
     </form>
   );
 }
-
-export default withRouter(Login);

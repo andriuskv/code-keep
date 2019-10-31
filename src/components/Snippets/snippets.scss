@@ -31,17 +31,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-xs) var(--space-sm) var(--space-xs) var(--space-xl);
+  padding: var(--space-xs) var(--space-sm) var(--space-xs) var(--space-lg);
   margin-bottom: var(--space-xl);
   border-radius: 999px;
   background-color: var(--color-danger-10);
   box-shadow: 0 0 0 1px var(--color-danger);
   color: var(--color-danger);
   font-size: var(--text-sm);
+
+  @include breakpoint-small {
+    padding: var(--space-sm) var(--space-sm) var(--space-sm) var(--space-xl);
+  }
 }
 
 .snippets-message-btn {
-  margin-left: 4px;
+  margin-left:var(--space-sm);
   color: inherit;
 
   &:hover, &.focus-visible {

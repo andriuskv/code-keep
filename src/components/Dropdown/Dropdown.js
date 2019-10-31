@@ -1,15 +1,18 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./dropdown.scss";
 import { getRandomString } from "../../utils";
 
-export default function Dropdown({ toggle, body, children, hideOnNavigation = false }) {
+export default function Dropdown({ toggle, body, children }) {
   const [{ id, visible}, setState] = useState({ visible: false, id: "" });
   const memoizedWindowClickHandler = useCallback(handleWindowClick, [id]);
+  const isMounted = useRef(false);
 
   useEffect(() => {
     setState({ visible, id: getRandomString() });
+    isMounted.current = true;
 
     return () => {
+      isMounted.current = false;
       window.removeEventListener("click", memoizedWindowClickHandler);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -27,21 +30,17 @@ export default function Dropdown({ toggle, body, children, hideOnNavigation = fa
 
   function handleWindowClick({ target }) {
     const closestContanier = target.closest(".dropdown-container");
+    let hideDropdown = true;
 
-    if (!closestContanier || id !== closestContanier.id) {
-      const closestLink = target.closest("a");
+    if (closestContanier && closestContanier.id === id) {
+      hideDropdown = target.closest("a") || target.closest(".dropdown-btn");
+    }
 
-      if (!closestLink || hideOnNavigation) {
+    if (hideDropdown) {
+      if (isMounted.current) {
         setState({ id, visible: false });
       }
       window.removeEventListener("click", memoizedWindowClickHandler);
-    }
-    else if (target.closest("[data-dropdown-keep]")) {
-      window.removeEventListener("click", memoizedWindowClickHandler);
-    }
-    else if (target.closest("a") || target.closest(".dropdown-btn")) {
-      window.removeEventListener("click", memoizedWindowClickHandler);
-      setState({ id, visible: false });
     }
   }
 

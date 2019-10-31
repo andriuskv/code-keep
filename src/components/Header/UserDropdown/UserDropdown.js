@@ -1,15 +1,16 @@
 import React, { Fragment, useState } from "react";
-import { withRouter, Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import "./user-dropdown.scss";
 import { useUser } from "../../../context/user-context";
 import Icon from "../../Icon";
 import Dropdown from "../../Dropdown";
 import spinner from "../../../assets/ring.svg";
 
-function UserDropdown(props) {
+export default function UserDropdown() {
   const [logoutButtonState, setLogoutButtonState] = useState(false);
   const [logoutMessage, setLogoutMessage] = useState("");
   const { username, email, signOutUser } = useUser();
+  const history = useHistory();
 
   async function handleLogout() {
     try {
@@ -18,7 +19,7 @@ function UserDropdown(props) {
       const didLogout = await signOutUser();
 
       if (didLogout) {
-        props.history.replace("/login");
+        history.replace("/login");
       }
       else {
         setLogoutButtonState(false);
@@ -40,9 +41,7 @@ function UserDropdown(props) {
   }
 
   return (
-    <Dropdown
-      toggle={getToggleButton()}
-      body={{className: "header-dropdown"}} hideOnNavigation>
+    <Dropdown toggle={getToggleButton()} body={{className: "header-dropdown"}}>
       <Fragment>
         <div className="header-dropdown-name">{username}</div>
         <div className="header-dropdown-email">{email}</div>
@@ -62,5 +61,3 @@ function UserDropdown(props) {
     </Dropdown>
   );
 }
-
-export default withRouter(UserDropdown);

@@ -41,7 +41,7 @@
 }
 
 .user-form-message-btn {
-  margin-left: 4px;
+  margin-left: var(--space-sm);
   color: inherit;
 
   &:hover, &.focus-visible {

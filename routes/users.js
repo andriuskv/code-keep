@@ -88,7 +88,7 @@ router.get("/me", async ({ session: { user }}, res) => {
 
 router.get("/:username", async (req, res) => {
   try {
-    const user = await User.findOne({ usernameLowerCase: { $regex: new RegExp(`^${req.params.username.toLowerCase()}$`, "i") } });
+    const user = await findUser(req.params.username);
 
     if (user) {
       return res.json(user.getUser());
@@ -116,7 +116,7 @@ router.post("/login", async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({ usernameLowerCase: { $regex: new RegExp(`^${req.body.username.toLowerCase()}$`, "i") } });
+    const user = await findUser(req.body.username);
 
     if (user && user.validatePassword(req.body.password)) {
       const data = user.getUser();
@@ -124,6 +124,51 @@ router.post("/login", async (req, res) => {
       return res.json(data);
     }
     return res.json({ code: 400 });
+  } catch (e) {
+    console.log(e);
+    res.json({ code: 500 });
+  }
+});
+
+router.post("/update", async (req, res) => {
+  if (!req.session.user) {
+    return res.json({ code: 401 });
+  }
+  const missingFields = ValidateFields(["oldUsername", "newUsername"], req.body);
+
+  if (missingFields.length) {
+    return res.json({ code: 400 });
+  }
+
+  if (!validator.isAlphanumeric(req.body.newUsername)) {
+    return res.json({ code: 400, message: "Username can only contain alphanumeric characters." });
+  }
+
+  if (!validator.isLength(req.body.newUsername, { min: 3, max: 20 })) {
+    return res.json({ code: 400, message: "Username length shuold be between 3 and 20 characters." });
+  }
+
+  if (req.body.newUsername === req.body.oldUsername) {
+    return res.json({ code: 400, message: "Can't change to the same username." });
+  }
+
+  try {
+    const user = await findUser(req.body.oldUsername);
+
+    if (user) {
+      const userWithNewName = await findUser(req.body.newUsername);
+
+      if (userWithNewName && user.username !== userWithNewName.username) {
+        return res.json({ code: 400, message: "User with that username already exists." });
+      }
+      user.username = req.body.newUsername;
+      user.usernameLowerCase = req.body.newUsername.toLowerCase();
+
+      await user.save();
+      req.session.user = user.getUser();
+      return res.json({ code: 200 });
+    }
+    return res.json({ code: 500 });
   } catch (e) {
     console.log(e);
     res.json({ code: 500 });
@@ -166,6 +211,10 @@ router.post("/change/password", async (req, res) => {
     res.json({ code: 500 });
   }
 });
+
+function findUser(username) {
+  return User.findOne({ usernameLowerCase: { $regex: new RegExp(`^${username.toLowerCase()}$`, "i") } });
+}
 
 function ValidateFields(requiredFields, presentFields) {
   const missingFields = [];

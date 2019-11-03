@@ -35,7 +35,7 @@ export default function Login() {
         setFieldMessage({ form: "Something went wrong. Try again later." });
       }
       else if (location.search.startsWith("?redirect=")) {
-        history.push({
+        history.replace({
           pathname: location.search.split("=")[1]
         });
       }

@@ -22,7 +22,12 @@ export default function UserForms(props) {
 
     if (props.match.path === "/login") {
       if(username) {
-        redirectUser(`/users/${username}`);
+        if (props.location.search.startsWith("?redirect=")) {
+          redirectUser(props.location.search.split("=")[1]);
+        }
+        else {
+          redirectUser(`/users/${username}`);
+        }
       }
       else {
         setState("login");

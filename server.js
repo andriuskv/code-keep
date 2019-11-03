@@ -25,15 +25,14 @@ app.use(session({
   secret: process.env.SESSION_SECRET || "secret",
   resave: false,
   saveUninitialized: false,
+  cookie: {
+    sameSite: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 1000 * 60 * 60 * 24 * 365
+  },
   store: new MongoStore({
     mongooseConnection: mongoose.connection,
-    collection: "session",
-    ttl: 1000 * 60 * 60 * 24 * 2 / 1000,
-    cookie: {
-      sameSite: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 1000 * 60 * 60 * 24 * 2
-    }
+    collection: "session"
   })
 }));
 

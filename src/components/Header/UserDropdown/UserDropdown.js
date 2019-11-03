@@ -7,28 +7,24 @@ import Dropdown from "../../Dropdown";
 import spinner from "../../../assets/ring.svg";
 
 export default function UserDropdown() {
-  const [logoutButtonState, setLogoutButtonState] = useState(false);
-  const [logoutMessage, setLogoutMessage] = useState("");
+  const [logout, setLogout] = useState({ buttonDisabled: false, message: "" });
   const { username, email, signOutUser } = useUser();
   const history = useHistory();
 
   async function handleLogout() {
     try {
-      setLogoutButtonState(true);
-      setLogoutMessage("");
+      setLogout({ buttonDisabled: true, message: "" });
       const didLogout = await signOutUser();
 
       if (didLogout) {
         history.replace("/login");
       }
       else {
-        setLogoutButtonState(false);
-        setLogoutMessage("Could not logout. Try again later.");
+        setLogout({ buttonDisabled: false, message: "Could not logout. Try again later." });
       }
     } catch (e) {
       console.log(e);
-      setLogoutButtonState(false);
-      setLogoutMessage("Could not logout. Try again later.");
+      setLogout({ buttonDisabled: false, message: "Could not logout. Try again later." });
     }
   }
 
@@ -46,16 +42,16 @@ export default function UserDropdown() {
         <div className="header-dropdown-name">{username}</div>
         <div className="header-dropdown-email">{email}</div>
         <div className="header-dropdown-divider"></div>
-        <Link to="/change/password" className="btn header-dropdown-link">Change Password</Link>
+        <Link to="/settings" className="btn header-dropdown-link">Settings</Link>
         <button className="btn dropdown-btn header-dropdown-btn"
-          onClick={handleLogout} disabled={logoutButtonState}>
+          onClick={handleLogout} disabled={logout.buttonDisabled} data-dropdown-keep>
           <span>Logout</span>
-          {logoutButtonState && (
+          {logout.buttonDisabled && (
             <img src={spinner} className="header-dropdown-btn-spinner" alt="" />
           )}
         </button>
-        {logoutMessage && (
-          <div className="header-dropdown-message">{logoutMessage}</div>
+        {logout.message && (
+          <div className="header-dropdown-message">{logout.message}</div>
         )}
       </Fragment>
     </Dropdown>

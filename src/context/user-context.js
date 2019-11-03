@@ -58,7 +58,11 @@ function UserProvider({ children }) {
     setUser({});
   }
 
-  return <UserContext.Provider value={{ ...user, registerUser, signInUser, signOutUser, updateUserStatus }}>{ children }</UserContext.Provider>;
+  function updateUser(data) {
+    setUser({ ...user, ...data });
+  }
+
+  return <UserContext.Provider value={{ ...user, registerUser, signInUser, signOutUser, updateUserStatus, updateUser }}>{ children }</UserContext.Provider>;
 }
 
 function useUser() {

@@ -1,4 +1,4 @@
-.settings-container {
+.editor-settings-modal-container {
   z-index: 4;
   position: fixed;
   top: 0;
@@ -12,7 +12,7 @@
   background-color: var(--color-grey-darkest-60);
 }
 
-.settings {
+.editor-settings-modal {
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -25,14 +25,14 @@
   box-shadow: 0 1px 4px 0 var(--color-black-10);
 }
 
-.settings-title {
+.editor-settings-modal-title {
   margin-bottom: var(--space-xl);
   font-size: var(--text-lg);
   font-weight: 500;
   text-align: center;
 }
 
-.settings-item {
+.editor-settings-modal-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -41,12 +41,12 @@
   border-bottom: 1px solid var(--color-grey);
 }
 
-.settings-item-checkbox-label {
+.editor-settings-modal-checkbox-label {
   margin-right: var(--space-md);
   cursor: default;
 }
 
-.settings-item-checkbox {
+.editor-settings-modal-checkbox {
   padding-right: 18px;
 
   &:focus {
@@ -58,12 +58,12 @@
   }
 }
 
-.settings-input {
+.editor-settings-modal-input {
   width: 56px;
   text-align: center;
 }
 
-.settings-close-btn {
+.editor-settings-modal-close-btn {
   margin-left: auto;
 }
 

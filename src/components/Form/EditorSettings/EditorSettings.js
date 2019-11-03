@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { getSettings, saveSettings } from "../../services/settings";
-import "./settings.scss";
+import { getSettings, saveSettings } from "../../../services/editor-settings";
+import "./editor-settings.scss";
 
-export default function Settings({ hide, snippetSettings }) {
+export default function EdittorSettings({ hide, snippetSettings }) {
   const [settings, setSettings] = useState({ ...getSettings(), ...snippetSettings });
 
   useEffect(() => {
@@ -42,17 +42,17 @@ export default function Settings({ hide, snippetSettings }) {
   }
 
   return (
-    <div className="settings-container" onClick={hide}>
-      <div className="settings">
-        <h3 className="settings-title">Editor Settings</h3>
-        <label className="settings-item">
+    <div className="editor-settings-modal-container" onClick={hide}>
+      <div className="editor-settings-modal">
+        <h3 className="editor-settings-modal-title">Editor Settings</h3>
+        <label className="editor-settings-modal-item">
           <div>Editor font size in pixels</div>
-          <input type="text" className="settings-input input" inputMode="numeric"
+          <input type="text" className="input editor-settings-modal-input" inputMode="numeric"
             pattern="\d+"
             defaultValue={settings.fontSize}
             onChange={handleFontSizeChange} />
         </label>
-        <label className="settings-item">
+        <label className="editor-settings-modal-item">
           <div>Indentation size</div>
           <select className="select" onChange={handleSelectChange} value={settings.indentSize}>
             <option value="2">2</option>
@@ -60,23 +60,23 @@ export default function Settings({ hide, snippetSettings }) {
             <option value="8">8</option>
           </select>
         </label>
-        <div className="settings-item settings-item-checkbox checkbox-container"
+        <div className="editor-settings-modal-item editor-settings-modal-checkbox"
           role="checkbox" aria-checked={settings.indentWithSpaces} tabIndex="0"
           onClick={handleCheckboxToggle} onKeyPress={handleCheckboxToggle} data-name="indentWithSpaces">
-          <div className="settings-item-checkbox-label">Insert spaces when pressing <b>Tab</b></div>
+          <div className="editor-settings-modal-checkbox-label">Insert spaces when pressing <b>Tab</b></div>
           <div className={`checkbox${settings.indentWithSpaces ? " checked" : ""}`}>
             <div className="checkmark"></div>
           </div>
         </div>
-        <div className="settings-item settings-item-checkbox checkbox-container"
+        <div className="editor-settings-modal-item editor-settings-modal-checkbox"
           role="checkbox" aria-checked={settings.wrapLines} tabIndex="0"
           onClick={handleCheckboxToggle} onKeyPress={handleCheckboxToggle} data-name="wrapLines">
-          <div className="settings-item-checkbox-label">Wrap lines</div>
+          <div className="editor-settings-modal-checkbox-label">Wrap lines</div>
           <div className={`checkbox${settings.wrapLines ? " checked" : ""}`}>
             <div className="checkmark"></div>
           </div>
         </div>
-        <button className="btn text-btn settings-close-btn"
+        <button className="btn text-btn editor-settings-modal-close-btn"
           onClick={event => hide(event, true)}>Close</button>
       </div>
     </div>

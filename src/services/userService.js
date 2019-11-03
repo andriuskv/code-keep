@@ -28,10 +28,15 @@ function updateUserPassword(data) {
   return postUser(data, "/change/password");
 }
 
+function updateUser(data) {
+  return postUser(data, "/update");
+}
+
 export {
   fetchUser,
   createUser,
   loginUser,
   logoutUser,
-  updateUserPassword
+  updateUserPassword,
+  updateUser
 };

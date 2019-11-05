@@ -8,7 +8,7 @@ import spinner from "../../../assets/ring.svg";
 
 export default function UserDropdown() {
   const [logout, setLogout] = useState({ buttonDisabled: false, message: "" });
-  const { username, email, signOutUser } = useUser();
+  const { username, email, profileImage, signOutUser } = useUser();
   const history = useHistory();
 
   async function handleLogout() {
@@ -30,9 +30,13 @@ export default function UserDropdown() {
 
   function getToggleButton() {
     return {
-      content: <Icon name="user" />,
+      content: profileImage ? (
+        <div className="header-dropdown-profile-image-container">
+          <img src={profileImage} className="header-dropdown-profile-image" alt="" />
+        </div>
+      ) : <Icon name="user" />,
       title: "Toggle user menu",
-      className: "btn icon-btn header-link header-dropdown-toggle-btn"
+      className: `btn icon-btn header-link header-dropdown-toggle-btn${profileImage ? " with-image" : ""}`
     };
   }
 

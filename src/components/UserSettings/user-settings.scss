@@ -1,5 +1,17 @@
+.settings {
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.settings-title {
+  margin-bottom: 32px;
+  font-weight: 500;
+  font-size: var(--text-xxl);
+}
+
 .settings-form {
-  padding: 16px 0;
+  padding-bottom: 16px;
   margin-bottom: 16px;
   border-bottom: 1px solid var(--color-grey-light);
 }
@@ -8,24 +20,66 @@
   margin-bottom: 16px;
 }
 
-.settings-form-field-title {
+.settings-form-group {
+  display: flex;
+  align-items: center;
+}
+
+.settings-form-file-default-preview {
+  padding: 8px;
+  border-radius: 50%;
+  color: var(--color-grey-lighter);
+  box-shadow: 0 0 0 1px var(--color-grey-light);
+}
+
+.settings-form-file-preview-container {
+  overflow: hidden;
+  position: relative;
+  height: 36px;
+  width: 36px;
+  border-radius: 50%;
+}
+
+.settings-form-file-preview {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 100%;
+  min-width: 36px;
+}
+
+.settings-form-file-input-btn {
   margin-left: 8px;
-  margin-bottom: 8px;
-  font-size: 14px;
-  font-weight: 500;
+  margin-right: 8px;
+
+  input {
+    display: none;
+  }
+}
+
+.settings-form-file-submit-btn {
+  --background-color: var(--color-grey);
+
+  margin-left: auto;
 }
 
 .settings-form-field {
   margin-right: 8px;
-
-  &.invalid {
-    box-shadow: 0 0 0 1px var(--color-danger);
-  }
 }
 
-.settings-form-field-message {
-  padding: 0 var(--space-md);
+.settings-form-username-submit-btn {
+  margin-left: auto;
+}
+
+.settings-form-message {
+  --message-color: var(--color-danger);
+
   margin-top: var(--space-md);
-  color: var(--color-danger);
+  color: var(--message-color);
   font-size: var(--text-sm);
+
+  &.success {
+    --message-color: var(--color-success);
+  }
 }

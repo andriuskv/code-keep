@@ -8,12 +8,12 @@ import { fetchSnippets, deleteSnippet, sortSnippets } from "../../services/snipp
 import { fetchServerSnippets, createServerSnippet, updateServerSnippet } from "../../services/snippetServerService";
 import { useUser } from "../../context/user-context";
 import Icon from "../Icon";
+import PageSpinner from "../PageSpinner";
 import Editor from "../Editor";
 import DateDiff from "../DateDiff";
 import NoMatch from "../NoMatch";
 import SnippetDropdown from "./SnippetDropdown";
 import SnippetRemoveModal from "./SnippetRemoveModal";
-import spinner from "../../assets/ring.svg";
 
 export default function Snippets(props) {
   const [state, setState] = useState({
@@ -44,7 +44,7 @@ export default function Snippets(props) {
       setDocumentTitle("Your Snippets");
     }
     else if (username) {
-      if (username === user.username) {
+      if (username.toLowerCase() === user.usernameLowerCase) {
         initAuthUser();
       }
       else if (!user.loading) {
@@ -330,7 +330,7 @@ export default function Snippets(props) {
   }
 
   if (state.loading) {
-    return <img src={spinner} className="snippets-spinner" alt="" />;
+    return <PageSpinner/>;
   }
 
   if (!state.user || state.message) {

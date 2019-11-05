@@ -7,12 +7,12 @@ import { fetchIDBSnippet } from "../../services/snippetIDBService";
 import { fetchServerSnippet } from "../../services/snippetServerService";
 import { useUser } from "../../context/user-context";
 import Icon from "../Icon";
+import PageSpinner from "../PageSpinner";
 import FileHeaderDropdown from "./FileHeaderDropdown";
 import Editor from "../Editor";
 import DateDiff from "../DateDiff";
 import Markdown from "../Markdown";
 import NoMatch from "../NoMatch";
-import spinner from "../../assets/ring.svg";
 
 export default function View(props) {
   const [state, setState] = useState({
@@ -103,7 +103,7 @@ export default function View(props) {
   }
 
   if (state.loading) {
-    return state.isLocal ? null : <img src={spinner} className="view-spinner" alt="" />;
+    return state.isLocal ? null : <PageSpinner/>;
   }
   else if (!state.title || state.message) {
     return <NoMatch message={state.message} />;

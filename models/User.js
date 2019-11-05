@@ -21,6 +21,9 @@ const UserSchema = new mongoose.Schema({
     unique: true,
     trim: true
   },
+  profileImage: {
+    type: String
+  },
   hash: String,
   salt: String
 });
@@ -30,7 +33,8 @@ UserSchema.methods.getUser = function() {
     _id: this._id,
     username: this.username,
     usernameLowerCase: this.usernameLowerCase,
-    email: this.email
+    email: this.email,
+    profileImage: this.profileImage
   };
 };
 
@@ -42,6 +46,10 @@ UserSchema.methods.setPassword = function(password) {
 UserSchema.methods.validatePassword = function(password) {
   const hash = crypto.pbkdf2Sync(password, this.salt, 10000, 512, "sha512").toString("hex");
   return this.hash === hash;
+};
+
+UserSchema.statics.findUser = function(username) {
+  return this.findOne({ usernameLowerCase: { $regex: new RegExp(`^${username.toLowerCase()}$`, "i") } });
 };
 
 module.exports = mongoose.model("User", UserSchema);

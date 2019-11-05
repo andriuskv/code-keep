@@ -32,11 +32,19 @@ function updateUser(data) {
   return postUser(data, "/update");
 }
 
+function uploadProfileImage(data) {
+  return fetch("/users/upload", {
+    method: "POST",
+    body: data
+  }).then(res => res.json());
+}
+
 export {
   fetchUser,
   createUser,
   loginUser,
   logoutUser,
   updateUserPassword,
-  updateUser
+  updateUser,
+  uploadProfileImage
 };

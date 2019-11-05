@@ -16,8 +16,6 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/code-keep", {
   console.log(e);
 });
 
-require("./models/User");
-
 app.disable("x-powered-by");
 app.use(express.json());
 app.use(session({
@@ -40,6 +38,7 @@ app.use("/users", require("./routes/users"));
 app.use("/snippets", require("./routes/snippets"));
 
 app.use(express.static(path.join(__dirname, "build")));
+app.use("/profile_images", express.static(path.join(__dirname, "profile_images")));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "build", "index.html"));

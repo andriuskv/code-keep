@@ -1,6 +1,7 @@
 const express = require("express");
 const validator = require("validator");
 const User = require("../models/User");
+const { userUploadRoute } = require("./users.upload");
 const reservedUsernames = require("../data/reserved_usernames.json");
 const router = express.Router();
 
@@ -88,7 +89,7 @@ router.get("/me", async ({ session: { user }}, res) => {
 
 router.get("/:username", async (req, res) => {
   try {
-    const user = await findUser(req.params.username);
+    const user = await User.findUser(req.params.username);
 
     if (user) {
       return res.json(user.getUser());
@@ -116,7 +117,7 @@ router.post("/login", async (req, res) => {
   }
 
   try {
-    const user = await findUser(req.body.username);
+    const user = await User.findUser(req.body.username);
 
     if (user && user.validatePassword(req.body.password)) {
       const data = user.getUser();
@@ -153,10 +154,10 @@ router.post("/update", async (req, res) => {
   }
 
   try {
-    const user = await findUser(req.body.oldUsername);
+    const user = await User.findUser(req.body.oldUsername);
 
     if (user) {
-      const userWithNewName = await findUser(req.body.newUsername);
+      const userWithNewName = await User.findUser(req.body.newUsername);
 
       if (userWithNewName && user.username !== userWithNewName.username) {
         return res.json({ code: 400, message: "User with that username already exists." });
@@ -212,9 +213,7 @@ router.post("/change/password", async (req, res) => {
   }
 });
 
-function findUser(username) {
-  return User.findOne({ usernameLowerCase: { $regex: new RegExp(`^${username.toLowerCase()}$`, "i") } });
-}
+router.post("/upload", userUploadRoute);
 
 function ValidateFields(requiredFields, presentFields) {
   const missingFields = [];

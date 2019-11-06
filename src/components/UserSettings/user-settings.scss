@@ -1,5 +1,5 @@
 .settings {
-  max-width: 600px;
+  max-width: 480px;
   width: 100%;
   margin: 0 auto;
 }
@@ -11,28 +11,84 @@
 }
 
 .settings-form {
-  padding-bottom: 16px;
+  padding-top: 16px;
   margin-bottom: 16px;
-  border-bottom: 1px solid var(--color-grey-light);
+  border-top: 1px solid var(--color-grey-light);
 }
 
 .settings-form-title {
-  margin-bottom: 16px;
+  margin-bottom: 32px;
 }
 
 .settings-form-group {
   display: flex;
-  align-items: center;
 }
 
-.settings-form-file-default-preview {
+.settings-form-field-title {
+  margin-left: 4px;
+  margin-bottom: var(--space-md);
+  font-weight: 500;
+  font-size: var(--text-sm);
+}
+
+.settings-form-field {
+  margin-right: 8px;
+  flex-grow: 1;
+}
+
+.settings-form-field-message {
+  margin-top: var(--space-md);
+  color: var(--color-danger);
+  font-size: var(--text-sm);
+}
+
+.settings-form-message {
+  display: flex;
+  align-items: center;
+  margin-top: var(--space-xl);
+  padding: var(--space-xs) var(--space-xs) var(--space-xs) var(--space-lg);
+  border-radius: 999px;
+  background-color: var(--message-background-color);
+  box-shadow: 0 0 0 1px var(--message-color);
+  color: var(--message-color);
+  font-size: var(--text-sm);
+
+  &.error {
+    --message-background-color: var(--color-danger-10);
+    --message-color: var(--color-danger);
+  }
+
+  &.success {
+    --message-background-color: var(--color-success-10);
+    --message-color: var(--color-success);
+  }
+}
+
+.settings-form-message-btn {
+  margin-left: auto;
+  color: inherit;
+
+  &:hover, &.focus-visible {
+    --background-color: var(--message-background-color);
+  }
+}
+
+.settings-form-submit-btn-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 80%;
+  transform: translate(-50%, -50%);
+}
+
+.settings-file-form-default-preview {
   padding: 8px;
   border-radius: 50%;
   color: var(--color-grey-lighter);
   box-shadow: 0 0 0 1px var(--color-grey-light);
 }
 
-.settings-form-file-preview-container {
+.settings-file-form-preview-container {
   overflow: hidden;
   position: relative;
   height: 36px;
@@ -40,7 +96,7 @@
   border-radius: 50%;
 }
 
-.settings-form-file-preview {
+.settings-file-form-preview {
   position: absolute;
   top: 0;
   left: 50%;
@@ -49,7 +105,9 @@
   min-width: 36px;
 }
 
-.settings-form-file-input-btn {
+.settings-file-form-input-btn {
+  display: flex;
+  align-items: center;
   margin-left: 8px;
   margin-right: 8px;
 
@@ -58,28 +116,55 @@
   }
 }
 
-.settings-form-file-submit-btn {
+.settings-file-form-submit-btn {
   --background-color: var(--color-grey);
 
+  position: relative;
   margin-left: auto;
 }
 
-.settings-form-field {
-  margin-right: 8px;
+.settings-username-form-group {
+  display: flex;
+  align-items: flex-end;
 }
 
-.settings-form-username-submit-btn {
+.settings-username-form-submit-btn {
+  position: relative;
+  min-height: 34px;
   margin-left: auto;
 }
 
-.settings-form-message {
-  --message-color: var(--color-danger);
+.settings-password-form-message {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
 
-  margin-top: var(--space-md);
-  color: var(--message-color);
-  font-size: var(--text-sm);
+.settings-password-form-content {
+  display: flex;
+  flex-direction: column;
+}
 
-  &.success {
-    --message-color: var(--color-success);
+.settings-password-form-group {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.settings-password-form-groups {
+  display: flex;
+  margin-top: 16px;
+
+  .settings-password-form-group:first-of-type {
+    margin-right: 8px;
   }
+}
+
+.settings-password-form-field-message {
+  min-height: 16px;
+}
+
+.settings-password-form-submit-btn {
+  position: relative;
+  margin-top: 8px;
+  margin-left: auto;
 }

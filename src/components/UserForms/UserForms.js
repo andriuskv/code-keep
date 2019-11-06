@@ -4,7 +4,6 @@ import { setDocumentTitle } from "../../utils";
 import { useUser } from "../../context/user-context";
 import Login from "./Login";
 import Register from "./Register";
-import ChangePassword from "./ChangePassword";
 
 export default function UserForms(props) {
   const [state, setState] = useState("");
@@ -43,15 +42,6 @@ export default function UserForms(props) {
         setDocumentTitle("Sign up");
       }
     }
-    else if (props.match.path === "/change/password") {
-      if (username) {
-        setState("change-password");
-        setDocumentTitle("Change password");
-      }
-      else {
-        redirectUser("/login");
-      }
-    }
   }
 
   function redirectUser(path) {
@@ -65,9 +55,6 @@ export default function UserForms(props) {
   }
   else if (state === "login") {
     return <Login />;
-  }
-  else if (state === "change-password") {
-    return <ChangePassword />;
   }
   return null;
 }

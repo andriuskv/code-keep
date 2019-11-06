@@ -184,7 +184,7 @@ router.post("/change/password", async (req, res) => {
     const missingFields = ValidateFields(["currentPassword", "newPassword", "repeatedNewPassword"], req.body);
 
     if (missingFields.length) {
-      return res.json({ code: 400, message: `${missingFields.join()} ${missingFields.length > 1 ? "are" : "is"} required`, field: "form" });
+      return res.json({ code: 400, message: `${missingFields.join()} ${missingFields.length > 1 ? "are" : "is"} required`, field: "passwordForm" });
     }
     const user = await User.findById(req.session.user._id);
 

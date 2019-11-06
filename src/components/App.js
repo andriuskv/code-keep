@@ -28,7 +28,6 @@ export default function App() {
             <Route path="/users/:username/:snippetId/edit" component={Form} key="remote" />
             <Route path="/login" component={UserForms} key="login" />
             <Route path="/register" component={UserForms} key="register" />
-            <Route path="/change/password" component={UserForms} key="change-password" />
             <Route path="/settings" component={UserSettings} />
             <Route component={NoMatch} />
           </Switch>

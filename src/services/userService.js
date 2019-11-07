@@ -39,6 +39,12 @@ function uploadProfileImage(data) {
   }).then(res => res.json());
 }
 
+function deleteUser() {
+  return fetch("/users/delete", {
+    method: "DELETE"
+  }).then(res => res.json());
+}
+
 export {
   fetchUser,
   createUser,
@@ -46,5 +52,6 @@ export {
   logoutUser,
   updateUserPassword,
   updateUser,
-  uploadProfileImage
+  uploadProfileImage,
+  deleteUser
 };

@@ -7,7 +7,7 @@ import Register from "./Register";
 
 export default function UserForms(props) {
   const [state, setState] = useState("");
-  const { username, loading } = useUser();
+  const { usernameLowerCase, loading } = useUser();
 
   useEffect(() => {
     init();
@@ -20,12 +20,12 @@ export default function UserForms(props) {
     }
 
     if (props.match.path === "/login") {
-      if(username) {
+      if(usernameLowerCase) {
         if (props.location.search.startsWith("?redirect=")) {
           redirectUser(props.location.search.split("=")[1]);
         }
         else {
-          redirectUser(`/users/${username}`);
+          redirectUser(`/users/${usernameLowerCase}`);
         }
       }
       else {
@@ -34,8 +34,8 @@ export default function UserForms(props) {
       }
     }
     else if (props.match.path === "/register") {
-      if(username) {
-        redirectUser(`/users/${username}`);
+      if(usernameLowerCase) {
+        redirectUser(`/users/${usernameLowerCase}`);
       }
       else {
         setState("register");

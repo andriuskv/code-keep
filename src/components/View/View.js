@@ -27,6 +27,10 @@ export default function View(props) {
   }, [user, props.match.url]);
 
   async function init() {
+    if (user.status === "logged-out") {
+      user.resetUser();
+      return;
+    }
     if (props.match.path === "/snippets/:id") {
       const { id } = props.match.params;
 

@@ -40,8 +40,8 @@ export default function Login() {
         });
       }
       else {
-        history.push({
-          pathname: `/users/${data.username}`
+        history.replace({
+          pathname: `/users/${data.usernameLowerCase}`
         });
       }
     } catch (e) {

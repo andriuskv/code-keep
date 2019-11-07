@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "./user-settings.scss";
 import { setDocumentTitle } from "../../utils";
 import { useUser } from "../../context/user-context";
-import { updateUser, updateUserPassword, uploadProfileImage } from "../../services/userService";
+import { updateUser, updateUserPassword, uploadProfileImage, deleteUser } from "../../services/userService";
 import Icon from "../Icon";
 import PageSpinner from "../PageSpinner";
 import spinner from "../../assets/ring.svg";
@@ -13,11 +13,15 @@ export default function UserSettings(props) {
   const [image, setImage] = useState(null);
   const user = useUser();
   const passwordFormElement = useRef(null);
+  const [deleteButtonState, setDeleteButtonState] = useState(true);
 
   useEffect(() => {
     if (user.status === "logged-out") {
-      user.updateUserStatus();
+      user.resetUser();
       return;
+    }
+    else if (user.status === "deleted") {
+      props.history.replace("/login");
     }
     else if (!user.loading && !user.username) {
       props.history.replace({
@@ -237,6 +241,45 @@ export default function UserSettings(props) {
     }
   }
 
+  async function handleDeleteAccountFormSubmit(event) {
+    event.preventDefault();
+
+    if (event.target.elements.verification.value !== "delete") {
+      return;
+    }
+    try {
+      setButtonState("deleteForm", true);
+      const status = await deleteUser();
+
+      if (status.code === 200) {
+        user.setUserStatus("deleted");
+      }
+      else {
+        setMessage("deleteForm", { value: "Something went wrong. Try again later." });
+        setButtonState("deleteForm", false);
+      }
+    } catch (e) {
+      console.log(e);
+      setMessage("deleteForm", { value: "Something went wrong. Try again later." });
+      setButtonState("deleteForm", false);
+    }
+  }
+
+  function handleDeleteAccountKeyDown(event) {
+    if (event.key === "Enter" && event.target.nodeName === "INPUT") {
+      event.preventDefault();
+    }
+  }
+
+  function handleDeleteAccountInput(event) {
+    if (event.target.name === "verification" && event.target.value === "delete" && deleteButtonState) {
+      setDeleteButtonState(false);
+    }
+    else if (!deleteButtonState) {
+      setDeleteButtonState(true);
+    }
+  }
+
   if (user.loading) {
     return <PageSpinner/>;
   }
@@ -281,7 +324,7 @@ export default function UserSettings(props) {
       <form className="settings-form" onSubmit={handleUsernameChange} onKeyDown={handleKeydown}>
         <h3 className="settings-form-title">Change Username</h3>
         <div className="settings-username-form-group">
-          <label className="settings-password-form-group">
+          <label className="settings-form-field-group">
             <div className="settings-form-field-title">Username</div>
             <input type="text" className="input settings-form-field"
               defaultValue={user.username} name="username" required/>
@@ -317,7 +360,7 @@ export default function UserSettings(props) {
           </div>
         )}
         <div className="settings-password-form-content">
-          <label className="settings-password-form-group">
+          <label className="settings-form-field-group">
             <div className="settings-form-field-title">Current Password</div>
             <input type="password" className="input"
               name="currentPassword" required />
@@ -326,12 +369,12 @@ export default function UserSettings(props) {
             <div className="settings-form-field-message">{message.currentPassword.value}</div>
           )}
           <div className="settings-password-form-groups">
-            <label className="settings-password-form-group">
+            <label className="settings-form-field-group settings-password-form-group">
               <div className="settings-form-field-title">New Password</div>
               <input type="password" className="input"
                 name="newPassword" required />
             </label>
-            <label className="settings-password-form-group">
+            <label className="settings-form-field-group settings-password-form-group">
               <div className="settings-form-field-title">Repeat New Password</div>
               <input type="password" className="input"
                 name="newPassword" required />
@@ -342,6 +385,35 @@ export default function UserSettings(props) {
             disabled={submitButtonState.passwordForm}>
             <span>Change Password</span>
             {submitButtonState.passwordForm && (
+              <img src={spinner} className="settings-form-submit-btn-spinner" alt="" />
+            )}
+          </button>
+        </div>
+      </form>
+      <form className="settings-form"
+        onSubmit={handleDeleteAccountFormSubmit}
+        onKeyDown={handleDeleteAccountKeyDown}
+        onInput={handleDeleteAccountInput}>
+        <h3 className="settings-form-title settings-delete-form-title">Delete Account</h3>
+        {message.deleteForm && (
+          <div className={`settings-form-message settings-delete-form-message ${message.deleteForm.type}`}>
+            <span>{message.deleteForm.value}</span>
+            <button type="button" className="btn icon-btn settings-form-message-btn"
+              onClick={() => hideMessage("deleteForm")} title="Dismiss">
+              <Icon name="close" />
+            </button>
+          </div>
+        )}
+        <p className="settings-delete-form-notice">Deleting your account will delete <b>all</b> except your local snippets, also your username will become available to anyone.</p>
+        <div className="settings-delete-form-group">
+          <label className="settings-form-field-group settings-delete-form-field-group">
+            <div className="settings-form-field-title">For verification, type: <i>delete</i></div>
+            <input type="text" className="input settings-form-field" name="verification" required/>
+          </label>
+          <button className="btn settings-delete-form-submit-btn"
+            disabled={deleteButtonState || submitButtonState.deleteForm}>
+            <span>Delete Your Account</span>
+            {submitButtonState.deleteForm && (
               <img src={spinner} className="settings-form-submit-btn-spinner" alt="" />
             )}
           </button>

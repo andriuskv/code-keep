@@ -48,13 +48,17 @@ function UserProvider({ children }) {
     const data = await logoutUser();
 
     if (data.code === 200) {
-      setUser({ status: "logged-out" });
+      setUserStatus("logged-out");
       return true;
     }
     return false;
   }
 
-  function updateUserStatus() {
+  function setUserStatus(status) {
+    setUser({ status });
+  }
+
+  function resetUser() {
     setUser({});
   }
 
@@ -62,7 +66,7 @@ function UserProvider({ children }) {
     setUser({ ...user, ...data });
   }
 
-  return <UserContext.Provider value={{ ...user, registerUser, signInUser, signOutUser, updateUserStatus, updateUser }}>{ children }</UserContext.Provider>;
+  return <UserContext.Provider value={{ ...user, registerUser, signInUser, signOutUser, resetUser, updateUser, setUserStatus }}>{ children }</UserContext.Provider>;
 }
 
 function useUser() {

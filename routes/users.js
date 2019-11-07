@@ -1,6 +1,7 @@
 const express = require("express");
 const validator = require("validator");
 const User = require("../models/User");
+const Snippet = require("../models/Snippet");
 const { userUploadRoute } = require("./users.upload");
 const reservedUsernames = require("../data/reserved_usernames.json");
 const router = express.Router();
@@ -206,6 +207,37 @@ router.post("/change/password", async (req, res) => {
     }
     else {
       res.json({ code: 500 });
+    }
+  } catch (e) {
+    console.log(e);
+    res.json({ code: 500 });
+  }
+});
+
+router.delete("/delete", async (req, res) => {
+  if (!req.session.user) {
+    return res.json({ code: 401 });
+  }
+  try {
+    const user = await User.findById(req.session.user._id);
+
+    if (user) {
+      await user.remove();
+      await Snippet.deleteMany({ userId: req.session.user._id });
+
+      req.session.destroy(err => {
+        if (err) {
+          console.log(err);
+          res.json({ code: 500 });
+        }
+        else {
+          res.clearCookie("sid");
+          res.json({ code: 200 });
+        }
+      });
+    }
+    else {
+      res.json({ code: 404 });
     }
   } catch (e) {
     console.log(e);

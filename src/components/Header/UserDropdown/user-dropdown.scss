@@ -1,10 +1,15 @@
 @import "../../../styles/mixins.scss";
 
 .header-dropdown-toggle-btn {
+  display: block;
   padding: var(--space-md);
 
   &.active {
     --background-color: var(--color-grey-light);
+  }
+
+  &.with-image {
+    padding: 0;
   }
 }
 
@@ -23,6 +28,23 @@
   &.visible {
     display: flex;
   }
+}
+
+.header-dropdown-profile-image-container {
+  overflow: hidden;
+  position: relative;
+  height: 36px;
+  width: 36px;
+  border-radius: 50%;
+}
+
+.header-dropdown-profile-image {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 100%;
+  min-width: 36px;
 }
 
 .header-dropdown-name {
@@ -64,14 +86,6 @@
   &:hover, &.focus-visible {
     background-color: var(--color-grey-dark);
   }
-}
-
-.header-dropdown-btn-spinner {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  height: 80%;
-  transform: translate(-50%, -50%);
 }
 
 .header-dropdown-message {

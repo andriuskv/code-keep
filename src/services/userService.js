@@ -28,10 +28,30 @@ function updateUserPassword(data) {
   return postUser(data, "/change/password");
 }
 
+function updateUser(data) {
+  return postUser(data, "/update");
+}
+
+function uploadProfileImage(data) {
+  return fetch("/users/upload", {
+    method: "POST",
+    body: data
+  }).then(res => res.json());
+}
+
+function deleteUser() {
+  return fetch("/users/delete", {
+    method: "DELETE"
+  }).then(res => res.json());
+}
+
 export {
   fetchUser,
   createUser,
   loginUser,
   logoutUser,
-  updateUserPassword
+  updateUserPassword,
+  updateUser,
+  uploadProfileImage,
+  deleteUser
 };

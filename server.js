@@ -16,8 +16,6 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/code-keep", {
   console.log(e);
 });
 
-require("./models/User");
-
 app.disable("x-powered-by");
 app.use(express.json());
 app.use(session({
@@ -25,15 +23,14 @@ app.use(session({
   secret: process.env.SESSION_SECRET || "secret",
   resave: false,
   saveUninitialized: false,
+  cookie: {
+    sameSite: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 1000 * 60 * 60 * 24 * 365
+  },
   store: new MongoStore({
     mongooseConnection: mongoose.connection,
-    collection: "session",
-    ttl: 1000 * 60 * 60 * 24 * 2 / 1000,
-    cookie: {
-      sameSite: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 1000 * 60 * 60 * 24 * 2
-    }
+    collection: "session"
   })
 }));
 
@@ -41,6 +38,7 @@ app.use("/users", require("./routes/users"));
 app.use("/snippets", require("./routes/snippets"));
 
 app.use(express.static(path.join(__dirname, "build")));
+app.use("/profile_images", express.static(path.join(__dirname, "profile_images")));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "build", "index.html"));

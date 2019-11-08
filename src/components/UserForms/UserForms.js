@@ -4,11 +4,10 @@ import { setDocumentTitle } from "../../utils";
 import { useUser } from "../../context/user-context";
 import Login from "./Login";
 import Register from "./Register";
-import ChangePassword from "./ChangePassword";
 
 export default function UserForms(props) {
   const [state, setState] = useState("");
-  const { username, loading } = useUser();
+  const { usernameLowerCase, loading } = useUser();
 
   useEffect(() => {
     init();
@@ -21,8 +20,13 @@ export default function UserForms(props) {
     }
 
     if (props.match.path === "/login") {
-      if(username) {
-        redirectUser(`/users/${username}`);
+      if(usernameLowerCase) {
+        if (props.location.search.startsWith("?redirect=")) {
+          redirectUser(props.location.search.split("=")[1]);
+        }
+        else {
+          redirectUser(`/users/${usernameLowerCase}`);
+        }
       }
       else {
         setState("login");
@@ -30,21 +34,12 @@ export default function UserForms(props) {
       }
     }
     else if (props.match.path === "/register") {
-      if(username) {
-        redirectUser(`/users/${username}`);
+      if(usernameLowerCase) {
+        redirectUser(`/users/${usernameLowerCase}`);
       }
       else {
         setState("register");
         setDocumentTitle("Sign up");
-      }
-    }
-    else if (props.match.path === "/change/password") {
-      if (username) {
-        setState("change-password");
-        setDocumentTitle("Change password");
-      }
-      else {
-        redirectUser("/login");
       }
     }
   }
@@ -60,9 +55,6 @@ export default function UserForms(props) {
   }
   else if (state === "login") {
     return <Login />;
-  }
-  else if (state === "change-password") {
-    return <ChangePassword />;
   }
   return null;
 }

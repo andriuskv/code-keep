@@ -1,0 +1,14 @@
+.username-form {
+  display: flex;
+  align-items: flex-end;
+}
+
+.username-form-field-container {
+  flex-grow: 1;
+}
+
+.username-form-submit-btn {
+  position: relative;
+  min-height: 34px;
+  margin-left: var(--space-md);
+}

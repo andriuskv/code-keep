@@ -33,7 +33,12 @@ export default function Dropdown({ toggle, body, children }) {
     let hideDropdown = true;
 
     if (closestContanier && closestContanier.id === id) {
-      hideDropdown = target.closest("a") || target.closest(".dropdown-btn");
+      if (target.closest("[data-dropdown-keep]")) {
+        hideDropdown = false;
+      }
+      else {
+        hideDropdown = target.closest("a") || target.closest(".dropdown-btn");
+      }
     }
 
     if (hideDropdown) {

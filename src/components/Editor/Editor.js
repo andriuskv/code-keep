@@ -5,7 +5,7 @@ import "codemirror/addon/edit/closebrackets";
 import "codemirror/theme/dracula.css";
 import "./editor.scss";
 import { importEditorMode, resetEditorIndentation } from "../../utils";
-import { getSettings } from "../../services/settings";
+import { getSettings } from "../../services/editor-settings";
 
 export default function Editor({ file, settings, height, readOnly, preview, handleLoad }) {
   const { id, mode, value } = file;

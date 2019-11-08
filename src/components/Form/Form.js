@@ -4,11 +4,11 @@ import { getRandomString, setDocumentTitle, importEditorMode, resetEditorIndenta
 import { fetchUser } from "../../services/userService";
 import { fetchIDBSnippet, saveSnippet } from "../../services/snippetIDBService";
 import { fetchServerSnippet, updateServerSnippet, createServerSnippet } from "../../services/snippetServerService";
-import { getSetting, getSettings, saveSettings } from "../../services/settings";
+import { getSetting, getSettings, saveSettings } from "../../services/editor-settings";
 import { useUser } from "../../context/user-context";
 import SubmitDropdown from "./SubmitDropdown";
+import EditorSettings from "./EditorSettings";
 import Icon from "../Icon";
-import Settings from "../Settings";
 import Editor from "../Editor";
 import Markdown from "../Markdown";
 import NoMatch from "../NoMatch";
@@ -328,7 +328,7 @@ export default function Form(props) {
           </div>
         </div>
       )}
-      {state.settingsVisible && <Settings hide={hideSettings} snippetSettings={state.settings} />}
+      {state.settingsVisible && <EditorSettings hide={hideSettings} snippetSettings={state.settings} />}
     </div>
   );
 }

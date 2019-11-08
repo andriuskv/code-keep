@@ -1,0 +1,37 @@
+.settings {
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.settings-title {
+  margin-bottom: var(--space-xxxl);
+  font-weight: 500;
+  font-size: var(--text-xxl);
+}
+
+.settings-item {
+  padding-top: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  border-top: 1px solid var(--color-grey-light);
+}
+
+.settings-item-title {
+  margin-bottom: var(--space-xxxl);
+  font-size: var(--text-lg);
+}
+
+.settings-form-notification {
+  margin-bottom: var(--space-xl);
+}
+
+.settings-form-field-title {
+  margin-left: var(--space-sm);
+  margin-bottom: var(--space-md);
+  font-weight: 500;
+  font-size: var(--text-sm);
+}
+
+.settings-form-field {
+  width: 100%;
+}

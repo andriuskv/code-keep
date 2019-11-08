@@ -8,18 +8,19 @@ import Dropdown from "../Dropdown";
 import UserDropdown from "./UserDropdown";
 
 export default function Header() {
-  const { username, loading } = useUser();
+  const { usernameLowerCase, loading } = useUser();
 
   function renderItems() {
     if (loading) {
       return null;
     }
 
-    if (username) {
+    if (usernameLowerCase) {
       return (
         <Fragment>
           <li className="header-nav-item">
-            <NavLink to={username ? `/users/${username}` : "/snippets"} exact className="btn text-btn header-link" activeClassName="active">Snippets</NavLink>
+            <NavLink to={usernameLowerCase ? `/users/${usernameLowerCase}` : "/snippets"} exact
+              className="btn text-btn header-link" activeClassName="active">Snippets</NavLink>
           </li>
           <li className="header-nav-item"><UserDropdown /></li>
         </Fragment>
@@ -30,7 +31,8 @@ export default function Header() {
         <Dropdown
           toggle={{ content: <Icon name="menu" />, title: "Toggle navigation menu", className: "btn icon-btn header-nav-dropdown-toggle-btn" }}
           body={{ className: "header-nav-dropdown" }}>
-          <NavLink to={username ? `/users/${username}` : "/snippets"} exact className="btn text-btn header-link" activeClassName="active">Snippets</NavLink>
+          <NavLink to={usernameLowerCase ? `/users/${usernameLowerCase}` : "/snippets"} exact
+            className="btn text-btn header-link" activeClassName="active">Snippets</NavLink>
           <NavLink to="/login" className="btn text-btn header-link" activeClassName="active">Log In</NavLink>
           <NavLink to="/register" className="btn text-btn header-link" activeClassName="active">Sign Up</NavLink>
         </Dropdown>

@@ -1,5 +1,3 @@
-@import "../../styles/mixins.scss";
-
 .settings {
   max-width: 480px;
   width: 100%;
@@ -7,216 +5,33 @@
 }
 
 .settings-title {
-  margin-bottom: 32px;
+  margin-bottom: var(--space-xxxl);
   font-weight: 500;
   font-size: var(--text-xxl);
 }
 
-.settings-form {
-  padding-top: 16px;
-  margin-bottom: 16px;
+.settings-item {
+  padding-top: var(--space-xl);
+  margin-bottom: var(--space-xl);
   border-top: 1px solid var(--color-grey-light);
 }
 
-.settings-form-title {
-  margin-bottom: 32px;
+.settings-item-title {
+  margin-bottom: var(--space-xxxl);
   font-size: var(--text-lg);
 }
 
-.settings-form-group {
-  display: flex;
+.settings-form-notification {
+  margin-bottom: var(--space-xl);
 }
 
 .settings-form-field-title {
-  margin-left: 4px;
+  margin-left: var(--space-sm);
   margin-bottom: var(--space-md);
   font-weight: 500;
   font-size: var(--text-sm);
 }
 
 .settings-form-field {
-  flex-grow: 1;
-}
-
-.settings-form-field-message {
-  margin-top: var(--space-md);
-  color: var(--color-danger);
-  font-size: var(--text-sm);
-}
-
-.settings-form-message {
-  display: flex;
-  align-items: center;
-  margin-top: var(--space-xl);
-  padding: var(--space-xs) var(--space-xs) var(--space-xs) var(--space-lg);
-  border-radius: 999px;
-  background-color: var(--message-background-color);
-  box-shadow: 0 0 0 1px var(--message-color);
-  color: var(--message-color);
-  font-size: var(--text-sm);
-
-  &.error {
-    --message-background-color: var(--color-danger-10);
-    --message-color: var(--color-danger);
-  }
-
-  &.success {
-    --message-background-color: var(--color-success-10);
-    --message-color: var(--color-success);
-  }
-}
-
-.settings-form-message-btn {
-  margin-left: auto;
-  color: inherit;
-
-  &:hover, &.focus-visible {
-    --background-color: var(--message-background-color);
-  }
-}
-
-.settings-form-submit-btn-spinner {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  height: 80%;
-  transform: translate(-50%, -50%);
-}
-
-.settings-file-form-default-preview {
-  padding: 8px;
-  border-radius: 50%;
-  color: var(--color-grey-lighter);
-  box-shadow: 0 0 0 1px var(--color-grey-light);
-}
-
-.settings-file-form-preview-container {
-  overflow: hidden;
-  position: relative;
-  height: 36px;
-  width: 36px;
-  border-radius: 50%;
-}
-
-.settings-file-form-preview {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  height: 100%;
-  min-width: 36px;
-}
-
-.settings-file-form-input-btn {
-  display: flex;
-  align-items: center;
-  margin-left: 8px;
-  margin-right: 8px;
-
-  input {
-    display: none;
-  }
-}
-
-.settings-file-form-submit-btn {
-  --background-color: var(--color-grey);
-
-  position: relative;
-  margin-left: auto;
-}
-
-.settings-username-form-group {
-  display: flex;
-  align-items: flex-end;
-}
-
-.settings-username-form-submit-btn {
-  position: relative;
-  min-height: 34px;
-  margin-left: 8px;
-}
-
-.settings-password-form-message {
-  margin-top: 0;
-  margin-bottom: 16px;
-}
-
-.settings-password-form-content {
-  display: flex;
-  flex-direction: column;
-}
-
-.settings-form-field-group {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-}
-
-.settings-password-form-groups {
-  display: flex;
-  margin-top: 16px;
-
-  .settings-password-form-group {
-    width: calc(50% - 4px);
-
-    &:first-of-type {
-      margin-right: 8px;
-    }
-  }
-}
-
-.settings-password-form-field-message {
-  min-height: 16px;
-}
-
-.settings-password-form-submit-btn {
-  position: relative;
-  margin-top: 8px;
-  margin-left: auto;
-}
-
-.settings-delete-form-title {
-  color: var(--color-danger);
-  font-size: var(--text-xxl);
-}
-
-.settings-delete-form-message {
-  margin-top: 0;
-  margin-bottom: 16px;
-}
-
-.settings-delete-form-notice {
-  margin-bottom: 16px;
-}
-
-.settings-delete-form-group {
-  display: flex;
-  align-items: flex-end;
-
-  @include breakpoint-small {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
-.settings-delete-form-field-group {
-  @include breakpoint-small {
-    width: 100%;
-  }
-
-  i {
-    font-weight: normal;
-  }
-}
-
-.settings-delete-form-submit-btn {
-  position: relative;
-  min-height: 34px;
-  margin-left: 8px;
-  color: var(--color-danger);
-
-  @include breakpoint-small {
-    margin-top: 16px;
-    margin-left: auto;
-  }
+  width: 100%;
 }

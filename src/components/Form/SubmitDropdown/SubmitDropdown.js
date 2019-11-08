@@ -2,7 +2,7 @@ import React, { Fragment } from "react";
 import "./submit-dropdown.scss";
 import Dropdown from "../../Dropdown";
 import Icon from "../../Icon";
-import spinner from "../../../assets/ring.svg";
+import ButtonSpinner from "../../ButtonSpinner";
 
 export default function SubmitDropdown({submitButtonDisaled, username, handleSubmit}) {
   return (
@@ -14,9 +14,7 @@ export default function SubmitDropdown({submitButtonDisaled, username, handleSub
         onClick={() => handleSubmit("local")}>
         <Icon name="home" />
         <span>Create Local</span>
-        {submitButtonDisaled && (
-          <img src={spinner} className="form-submit-btn-spinner" alt="" />
-        )}
+        {submitButtonDisaled && <ButtonSpinner/>}
       </button>
       {username ? (
         <Fragment>
@@ -25,16 +23,12 @@ export default function SubmitDropdown({submitButtonDisaled, username, handleSub
             onClick={() => handleSubmit("private")}>
             <Icon name="locked" />
             <span>Create Private</span>
-            {submitButtonDisaled && (
-              <img src={spinner} className="form-submit-btn-spinner" alt="" />
-            )}
+            {submitButtonDisaled && <ButtonSpinner/>}
           </button>
           <button className="btn dropdown-btn form-submit-btn" disabled={submitButtonDisaled}
             onClick={() => handleSubmit("remote")}>
             <span>Create Remote</span>
-            {submitButtonDisaled && (
-              <img src={spinner} className="form-submit-btn-spinner" alt="" />
-            )}
+            {submitButtonDisaled && <ButtonSpinner/>}
           </button>
         </Fragment>) : null}
     </Dropdown>

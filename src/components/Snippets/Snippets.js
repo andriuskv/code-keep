@@ -9,6 +9,7 @@ import { fetchServerSnippets, createServerSnippet, updateServerSnippet } from ".
 import { useUser } from "../../context/user-context";
 import Icon from "../Icon";
 import PageSpinner from "../PageSpinner";
+import Notification from "../Notification";
 import Editor from "../Editor";
 import DateDiff from "../DateDiff";
 import NoMatch from "../NoMatch";
@@ -341,13 +342,8 @@ export default function Snippets(props) {
       <div className="snippets-container">
         {renderHeader()}
         {state.snippetsMessage && (
-          <div className="snippets-message">
-            <span>{state.snippetsMessage}</span>
-            <button type="button" className="btn icon-btn snippets-message-btn"
-              onClick={() => hideSnippetsMessage()}>
-              <Icon name="close" />
-            </button>
-          </div>
+          <Notification className="snippets-notification"
+            value={state.snippetsMessage} dismiss={hideSnippetsMessage}/>
         )}
         {renderSnippets()}
         {state.removeModal ? <SnippetRemoveModal hide={hideSnippetRemoveModal} removeSnippet={removeSnippet} /> : null}

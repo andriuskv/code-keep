@@ -1,0 +1,45 @@
+@import "../../../styles/mixins.scss";
+
+.account-delete-form-title {
+  margin-bottom: var(--space-xxxl);
+  color: var(--color-danger);
+  font-size: var(--text-xxl);
+}
+
+.account-delete-form-notice {
+  margin-bottom: var(--space-xl);
+}
+
+.account-delete-form-group {
+  display: flex;
+  align-items: flex-end;
+
+  @include breakpoint-small {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.account-delete-form-field-container {
+  flex-grow: 1;
+
+  @include breakpoint-small {
+    width: 100%;
+  }
+}
+
+.account-delete-form-keyword {
+  font-weight: normal;
+}
+
+.account-delete-form-submit-btn {
+  position: relative;
+  min-height: 34px;
+  margin-left: var(--space-md);
+  color: var(--color-danger);
+
+  @include breakpoint-small {
+    margin-top: var(--space-xl);
+    margin-left: auto;
+  }
+}

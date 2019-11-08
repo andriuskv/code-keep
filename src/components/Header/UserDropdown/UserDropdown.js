@@ -4,7 +4,7 @@ import "./user-dropdown.scss";
 import { useUser } from "../../../context/user-context";
 import Icon from "../../Icon";
 import Dropdown from "../../Dropdown";
-import spinner from "../../../assets/ring.svg";
+import ButtonSpinner from "../../ButtonSpinner";
 
 export default function UserDropdown() {
   const [logout, setLogout] = useState({ buttonDisabled: false, message: "" });
@@ -50,9 +50,7 @@ export default function UserDropdown() {
         <button className="btn dropdown-btn header-dropdown-btn"
           onClick={handleLogout} disabled={logout.buttonDisabled} data-dropdown-keep>
           <span>Logout</span>
-          {logout.buttonDisabled && (
-            <img src={spinner} className="header-dropdown-btn-spinner" alt="" />
-          )}
+          {logout.buttonDisabled && <ButtonSpinner/>}
         </button>
         {logout.message && (
           <div className="header-dropdown-message">{logout.message}</div>

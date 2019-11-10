@@ -22,7 +22,9 @@ const UserSchema = new mongoose.Schema({
     trim: true
   },
   profileImage: {
-    type: String
+    id: String,
+    path: String,
+    name: String
   },
   hash: String,
   salt: String

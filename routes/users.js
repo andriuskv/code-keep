@@ -2,7 +2,7 @@ const express = require("express");
 const validator = require("validator");
 const User = require("../models/User");
 const Snippet = require("../models/Snippet");
-const { userUploadRoute } = require("./users.upload");
+const { uploadImage, fetchImage, deleteImage } = require("./users.profile-image");
 const reservedUsernames = require("../data/reserved_usernames.json");
 const router = express.Router();
 
@@ -87,6 +87,8 @@ router.get("/me", async ({ session: { user }}, res) => {
     res.json({ code: 401 });
   }
 });
+
+router.get("/image/:filename", fetchImage);
 
 router.get("/:username", async (req, res) => {
   try {
@@ -222,6 +224,7 @@ router.delete("/delete", async (req, res) => {
     const user = await User.findById(req.session.user._id);
 
     if (user) {
+      deleteImage(user.profileImage);
       await user.remove();
       await Snippet.deleteMany({ userId: req.session.user._id });
 
@@ -245,7 +248,7 @@ router.delete("/delete", async (req, res) => {
   }
 });
 
-router.post("/upload", userUploadRoute);
+router.post("/upload", uploadImage);
 
 function ValidateFields(requiredFields, presentFields) {
   const missingFields = [];

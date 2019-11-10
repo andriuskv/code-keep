@@ -29,14 +29,15 @@ export default function UserDropdown() {
   }
 
   function getToggleButton() {
+    const path = profileImage ? profileImage.path : "";
     return {
-      content: profileImage ? (
+      content: path ? (
         <div className="header-dropdown-profile-image-container">
-          <img src={profileImage} className="header-dropdown-profile-image" alt="" />
+          <img src={path} className="header-dropdown-profile-image" alt="" />
         </div>
       ) : <Icon name="user" />,
       title: "Toggle user menu",
-      className: `btn icon-btn header-link header-dropdown-toggle-btn${profileImage ? " with-image" : ""}`
+      className: `btn icon-btn header-link header-dropdown-toggle-btn${path ? " with-image" : ""}`
     };
   }
 

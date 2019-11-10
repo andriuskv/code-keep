@@ -88,7 +88,7 @@ export default function Register() {
       <h2 className="user-form-title">Sign Up</h2>
       {notification.form && (
         <Notification className="user-form-notification"
-          value={notification.form.value} dismiss={() => hideNotification("form")}/>
+          value={notification.form} dismiss={() => hideNotification("form")}/>
       )}
       <label className="user-form-field-group">
         <div className="user-form-field-name">Username</div>

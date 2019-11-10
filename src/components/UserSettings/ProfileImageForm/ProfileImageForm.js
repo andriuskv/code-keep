@@ -100,7 +100,7 @@ export default function ProfileImageForm() {
       imageSrc = URL.createObjectURL(image.blob);
     }
     else if (profileImage) {
-      imageSrc = profileImage;
+      imageSrc = profileImage.path;
     }
 
     if (imageSrc) {

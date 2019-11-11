@@ -78,7 +78,7 @@ export default function PasswordForm() {
 
   return (
     <div className="settings-item">
-      <h3 className="settings-item-title">Change Username</h3>
+      <h3 className="settings-item-title">Change Password</h3>
       {notification.form && (
         <Notification className="settings-form-notification"
           value={notification.form.value} type={notification.form.type}

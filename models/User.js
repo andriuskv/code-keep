@@ -26,6 +26,7 @@ const UserSchema = new mongoose.Schema({
     path: String,
     name: String
   },
+  accessToken: String,
   hash: String,
   salt: String
 });
@@ -36,7 +37,8 @@ UserSchema.methods.getUser = function() {
     username: this.username,
     usernameLowerCase: this.usernameLowerCase,
     email: this.email,
-    profileImage: this.profileImage
+    profileImage: this.profileImage,
+    isGithubConnected: !!this.accessToken
   };
 };
 

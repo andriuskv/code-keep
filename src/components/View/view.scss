@@ -32,6 +32,10 @@
   font-weight: 500;
 }
 
+.view-header-item {
+  overflow: hidden;
+}
+
 .view-title-container {
   display: flex;
   align-items: flex-end;
@@ -39,10 +43,14 @@
 }
 
 .view-title-icon {
+  flex-shrink: 0;
   margin-right: var(--space-md);
 }
 
 .view-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: var(--text-md);
   font-weight: 500;
 }

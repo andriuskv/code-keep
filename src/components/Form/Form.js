@@ -9,6 +9,8 @@ import { useUser } from "../../context/user-context";
 import SubmitDropdown from "./SubmitDropdown";
 import EditorSettings from "./EditorSettings";
 import Icon from "../Icon";
+import PageSpinner from "../PageSpinner";
+import ButtonSpinner from "../ButtonSpinner";
 import Editor from "../Editor";
 import Markdown from "../Markdown";
 import NoMatch from "../NoMatch";
@@ -18,7 +20,7 @@ export default function Form(props) {
   const [state, setState] = useState({
     loading: true
   });
-  const { username } = useUser();
+  const { usernameLowerCase } = useUser();
   const { files } = state;
 
   useEffect(() => {
@@ -45,7 +47,12 @@ export default function Form(props) {
         setState({ error: true });
         return;
       }
-      const data = await fetchServerSnippet(snippetId, user._id, "edit");
+      const data = await fetchServerSnippet({
+        snippetId,
+        userId: user._id,
+        status: "edit",
+        queryParams: props.location.search
+      });
 
       if (data.code === 401) {
         props.history.replace({
@@ -120,6 +127,7 @@ export default function Form(props) {
     const files = state.files.map((file, index) => ({
       id: file.id,
       name: getFileName(file, index),
+      initialName: file.initialName,
       value: file.cm.getValue().trimEnd(),
       displayName: file.displayName,
       extension: file.extension,
@@ -127,6 +135,16 @@ export default function Form(props) {
       mode: file.mode,
       type: file.type
     }));
+    const hasUniqueFilenames = new Set(files.map(file => file.name)).size === files.length;
+
+    if (!hasUniqueFilenames) {
+      setState({
+        ...state,
+        submitButtonDisaled: false,
+        submitMessage: "File names must be unique."
+      });
+      return;
+    }
 
     const newSnippet = {
       id: state.id || getRandomString(),
@@ -140,11 +158,16 @@ export default function Form(props) {
         wrapLines
       }
     };
-    const pathname = username ? `/users/${username}` : "/snippets";
+    const pathname = usernameLowerCase ? `/users/${usernameLowerCase}` : "/snippets";
 
     if (state.remote || snippetType === "remote" || snippetType === "private") {
       try {
         newSnippet.isPrivate = state.isPrivate || snippetType === "private";
+        if (state.isGist) {
+          const gistFilesToRemove = state.gistFilesToRemove || [];
+          newSnippet.isGist = true;
+          newSnippet.files = gistFilesToRemove.concat(newSnippet.files);
+        }
         delete state.submitMessage;
         setState({ ...state, submitButtonDisaled: true });
         const callback = state.updating ? updateServerSnippet : createServerSnippet;
@@ -185,6 +208,12 @@ export default function Form(props) {
   }
 
   function removeFile(index) {
+    if (state.isGist) {
+      state.gistFilesToRemove = state.gistFilesToRemove || [];
+      state.gistFilesToRemove.push({
+        initialName: files[index].initialName
+      });
+    }
     files.splice(index, 1);
     setState({ ...state });
   }
@@ -255,7 +284,7 @@ export default function Form(props) {
   }
 
   if (state.loading) {
-    return null;
+    return <PageSpinner/>;
   }
 
   if (state.error) {
@@ -272,7 +301,7 @@ export default function Form(props) {
         <label className="form-input-group-item">
           <div className="form-input-group-item-title">Title</div>
           <input type="text" className="input" value={state.title} name="title"
-            onChange={handleInputChange} />
+            onChange={handleInputChange} disabled={state.isGist}/>
           {state.titleInvalid && <div className="form-input-group-item-error">Required</div>}
         </label>
         <label className="form-input-group-item">
@@ -319,9 +348,13 @@ export default function Form(props) {
           <div className="form-footer-btns">
             <button className="btn" onClick={addFile}>Add File</button>
             {state.updating ? (
-              <button className="btn" onClick={handleSubmit}>Update</button>
+              <button className="btn form-update-btn"
+                disabled={state.submitButtonDisaled} onClick={handleSubmit}>
+                <span>Update</span>
+                {state.submitButtonDisaled && <ButtonSpinner/>}
+              </button>
             ) : (
-              <SubmitDropdown username={username}
+              <SubmitDropdown username={usernameLowerCase}
                 submitButtonDisaled={state.submitButtonDisaled}
                 handleSubmit={handleSubmit} />
             )}

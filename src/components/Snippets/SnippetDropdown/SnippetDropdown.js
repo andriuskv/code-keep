@@ -7,10 +7,16 @@ import Icon from "../../Icon";
 export default function SnippetDropdown({ index, user, snippet, uploadSnippet, removeSnippet, toggleSnippetPrivacy }) {
   const history = useHistory();
 
-  function editSnippet(id, isLocal) {
-    history.push({
-      pathname: isLocal ? `/snippets/${id}/edit` : `/users/${user.username}/${id}/edit`
-    });
+  function editSnippet({ id, isLocal, isGist }) {
+    let path = `/users/${user.usernameLowerCase}/${id}/edit`;
+
+    if (isLocal) {
+      path = `/snippets/${id}/edit`;
+    }
+    else if (isGist) {
+      path = `${path}?type=gist`;
+    }
+    history.push(path);
   }
 
   return (
@@ -18,7 +24,7 @@ export default function SnippetDropdown({ index, user, snippet, uploadSnippet, r
       toggle={{ content: <Icon name="dots" />, title: "Toggle action menu", className: "btn icon-btn" }}
       body={{ className: "snippet-dropdown" }}>
       <button className="btn icon-text-btn dropdown-btn snippet-dropdown-btn"
-        onClick={() => editSnippet(snippet.id, snippet.isLocal)}>
+        onClick={() => editSnippet(snippet)}>
         <Icon name="edit" />
         <span>Edit</span>
       </button>
@@ -29,19 +35,21 @@ export default function SnippetDropdown({ index, user, snippet, uploadSnippet, r
             <Icon name="upload" />
             <span>Upload</span>
           </button>
-        ) : (
+        ) : !snippet.isGist ? (
           <button className="btn icon-text-btn dropdown-btn snippet-dropdown-btn"
             onClick={() => toggleSnippetPrivacy(snippet)}>
             <Icon name={snippet.isPrivate ? "unlocked" : "locked"} />
             <span>{snippet.isPrivate ? "Make Public" : "Make Private"}</span>
           </button>
-        )
+        ) : null
       )}
-      <button className="btn icon-text-btn dropdown-btn snippet-dropdown-btn"
-        onClick={() => removeSnippet(index, snippet.isLocal)}>
-        <Icon name="trash" />
-        <span>Remove</span>
-      </button>
+      {!snippet.isGist && (
+        <button className="btn icon-text-btn dropdown-btn snippet-dropdown-btn"
+          onClick={() => removeSnippet(index, snippet.isLocal)}>
+          <Icon name="trash" />
+          <span>Remove</span>
+        </button>
+      )}
     </Dropdown>
   );
 }

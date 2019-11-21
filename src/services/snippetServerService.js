@@ -2,8 +2,8 @@ function fetchServerSnippets(userId) {
   return fetch(`/snippets/${userId}`).then(res => res.json());
 }
 
-function fetchServerSnippet(snippetId, userId, status) {
-  return fetch(`/snippets/${snippetId}${status === "edit" ? "/edit" : ""}`, {
+function fetchServerSnippet({ snippetId, userId, status, queryParams }) {
+  return fetch(`/snippets/${snippetId}${status === "edit" ? "/edit" : ""}${queryParams}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"

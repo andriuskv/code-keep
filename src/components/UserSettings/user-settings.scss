@@ -10,6 +10,17 @@
   font-size: var(--text-xxl);
 }
 
+.settings-item-title-with-icon {
+  display: flex;
+  align-items: center;
+}
+
+.settings-item-title-icon {
+  width: 32px;
+  height: 32px;
+  margin-right: var(--space-md);
+}
+
 .settings-item {
   padding-top: var(--space-xl);
   margin-bottom: var(--space-xl);

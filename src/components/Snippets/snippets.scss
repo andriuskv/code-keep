@@ -61,10 +61,14 @@
 }
 
 .snippet-title-icon {
+  flex-shrink: 0;
   margin-right: var(--space-md);
 }
 
 .snippet-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: var(--text-md);
   font-weight: 500;
 }

@@ -27,10 +27,15 @@ export default function View(props) {
   }, [user, props.match.url]);
 
   async function init() {
+    if (user.loading) {
+      return;
+    }
+
     if (user.status === "logged-out") {
       user.resetUser();
       return;
     }
+
     if (props.match.path === "/snippets/:id") {
       const { id } = props.match.params;
 
@@ -59,7 +64,11 @@ export default function View(props) {
           setState({ message: "Something went wrong. Try again later." });
         }
         else {
-          const snippet = await fetchServerSnippet(snippetId, user._id);
+          const snippet = await fetchServerSnippet({
+            snippetId,
+            userId: user._id,
+            queryParams: props.location.search
+          });
 
           if (snippet.code === 404) {
             setState({});
@@ -77,6 +86,9 @@ export default function View(props) {
         console.log(e);
         setState({ message: "Something went wrong. Try again later." });
       }
+    }
+    else {
+      setState({});
     }
   }
 
@@ -115,13 +127,14 @@ export default function View(props) {
   return (
     <div className="view">
       <div className="view-header">
-        <div>
+        <div className="view-header-item">
           {state.username ? <Link to={`/users/${state.username}`}>
             <h2 className="view-header-user-username">{state.username}</h2>
           </Link> : null }
           <div className="view-title-container">
             {state.isPrivate && <Icon name="locked" className="view-title-icon" title="Only you can see this snippet" />}
             {state.isLocal && <Icon name="home" className="view-title-icon" title="This snippet is local to your device" />}
+            {state.isGist && <Icon name="github" className="view-title-icon" title="This snippet is hosted on GitHub" />}
             <h3 className="view-title">{state.title}</h3>
           </div>
           {state.description && (
@@ -131,6 +144,9 @@ export default function View(props) {
             <span className="view-info-item"><DateDiff start={state.created} /></span>
             {state.fork ? (
               <span className="view-info-item"><Link to={`/users/${state.fork.usernameLowerCase}/${state.fork.id}`}>Forked from {state.fork.username}</Link></span>
+            ) : null}
+            {state.isGist ? (
+              <span className="view-info-item"><a href={state.url}>GitHub</a></span>
             ) : null}
           </div>
         </div>

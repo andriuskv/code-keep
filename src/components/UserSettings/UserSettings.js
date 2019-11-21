@@ -3,6 +3,7 @@ import "./user-settings.scss";
 import { setDocumentTitle } from "../../utils";
 import { useUser } from "../../context/user-context";
 import PageSpinner from "../PageSpinner";
+import GithubConnect from "./GithubConnect";
 import ProfileImageForm from "./ProfileImageForm";
 import UsernameForm from "./UsernameForm";
 import PasswordForm from "./PasswordForm";
@@ -36,6 +37,7 @@ export default function UserSettings(props) {
   return (
     <div className="settings">
       <h2 className="settings-title">Settings</h2>
+      <GithubConnect/>
       <ProfileImageForm/>
       <UsernameForm/>
       <PasswordForm/>

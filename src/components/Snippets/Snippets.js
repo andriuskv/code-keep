@@ -62,8 +62,8 @@ export default function Snippets(props) {
         user: { ...user, isLoggedIn: true }
       };
 
-      if (data.code === 500) {
-        newState.snippetsMessage = "Could not retrieve remote snippets.";
+      if (data.message) {
+        newState.snippetsMessage = data.message;
       }
       setState(newState);
       setDocumentTitle(`${user.username} Snippets`);
@@ -277,6 +277,7 @@ export default function Snippets(props) {
                 <div className="snippet-title-container">
                   {snippet.isPrivate && <Icon name="locked" className="snippet-title-icon" title="Only you can see this snippet" />}
                   {snippet.isLocal && <Icon name="home" className="snippet-title-icon" title="This snippet is local to your device" />}
+                  {snippet.isGist && <Icon name="github" className="snippet-title-icon" title="This snippet is hosted on GitHub" />}
                   <h3 className="snippet-title">{snippet.title}</h3>
                 </div>
                 {snippetUser.isLocal || snippetUser.username === user.username ? (
@@ -300,8 +301,11 @@ export default function Snippets(props) {
                 {snippet.fork ? (
                   <span className="snippet-info-item"><Link to={`/users/${snippet.fork.usernameLowerCase}/${snippet.fork.id}`}>Forked from {snippet.fork.username}</Link></span>
                 ) : null}
+                {snippet.isGist ? (
+                  <span className="snippet-info-item"><a href={snippet.url}>GitHub</a></span>
+                ) : null}
               </div>
-              <Link to={snippet.isLocal ? `/snippets/${snippet.id}` : `/users/${snippetUser.usernameLowerCase}/${snippet.id}`} className="snippet-link">
+              <Link to={snippet.isLocal ? `/snippets/${snippet.id}` : `/users/${snippetUser.usernameLowerCase}/${snippet.id}${snippet.isGist ? "?type=gist": ""}`} className="snippet-link">
                 <Editor file={snippet.files[0]} settings={snippet.settings}
                   height={snippet.files[0].height} readOnly preview />
               </Link>

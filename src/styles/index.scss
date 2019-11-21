@@ -98,6 +98,10 @@ main {
   &::placeholder {
     color: var(--color-grey-lighter);
   }
+
+  &:disabled {
+    color: var(--color-grey-lighter);
+  }
 }
 
 .btn {

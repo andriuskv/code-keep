@@ -1,5 +1,6 @@
 const express = require("express");
 const validator = require("validator");
+const fetch = require("node-fetch");
 const User = require("../models/User");
 const Snippet = require("../models/Snippet");
 const { uploadImage, fetchImage, deleteImage } = require("./users.profile-image");
@@ -88,7 +89,114 @@ router.get("/me", async ({ session: { user }}, res) => {
   }
 });
 
+router.get("/me/github", async (req, res) => {
+  if (!req.session.user) {
+    return res.json({ code: 401 });
+  }
+  try {
+    const user = await User.findUser(req.session.user.username);
+
+    if (!user) {
+      return res.json({ code: 500 });
+    }
+    const data = await fetch("https://api.github.com/user", {
+      method: "GET",
+      headers: {
+        "Authorization": `token ${user.accessToken}`
+      }
+    }).then(res => res.json());
+
+    if (data.message) {
+      return res.json({ code: 500 });
+    }
+    else {
+      // Use github profile image if user doesn't have it set.
+      if (!user.profileImage.path) {
+        user.profileImage.path = data.avatar_url;
+        await user.save();
+        req.session.user = user.getUser();
+      }
+      res.json({
+        name: data.name,
+        username: data.login,
+        profileImage: data.avatar_url,
+        url: data.html_url
+      });
+    }
+  } catch (e) {
+    console.log(e);
+    res.json({ code: 500 });
+  }
+});
+
 router.get("/image/:filename", fetchImage);
+
+router.get("/disconnect", async (req, res) => {
+  if (!req.session.user) {
+    return res.json({ code: 401 });
+  }
+  try {
+    const user = await User.findUser(req.session.user.username);
+
+    if (user) {
+      user.accessToken = undefined;
+      await user.save();
+      req.session.user = user.getUser();
+      return res.json({ code: 200 });
+    }
+    res.json({ code: 500 });
+  } catch (e) {
+    console.log(e);
+    res.json({ code: 500 });
+  }
+});
+
+router.get("/connect/github", async (req, res) => {
+  const params = `scope=read:user,gist&client_id=${process.env.CLIENT_ID}`;
+
+  try {
+    res.redirect(`https://github.com/login/oauth/authorize?${params}`);
+  } catch (e) {
+    console.log(e);
+    res.redirect(`${process.env.APP_URL}/settings?status=500`);
+  }
+});
+
+router.get("/connect/github/redirect", async (req, res) => {
+  const errorUrl = `${process.env.APP_URL}/settings?status=500`;
+
+  try {
+    if (req.query.code) {
+      const clientId = process.env.CLIENT_ID;
+      const clientSecret = process.env.CLIENT_SECRET;
+      const params = `client_id=${clientId}&client_secret=${clientSecret}&code=${req.query.code}`;
+      const data = await fetch(`https://github.com/login/oauth/access_token?${params}`, {
+        method: "POST",
+        headers: {
+          "Accept": "application/json"
+        }
+      }).then(res => res.json());
+
+      if (data.access_token) {
+        const user = await User.findUser(req.session.user.username);
+
+        if (user) {
+          user.accessToken = data.access_token;
+          await user.save();
+          req.session.user = user.getUser();
+        }
+        else {
+          res.redirect(errorUrl);
+        }
+      }
+      return res.redirect(`${process.env.APP_URL}/settings`);
+    }
+    res.redirect(errorUrl);
+  } catch (e) {
+    console.log(e);
+    res.redirect(errorUrl);
+  }
+});
 
 router.get("/:username", async (req, res) => {
   try {

@@ -2,18 +2,25 @@ import { fetchIDBSnippets, deleteIDBSnippet } from "./snippetIDBService";
 import { fetchServerSnippets, deleteServerSnippet } from "./snippetServerService";
 
 async function fetchSnippets(id) {
-  const idbSnippets = await fetchIDBSnippets();
-  const data = await fetchServerSnippets(id);
+  const [idbSnippets, response] = await Promise.all([fetchIDBSnippets(), fetchServerSnippets(id)]);
 
-  if (data.code === 500) {
+  if (response.code === 500) {
     return {
-      code: data.code,
+      message: "Could not retrieve snippets.",
       snippets: sortSnippets(idbSnippets)
     };
   }
-  return {
-    snippets: sortSnippets(idbSnippets.concat(data.snippets))
+  const data = {
+    snippets: sortSnippets(idbSnippets.concat(response.snippets))
   };
+
+  if (response.snippetError) {
+    data.message = "Could not retrieve snippets.";
+  }
+  else if (response.gistError) {
+    data.message = "Could not retrieve gists.";
+  }
+  return data;
 }
 
 async function deleteSnippet({ snippetId, userId, isLocal }) {

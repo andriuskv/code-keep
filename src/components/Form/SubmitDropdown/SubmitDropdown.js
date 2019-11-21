@@ -4,7 +4,7 @@ import Dropdown from "../../Dropdown";
 import Icon from "../../Icon";
 import ButtonSpinner from "../../ButtonSpinner";
 
-export default function SubmitDropdown({submitButtonDisaled, username, handleSubmit}) {
+export default function SubmitDropdown({ submitButtonDisaled, username, handleSubmit }) {
   return (
     <Dropdown
       toggle={{ content: "Create", className: "btn form-submit-dropdown-toggle-btn" }}

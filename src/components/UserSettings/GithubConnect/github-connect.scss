@@ -1,0 +1,60 @@
+.github-profile-container {
+  display: flex;
+  align-items: center;
+}
+
+.github-profile-image {
+  width: 64px;
+  height: 64px;
+  margin-right: var(--space-md);
+  border-radius: 4px;
+}
+
+.github-profile-info {
+  min-width: 0;
+  margin-right: var(--space-md);
+}
+
+.github-profile-name {
+  margin-bottom: 2px;
+  font-size: 18px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.github-profile-link {
+  display: flex;
+  align-items: center;
+  color: var(--color-grey-lighter);
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.github-profile-link-icon {
+  flex-shrink: 0;
+}
+
+.github-profile-username {
+  margin-left: var(--space-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.github-profile-disconnect-btn {
+  margin-left: auto;
+}
+
+.github-connect-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.github-connect-link {
+  margin-top: var(--space-md);
+  margin-right: auto;
+}

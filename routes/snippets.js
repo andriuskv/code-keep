@@ -224,7 +224,6 @@ router.post("/:snippetId/:status?", async (req, res) => {
       res.json({ code: 404, message: "Snippet not found." });
     }
     else {
-      console.log(data);
       res.json(parseGist(data));
     }
   }

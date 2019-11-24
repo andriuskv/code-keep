@@ -1,9 +1,9 @@
 const express = require("express");
-const session = require("express-session");
 const path = require("path");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const MongoStore = require("connect-mongo")(session);
+const { getSession } = require("./session.js");
+
 const app = express();
 
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/code-keep", {
@@ -24,22 +24,9 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Cookie", "Set-Cookie"]
 }));
 app.use(express.json());
-app.use(session({
-  name: "sid",
-  secret: process.env.SESSION_SECRET || "secret",
-  resave: false,
-  saveUninitialized: false,
-  proxy: true,
-  cookie: {
-    sameSite: true,
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 1000 * 60 * 60 * 24 * 180
-  },
-  store: new MongoStore({
-    mongooseConnection: mongoose.connection,
-    collection: "session"
-  })
-}));
+
+app.set("trust proxy", 1);
+app.use(getSession());
 
 app.use("/users", require("./routes/users"));
 app.use("/snippets", require("./routes/snippets"));

@@ -4,6 +4,7 @@ const fetch = require("node-fetch");
 const User = require("../models/User");
 const Snippet = require("../models/Snippet");
 const { uploadImage, fetchImage, deleteImage } = require("./users.profile-image");
+const { getStore } = require("../session");
 const reservedUsernames = require("../data/reserved_usernames.json");
 const router = express.Router();
 
@@ -152,7 +153,10 @@ router.get("/disconnect", async (req, res) => {
 });
 
 router.get("/connect/github", async (req, res) => {
-  const params = `scope=read:user,gist&client_id=${process.env.CLIENT_ID}`;
+  if (!req.session.user) {
+    return res.redirect(`${process.env.APP_URL}/settings?status=500`);
+  }
+  const params = `scope=read:user,gist&client_id=${process.env.CLIENT_ID}&state=${req.session.id}`;
 
   try {
     res.redirect(`https://github.com/login/oauth/authorize?${params}`);
@@ -166,10 +170,10 @@ router.get("/connect/github/redirect", async (req, res) => {
   const errorUrl = `${process.env.APP_URL}/settings?status=500`;
 
   try {
-    if (req.query.code) {
+    if (req.query.code && req.query.state) {
       const clientId = process.env.CLIENT_ID;
       const clientSecret = process.env.CLIENT_SECRET;
-      const params = `client_id=${clientId}&client_secret=${clientSecret}&code=${req.query.code}`;
+      const params = `client_id=${clientId}&client_secret=${clientSecret}&code=${req.query.code}&state=${req.query.state}`;
       const data = await fetch(`https://github.com/login/oauth/access_token?${params}`, {
         method: "POST",
         headers: {
@@ -178,18 +182,27 @@ router.get("/connect/github/redirect", async (req, res) => {
       }).then(res => res.json());
 
       if (data.access_token) {
-        const user = await User.findUser(req.session.user.username);
+        const store = getStore();
 
-        if (user) {
-          user.accessToken = data.access_token;
-          await user.save();
-          req.session.user = user.getUser();
-        }
-        else {
-          res.redirect(errorUrl);
-        }
+        store.get(req.query.state, async (err, session) => {
+          if (err || !session) {
+            console.log(err);
+            return res.redirect(errorUrl);
+          }
+          const user = await User.findUser(session.user.username);
+
+          if (user) {
+            user.accessToken = data.access_token;
+            await user.save();
+            req.session.user = user.getUser();
+            res.redirect(`${process.env.APP_URL}/settings`);
+          }
+          else {
+            res.redirect(errorUrl);
+          }
+        });
+        return;
       }
-      return res.redirect(`${process.env.APP_URL}/settings`);
     }
     res.redirect(errorUrl);
   } catch (e) {

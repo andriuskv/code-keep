@@ -29,6 +29,12 @@ export default function Snippets(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, props.match.url]);
 
+  useEffect(() => {
+    if (state.notification && window.scrollY >= 100) {
+      window.scrollTo(0, 0);
+    }
+  }, [state.notification]);
+
   async function init() {
     const { username } = props.match.params;
 
@@ -63,7 +69,7 @@ export default function Snippets(props) {
       };
 
       if (data.message) {
-        newState.snippetsMessage = data.message;
+        newState.notification = { value: data.message };
       }
       setState(newState);
       setDocumentTitle(`${user.username} Snippets`);
@@ -113,8 +119,8 @@ export default function Snippets(props) {
   }
 
   async function removeSnippet() {
-    if (state.snippetsMessage) {
-      hideSnippetsMessage();
+    if (state.notification) {
+      hideNotification();
     }
     const { snippets, removeModal } = state;
     const { index, isLocal } = removeModal;
@@ -129,15 +135,15 @@ export default function Snippets(props) {
       snippets.splice(index, 1);
     }
     else {
-      state.snippetsMessage = "Snippet removal was unsuccessful.";
+      state.notification = { value: "Snippet removal was unsuccessful." };
     }
     delete state.removeModal;
     setState({ ...state });
   }
 
   async function toggleSnippetPrivacy(snippet) {
-    if (state.snippetsMessage) {
-      hideSnippetsMessage();
+    if (state.notification) {
+      hideNotification();
     }
     const value = !snippet.isPrivate;
     const data = await updateServerSnippet({
@@ -149,17 +155,17 @@ export default function Snippets(props) {
       snippet.isPrivate = value;
     }
     else if (data.code === 401) {
-      state.snippetsMessage = "Seems like your session has expired. Relogin and try again.";
+      state.notification = { value: "Seems like your session has expired. Relogin and try again." };
     }
     else {
-      state.snippetsMessage = "Something went wrong. Try again later.";
+      state.notification = { value: "Something went wrong. Try again later." };
     }
     setState({ ...state });
   }
 
   async function forkSnippet(index) {
-    if (state.snippetsMessage) {
-      hideSnippetsMessage();
+    if (state.notification) {
+      hideNotification();
     }
     const snippet = state.snippets[index];
     const id = getRandomString();
@@ -186,24 +192,25 @@ export default function Snippets(props) {
       });
     }
     else if (data.code === 401) {
-      state.snippetsMessage = "Seems like your session has expired. Relogin and try again.";
+      state.notification = { value: "Seems like your session has expired. Relogin and try again." };
       setState({ ...state });
     }
     else {
-      state.snippetsMessage = "Something went wrong. Try again later.";
+      state.notification = { value: "Something went wrong. Try again later." };
       setState({ ...state });
     }
   }
 
   async function uploadSnippet(index) {
-    if (state.snippetsMessage) {
-      hideSnippetsMessage();
+    if (state.notification) {
+      hideNotification();
     }
     const snippet = state.snippets[index];
     const remoteSnippet = {
       ...snippet,
       userId: user._id,
       isPrivate: true,
+      created: new Date(),
       id: getRandomString(),
       files: snippet.files.map(file => {
         file.id = getRandomString();
@@ -214,30 +221,23 @@ export default function Snippets(props) {
     const data = await createServerSnippet(remoteSnippet);
 
     if (data.code === 200) {
-      const deleted = await deleteSnippet({
-        snippetId: snippet.id,
-        isLocal : true
-      });
-
-      if (deleted) {
-        state.snippets.splice(index, 1, remoteSnippet);
-      }
-      else {
-        state.snippets.unshift(remoteSnippet);
-        state.snippetsMessage = "Upload was successful, but was unable to remove local snippet.";
-      }
+      state.snippets.unshift(remoteSnippet);
+      state.notification = {
+        value: "Upload was successful.",
+        type: "positive"
+      };
     }
     else if (data.code === 401) {
-      state.snippetsMessage = "Seems like your session has expired. Relogin and try again.";
+      state.notification = { value: "Seems like your session has expired. Relogin and try again." };
     }
     else {
-      state.snippetsMessage = "Something went wrong. Try again later.";
+      state.notification = { value: "Something went wrong. Try again later." };
     }
     setState({ ...state });
   }
 
-  function hideSnippetsMessage() {
-    delete state.snippetsMessage;
+  function hideNotification() {
+    delete state.notification;
     setState({ ...state });
   }
 
@@ -345,9 +345,11 @@ export default function Snippets(props) {
     return (
       <div className="snippets-container">
         {renderHeader()}
-        {state.snippetsMessage && (
+        {state.notification && (
           <Notification className="snippets-notification"
-            value={state.snippetsMessage} dismiss={hideSnippetsMessage}/>
+            value={state.notification.value}
+            type={state.notification.type}
+            dismiss={hideNotification}/>
         )}
         {renderSnippets()}
         {state.removeModal ? <SnippetRemoveModal hide={hideSnippetRemoveModal} removeSnippet={removeSnippet} /> : null}

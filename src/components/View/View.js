@@ -128,9 +128,11 @@ export default function View(props) {
     <div className="view">
       <div className="view-header">
         <div className="view-header-item">
-          {state.username ? <Link to={`/users/${state.username}`}>
-            <h2 className="view-header-user-username">{state.username}</h2>
-          </Link> : null }
+          {state.username ? (
+            <Link to={`/users/${state.username}`} className="view-header-user-link">
+              <h2 className="view-header-user-username">{state.username}</h2>
+            </Link>
+          ) : null }
           <div className="view-title-container">
             {state.isPrivate && <Icon name="locked" className="view-title-icon" title="Only you can see this snippet" />}
             {state.isLocal && <Icon name="home" className="view-title-icon" title="This snippet is local to your device" />}

@@ -26,8 +26,12 @@
   }
 }
 
-.view-header-user-username {
+.view-header-user-link {
+  display: inline-block;
   margin-bottom: var(--space-xl);
+}
+
+.view-header-user-username {
   font-size: var(--text-xl);
   font-weight: 500;
 }

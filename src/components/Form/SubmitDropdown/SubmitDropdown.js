@@ -12,22 +12,33 @@ export default function SubmitDropdown({ submitButtonDisaled, username, handleSu
       <button className="btn icon-text-btn dropdown-btn form-submit-btn"
         disabled={submitButtonDisaled}
         onClick={() => handleSubmit("local")}>
-        <Icon name="home" />
-        <span>Create Local</span>
+        <Icon name="home" className="form-submit-btn-icon"/>
+        <span className="form-submit-btn-label-part">Create</span>
+        <span>Local</span>
         {submitButtonDisaled && <ButtonSpinner/>}
       </button>
       {username ? (
         <Fragment>
           <button className="btn icon-text-btn dropdown-btn form-submit-btn"
             disabled={submitButtonDisaled}
-            onClick={() => handleSubmit("private")}>
-            <Icon name="locked" />
-            <span>Create Private</span>
+            onClick={() => handleSubmit("gist")}>
+            <Icon name="github" className="form-submit-btn-icon"/>
+            <span className="form-submit-btn-label-part">Create</span>
+            <span>Gist</span>
             {submitButtonDisaled && <ButtonSpinner/>}
           </button>
-          <button className="btn dropdown-btn form-submit-btn" disabled={submitButtonDisaled}
+          <button className="btn icon-text-btn dropdown-btn form-submit-btn"
+            disabled={submitButtonDisaled}
+            onClick={() => handleSubmit("private")}>
+            <Icon name="locked" className="form-submit-btn-icon"/>
+            <span className="form-submit-btn-label-part">Create</span>
+            <span>Private</span>
+            {submitButtonDisaled && <ButtonSpinner/>}
+          </button>
+          <button className="btn dropdown-btn form-submit-btn form-submit-remote-btn" disabled={submitButtonDisaled}
             onClick={() => handleSubmit("remote")}>
-            <span>Create Remote</span>
+            <span className="form-submit-btn-label-part">Create</span>
+            <span>Remote</span>
             {submitButtonDisaled && <ButtonSpinner/>}
           </button>
         </Fragment>) : null}

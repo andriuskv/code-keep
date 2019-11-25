@@ -7,3 +7,7 @@
 @mixin breakpoint-small {
     @media (max-width: 680px) { @content; }
 }
+
+@mixin form-submit-breakpoint {
+    @media (max-width: 710px) { @content; }
+}

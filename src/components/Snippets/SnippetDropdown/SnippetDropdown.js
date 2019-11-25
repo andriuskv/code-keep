@@ -43,13 +43,11 @@ export default function SnippetDropdown({ index, user, snippet, uploadSnippet, r
           </button>
         ) : null
       )}
-      {!snippet.isGist && (
-        <button className="btn icon-text-btn dropdown-btn snippet-dropdown-btn"
-          onClick={() => removeSnippet(index, snippet.isLocal)}>
-          <Icon name="trash" />
-          <span>Remove</span>
-        </button>
-      )}
+      <button className="btn icon-text-btn dropdown-btn snippet-dropdown-btn"
+        onClick={() => removeSnippet(index, snippet)}>
+        <Icon name="trash" />
+        <span>Remove</span>
+      </button>
     </Dropdown>
   );
 }

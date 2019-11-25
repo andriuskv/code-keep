@@ -119,7 +119,7 @@ export default function Form(props) {
   }
 
   async function handleSubmit(snippetType) {
-    if (!state.title.trim()) {
+    if (snippetType !== "gist" && !state.title.trim()) {
       setState({ ...state, titleInvalid: true });
       return;
     }
@@ -160,10 +160,10 @@ export default function Form(props) {
     };
     const pathname = usernameLowerCase ? `/users/${usernameLowerCase}` : "/snippets";
 
-    if (state.remote || snippetType === "remote" || snippetType === "private") {
+    if (state.remote || snippetType !== "local") {
       try {
         newSnippet.isPrivate = state.isPrivate || snippetType === "private";
-        if (state.isGist) {
+        if (state.isGist || snippetType === "gist") {
           const gistFilesToRemove = state.gistFilesToRemove || [];
           newSnippet.isGist = true;
           newSnippet.files = gistFilesToRemove.concat(newSnippet.files);
@@ -208,7 +208,7 @@ export default function Form(props) {
   }
 
   function removeFile(index) {
-    if (state.isGist) {
+    if (state.isGist && state.updating) {
       state.gistFilesToRemove = state.gistFilesToRemove || [];
       state.gistFilesToRemove.push({
         initialName: files[index].initialName

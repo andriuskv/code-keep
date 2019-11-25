@@ -62,7 +62,7 @@ router.get("/:userId", async (req, res) => {
     ]);
 
     if (Array.isArray(gists)) {
-      data.snippets = data.snippets.concat(gists.map(parseGist));
+      data.snippets = data.snippets.concat(gists.map(gist => parseGist(gist, req.params.userId)));
     }
     else {
       data.gistError = true;
@@ -86,6 +86,28 @@ router.post("/create", async (req, res) => {
     return res.json({ code: 401 });
   }
   try {
+    if (req.body.isGist) {
+      const user = await User.findById(req.session.user._id);
+      const gist = {
+        description: req.body.description,
+        files: req.body.files.reduce((files, file) => {
+          files[file.name] = { content: file.value };
+          return files;
+        }, {})
+      };
+      const data = await fetch("https://api.github.com/gists", {
+        method: "POST",
+        headers: {
+          "Authorization": `token ${user.accessToken}`
+        },
+        body: JSON.stringify(gist)
+      }).then(res => res.json());
+
+      if (data.message) {
+        return res.json({ code: 500, message: data.message });
+      }
+      return res.json({ code: 200 });
+    }
     // If user tries to fork same snippet, ignore it.
     if (req.body.fork) {
       const snippet = await Snippet.findOne({ $and: [{ "fork.id": req.body.fork.id }, { userId: req.session.user._id }]});
@@ -128,7 +150,7 @@ router.post("/update", async (req, res) => {
       const user = await User.findById(req.session.user._id);
 
       if (!user) {
-        return { code: 500 };
+        return res.json({ code: 500 });
       }
       const data = await fetch(`https://api.github.com/gists/${req.body.id}`, {
         method: "PATCH",
@@ -163,6 +185,24 @@ router.post("/delete", async (req, res) => {
     return res.json({ code: 401 });
   }
   try {
+    if (req.body.isGist) {
+      const user = await User.findById(req.session.user._id);
+
+      if (!user) {
+        return res.json({ code: 500 });
+      }
+      const response = await fetch(`https://api.github.com/gists/${req.body.snippetId}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `token ${user.accessToken}`
+        }
+      });
+
+      if (response.status === 204) {
+        return res.json({ code: 200 });
+      }
+      return res.json({ code: 500 });
+    }
     await Snippet.findOneAndRemove({ $and: [{ id: req.body.snippetId }, { userId: req.body.userId }]});
     res.json({ code: 200 });
   } catch (e) {
@@ -224,7 +264,7 @@ router.post("/:snippetId/:status?", async (req, res) => {
       res.json({ code: 404, message: "Snippet not found." });
     }
     else {
-      res.json(parseGist(data));
+      res.json(parseGist(data, req.body.id));
     }
   }
   else {
@@ -254,8 +294,9 @@ async function sendSnippet(res, snippetId, userId, getPrivate) {
   }
 }
 
-function parseGist(gist) {
+function parseGist(gist, userId) {
   return {
+    userId,
     id: gist.id,
     created: gist.created_at,
     title: getGistTitle(gist.id, gist.files),

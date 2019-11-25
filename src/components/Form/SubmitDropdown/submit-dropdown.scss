@@ -3,7 +3,7 @@
 .form-submit-dropdown-toggle-btn {
   display: none;
 
-  @include breakpoint-small {
+  @include form-submit-breakpoint {
     display: block;
   }
 }
@@ -11,7 +11,7 @@
 .form-submit-dropdown {
   display: flex;
 
-  @include breakpoint-small {
+  @include form-submit-breakpoint {
     position: absolute;
     right: 0;
     bottom: calc(100% + var(--space-md));
@@ -33,7 +33,11 @@
   position: relative;
   margin-left: var(--space-md);
 
-  @include breakpoint-small {
+  span {
+    margin-left: 0;
+  }
+
+  @include form-submit-breakpoint {
     justify-content: flex-start;
     width: 100%;
     min-height: 28px;
@@ -48,5 +52,22 @@
     &:not(:last-of-type) {
       margin-bottom: var(--space-md);
     }
+
+    &.form-submit-remote-btn {
+      display: flex;
+      padding-left: 40px;
+    }
+  }
+}
+
+.form-submit-btn-icon {
+  margin-right: var(--space-md);
+}
+
+.form-submit-btn-label-part {
+  margin-right: var(--space-sm);
+
+  @include form-submit-breakpoint {
+    display: none;
   }
 }

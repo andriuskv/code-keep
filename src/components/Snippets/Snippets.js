@@ -106,10 +106,11 @@ export default function Snippets(props) {
     }
   }
 
-  function showSnippetRemoveModal(index, isLocal) {
+  function showSnippetRemoveModal(index, { isLocal, isGist }) {
     setState({ ...state, removeModal: {
       index,
-      isLocal
+      isLocal,
+      isGist
     }});
   }
 
@@ -123,12 +124,13 @@ export default function Snippets(props) {
       hideNotification();
     }
     const { snippets, removeModal } = state;
-    const { index, isLocal } = removeModal;
+    const { index, isLocal, isGist } = removeModal;
     const { id, userId } = snippets[index];
     const deleted = await deleteSnippet({
       snippetId: id,
       userId,
-      isLocal
+      isLocal,
+      isGist
     });
 
     if (deleted) {
@@ -352,7 +354,7 @@ export default function Snippets(props) {
             dismiss={hideNotification}/>
         )}
         {renderSnippets()}
-        {state.removeModal ? <SnippetRemoveModal hide={hideSnippetRemoveModal} removeSnippet={removeSnippet} /> : null}
+        {state.removeModal ? <SnippetRemoveModal isGist={state.removeModal.isGist} hide={hideSnippetRemoveModal} removeSnippet={removeSnippet} /> : null}
       </div>
     );
   }

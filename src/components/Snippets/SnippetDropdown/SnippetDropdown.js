@@ -4,16 +4,16 @@ import "./snippet-dropdown.scss";
 import Dropdown from "../../Dropdown";
 import Icon from "../../Icon";
 
-export default function SnippetDropdown({ index, user, snippet, uploadSnippet, removeSnippet, toggleSnippetPrivacy }) {
+export default function SnippetDropdown({ user, snippet, uploadSnippet, removeSnippet, toggleSnippetPrivacy }) {
   const history = useHistory();
 
-  function editSnippet({ id, isLocal, isGist }) {
+  function editSnippet({ id, type }) {
     let path = `/users/${user.usernameLowerCase}/${id}/edit`;
 
-    if (isLocal) {
+    if (type === "local") {
       path = `/snippets/${id}/edit`;
     }
-    else if (isGist) {
+    else if (type === "gist") {
       path = `${path}?type=gist`;
     }
     history.push(path);
@@ -29,22 +29,22 @@ export default function SnippetDropdown({ index, user, snippet, uploadSnippet, r
         <span>Edit</span>
       </button>
       {user.isLoggedIn && (
-        snippet.isLocal ? (
+        snippet.type === "local" ? (
           <button className="btn icon-text-btn dropdown-btn snippet-dropdown-btn"
-            onClick={() => uploadSnippet(index)}>
+            onClick={() => uploadSnippet(snippet)}>
             <Icon name="upload" />
             <span>Upload</span>
           </button>
-        ) : !snippet.isGist ? (
+        ) : snippet.type !== "gist" ? (
           <button className="btn icon-text-btn dropdown-btn snippet-dropdown-btn"
             onClick={() => toggleSnippetPrivacy(snippet)}>
-            <Icon name={snippet.isPrivate ? "unlocked" : "locked"} />
-            <span>{snippet.isPrivate ? "Make Public" : "Make Private"}</span>
+            <Icon name={snippet.type === "private" ? "unlocked" : "locked"} />
+            <span>{snippet.type === "private" ? "Make Public" : "Make Private"}</span>
           </button>
         ) : null
       )}
       <button className="btn icon-text-btn dropdown-btn snippet-dropdown-btn"
-        onClick={() => removeSnippet(index, snippet)}>
+        onClick={() => removeSnippet(snippet)}>
         <Icon name="trash" />
         <span>Remove</span>
       </button>

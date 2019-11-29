@@ -23,12 +23,12 @@ async function fetchSnippets(id) {
   return data;
 }
 
-async function deleteSnippet({ snippetId, userId, isLocal, isGist }) {
-  if (isLocal) {
+async function deleteSnippet({ snippetId, type }) {
+  if (type === "local") {
     return deleteIDBSnippet(snippetId);
   }
   else {
-    const data = await deleteServerSnippet({ snippetId, userId, isGist });
+    const data = await deleteServerSnippet({ snippetId, type });
 
     return data.code === 200;
   }

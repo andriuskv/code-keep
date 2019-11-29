@@ -16,8 +16,7 @@ import NoMatch from "../NoMatch";
 
 export default function View(props) {
   const [state, setState] = useState({
-    loading: true,
-    isLocal: props.match.path === "/snippets/:id"
+    loading: true
   });
   const user = useUser();
 
@@ -119,7 +118,7 @@ export default function View(props) {
   }
 
   if (state.loading) {
-    return state.isLocal ? null : <PageSpinner/>;
+    return <PageSpinner/>;
   }
   else if (!state.title || state.message) {
     return <NoMatch message={state.message} />;
@@ -134,9 +133,9 @@ export default function View(props) {
             </Link>
           ) : null }
           <div className="view-title-container">
-            {state.isPrivate && <Icon name="locked" className="view-title-icon" title="Only you can see this snippet" />}
-            {state.isLocal && <Icon name="home" className="view-title-icon" title="This snippet is local to your device" />}
-            {state.isGist && <Icon name="github" className="view-title-icon" title="This snippet is hosted on GitHub" />}
+            {state.type === "private" && <Icon name="locked" className="view-title-icon" title="Only you can see this snippet" />}
+            {state.type === "local" && <Icon name="home" className="view-title-icon" title="This snippet is local to your device" />}
+            {state.type === "gist" && <Icon name="github" className="view-title-icon" title="This snippet is hosted on GitHub" />}
             <h3 className="view-title">{state.title}</h3>
           </div>
           {state.description && (
@@ -147,7 +146,7 @@ export default function View(props) {
             {state.fork ? (
               <span className="view-info-item"><Link to={`/users/${state.fork.usernameLowerCase}/${state.fork.id}`}>Forked from {state.fork.username}</Link></span>
             ) : null}
-            {state.isGist ? (
+            {state.type === "gist" ? (
               <span className="view-info-item"><a href={state.url}>GitHub</a></span>
             ) : null}
           </div>

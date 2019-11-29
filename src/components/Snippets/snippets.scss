@@ -11,7 +11,7 @@
   justify-content: space-between;
   align-items: center;
   margin-top: var(--space-xl);
-  margin-bottom: var(--space-xl);
+  margin-bottom: var(--space-xxxl);
 
   .btn {
     display: flex;
@@ -29,6 +29,72 @@
 
 .snippets-notification {
   margin-bottom: var(--space-xl);
+}
+
+.snippet-tab-selection {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: var(--space-md);
+}
+
+.snippet-tab-selection-item {
+  margin-bottom: var(--space-md);
+
+  &:not(:last-of-type) {
+    margin-right: var(--space-md);
+  }
+}
+
+.snippet-tab-selection-btn {
+  --background-color: tranparent;
+
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding-right: var(--space-md);
+
+  &.active {
+    --background-color: var(--color-grey);
+
+    &:hover {
+      --background-color: var(--color-grey-light);
+    }
+
+    .snippet-tab-item-count {
+      background-color: var(--color-grey-dark);
+    }
+  }
+
+  &:hover, &.focus-visible {
+    --background-color: var(--color-grey);
+
+    .snippet-tab-item-count {
+      background-color: var(--color-grey-dark);
+    }
+  }
+}
+
+.snippet-tab-selection-btn-icon {
+  margin-right: var(--space-md);
+}
+
+.snippet-tab-item-count {
+  display: inline-block;
+  margin-left: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: 999px;
+  background-color: var(--color-grey);
+  font-weight: normal;
+  font-size: var(--text-sm);
+  transition: 0.2s background-color;
+}
+
+.snippets-visible-snippet-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  font-size: var(--text-lg);
 }
 
 .snippet {

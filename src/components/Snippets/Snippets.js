@@ -35,6 +35,66 @@ export default function Snippets(props) {
     }
   }, [state.notification]);
 
+  function initSnippetState(state) {
+    const tabs = {
+      all: {
+        name: "All",
+        type: "",
+        count: 0
+      },
+      remote: {
+        name: "Remote",
+        type: "remote",
+        require: true,
+        count: 0
+      },
+      private: {
+        name: "Private",
+        type: "private",
+        iconName: "locked",
+        require: true,
+        count: 0
+      },
+      forked: {
+        name: "Forked",
+        type: "forked",
+        iconName: "fork",
+        count: 0
+      },
+      gist: {
+        name: "Gists",
+        type: "gist",
+        iconName: "github",
+        require: true,
+        count: 0
+      },
+      local: {
+        name: "Local",
+        type: "local",
+        iconName: "home",
+        require: true,
+        count: 0
+      }
+    };
+    state.tabSnippets = state.snippets;
+    state.visibleTabType = "";
+    state.tabs = updateSnippetTypeCount(state.snippets, tabs);
+    setState(state);
+  }
+
+  function updateSnippetTypeCount(snippets, tabs) {
+    for (const snippet of snippets) {
+      tabs.all = tabs.all || { name: "All", type: "", count: 0 };
+      tabs.all.count += 1;
+
+      if (snippet.type === "private" || snippet.type === "forked") {
+        tabs.remote.count += 1;
+      }
+      tabs[snippet.type].count += 1;
+    }
+    return tabs;
+  }
+
   async function init() {
     const { username } = props.match.params;
 
@@ -44,7 +104,7 @@ export default function Snippets(props) {
     }
 
     if (props.match.url === "/snippets") {
-      setState({
+      initSnippetState({
         snippets: await fetchIDBSnippets(),
         user: { isLocal: true, ...user, isLoggedIn: !!user.username }
       });
@@ -71,7 +131,7 @@ export default function Snippets(props) {
       if (data.message) {
         newState.notification = { value: data.message };
       }
-      setState(newState);
+      initSnippetState(newState);
       setDocumentTitle(`${user.username} Snippets`);
     } catch (e) {
       console.log(e);
@@ -96,7 +156,7 @@ export default function Snippets(props) {
           setState({ message: "Something went wrong. Try again later." });
         }
         else {
-          setState({ snippets: sortSnippets(data.snippets), user });
+          initSnippetState({ snippets: sortSnippets(data.snippets), user });
           setDocumentTitle(`${user.username} Snippets`);
         }
       }
@@ -106,12 +166,8 @@ export default function Snippets(props) {
     }
   }
 
-  function showSnippetRemoveModal(index, { isLocal, isGist }) {
-    setState({ ...state, removeModal: {
-      index,
-      isLocal,
-      isGist
-    }});
+  function showSnippetRemoveModal({ id, type }) {
+    setState({ ...state, removeModal: { id, type }});
   }
 
   function hideSnippetRemoveModal() {
@@ -123,18 +179,19 @@ export default function Snippets(props) {
     if (state.notification) {
       hideNotification();
     }
-    const { snippets, removeModal } = state;
-    const { index, isLocal, isGist } = removeModal;
-    const { id, userId } = snippets[index];
+    const { id, type } = state.removeModal;
     const deleted = await deleteSnippet({
       snippetId: id,
-      userId,
-      isLocal,
-      isGist
+      type
     });
 
     if (deleted) {
-      snippets.splice(index, 1);
+      state.snippets = state.snippets.filter(snippet => snippet.id !== id);
+
+      if (state.visibleTabType) {
+        state.tabSnippets = state.snippets.filter(snippet => snippet.type === type);
+      }
+      state.tabs = updateSnippetTypeCount(state.snippets, state.tabs);
     }
     else {
       state.notification = { value: "Snippet removal was unsuccessful." };
@@ -147,14 +204,19 @@ export default function Snippets(props) {
     if (state.notification) {
       hideNotification();
     }
-    const value = !snippet.isPrivate;
+    const type = snippet.type === "private" ? "remote" : "private";
     const data = await updateServerSnippet({
       id: snippet.id,
-      isPrivate: value
+      type
     });
 
     if (data.code === 200) {
-      snippet.isPrivate = value;
+      snippet.type = type;
+
+      if (state.visibleTabType === "private") {
+        state.tabSnippets = state.tabSnippets.filter(({ id }) => snippet.id !== id);
+      }
+      state.tabs = updateSnippetTypeCount(state.snippets, state.tabs);
     }
     else if (data.code === 401) {
       state.notification = { value: "Seems like your session has expired. Relogin and try again." };
@@ -165,11 +227,10 @@ export default function Snippets(props) {
     setState({ ...state });
   }
 
-  async function forkSnippet(index) {
+  async function forkSnippet(snippet) {
     if (state.notification) {
       hideNotification();
     }
-    const snippet = state.snippets[index];
     const id = getRandomString();
     const data = await createServerSnippet({
       ...snippet,
@@ -180,6 +241,7 @@ export default function Snippets(props) {
       userId: user._id,
       created: new Date(),
       id,
+      type: "forked",
       fork: {
         id: snippet.id,
         userId: snippet.userId,
@@ -190,7 +252,7 @@ export default function Snippets(props) {
 
     if (data.code === 200) {
       props.history.push({
-        pathname:`/users/${user.username}/${data.id ? data.id : id}`
+        pathname:`/users/${user.usernameLowerCase}/${data.id ? data.id : id}`
       });
     }
     else if (data.code === 401) {
@@ -203,15 +265,14 @@ export default function Snippets(props) {
     }
   }
 
-  async function uploadSnippet(index) {
+  async function uploadSnippet(snippet) {
     if (state.notification) {
       hideNotification();
     }
-    const snippet = state.snippets[index];
     const remoteSnippet = {
       ...snippet,
       userId: user._id,
-      isPrivate: true,
+      type: "private",
       created: new Date(),
       id: getRandomString(),
       files: snippet.files.map(file => {
@@ -219,11 +280,11 @@ export default function Snippets(props) {
         return file;
       })
     };
-    delete remoteSnippet.isLocal;
     const data = await createServerSnippet(remoteSnippet);
 
     if (data.code === 200) {
       state.snippets.unshift(remoteSnippet);
+      state.tabs = updateSnippetTypeCount(state.snippets, state.tabs);
       state.notification = {
         value: "Upload was successful.",
         type: "positive"
@@ -241,6 +302,32 @@ export default function Snippets(props) {
   function hideNotification() {
     delete state.notification;
     setState({ ...state });
+  }
+
+  function showSnippets(type) {
+    if (type === state.visibleTabType) {
+      return;
+    }
+    let snippets = [];
+
+    if (!type) {
+      snippets = state.snippets;
+    }
+    else if (type === "remote") {
+      snippets = state.snippets.filter(snippet => (
+        snippet.type === type ||
+        snippet.type === "private" ||
+        snippet.type === "forked"
+      ));
+    }
+    else {
+      snippets = state.snippets.filter(snippet => snippet.type === type);
+    }
+    setState({
+      ...state,
+      visibleTabType: type,
+      tabSnippets: snippets
+    });
   }
 
   function renderHeader() {
@@ -264,56 +351,84 @@ export default function Snippets(props) {
     );
   }
 
-  function renderSnippets() {
-    const { user: snippetUser, snippets } = state;
-
-    if (!snippets.length) {
+  function renderSnippetsTabs() {
+    if (state.user.isLocal) {
       return null;
     }
     return (
-      <ul>
-        {snippets.map((snippet, index) => {
+      <ul className="snippet-tab-selection">
+        {Object.keys(state.tabs).map((key, index) => {
+          const tab = state.tabs[key];
+
+          if (tab.require && !state.user.isLoggedIn) {
+            return null;
+          }
+          else if (tab.type === "gist" && !state.user.isGithubConnected) {
+            return null;
+          }
           return (
-            <li className="snippet" key={snippet.id}>
-              <div className="snippet-top">
-                <div className="snippet-title-container">
-                  {snippet.isPrivate && <Icon name="locked" className="snippet-title-icon" title="Only you can see this snippet" />}
-                  {snippet.isLocal && <Icon name="home" className="snippet-title-icon" title="This snippet is local to your device" />}
-                  {snippet.isGist && <Icon name="github" className="snippet-title-icon" title="This snippet is hosted on GitHub" />}
-                  <h3 className="snippet-title">{snippet.title}</h3>
-                </div>
-                {snippetUser.isLocal || snippetUser.username === user.username ? (
-                  <SnippetDropdown index={index} user={snippetUser} snippet={snippet}
-                    uploadSnippet={uploadSnippet}
-                    removeSnippet={showSnippetRemoveModal}
-                    toggleSnippetPrivacy={toggleSnippetPrivacy} />
-                ) : (user.username ? (
-                  <button className="btn icon-text-btn snippet-fork-btn" onClick={() => forkSnippet(index)}>
-                    <Icon name="fork" />
-                    <span>Fork</span>
-                  </button>
-                ) : null)}
-              </div>
-              {snippet.description && (
-                <p className="snippet-description">{snippet.description}</p>
-              )}
-              <div className="snippet-info">
-                <span className="snippet-info-item">{snippet.files.length} {`File${snippet.files.length > 1 ? "s" : ""}`}</span>
-                <span className="snippet-info-item"><DateDiff start={snippet.created} /></span>
-                {snippet.fork ? (
-                  <span className="snippet-info-item"><Link to={`/users/${snippet.fork.usernameLowerCase}/${snippet.fork.id}`}>Forked from {snippet.fork.username}</Link></span>
-                ) : null}
-                {snippet.isGist ? (
-                  <span className="snippet-info-item"><a href={snippet.url}>GitHub</a></span>
-                ) : null}
-              </div>
-              <Link to={snippet.isLocal ? `/snippets/${snippet.id}` : `/users/${snippetUser.usernameLowerCase}/${snippet.id}${snippet.isGist ? "?type=gist": ""}`} className="snippet-link">
-                <Editor file={snippet.files[0]} settings={snippet.settings}
-                  height={snippet.files[0].height} readOnly preview />
-              </Link>
+            <li className="snippet-tab-selection-item" key={index}>
+              <button className={`btn snippet-tab-selection-btn${state.visibleTabType === tab.type ? " active" : ""}`}
+                onClick={() => showSnippets(tab.type)}>
+                {tab.iconName && <Icon name={tab.iconName} className="snippet-tab-selection-btn-icon"/>}
+                <span>{tab.name}</span>
+                <span className="snippet-tab-item-count">{tab.count}</span>
+              </button>
             </li>
           );
         })}
+      </ul>
+    );
+  }
+
+  function renderSnippets() {
+    const { user: snippetUser, tabSnippets } = state;
+
+    if (!tabSnippets.length) {
+      return <p className="snippets-visible-snippet-message">{state.user.isLoggedIn ? "You don't" : "This user doesn't"} have any {state.visibleTabType} snippets.</p>;
+    }
+    return (
+      <ul>
+        {tabSnippets.map(snippet => (
+          <li className="snippet" key={snippet.id}>
+            <div className="snippet-top">
+              <div className="snippet-title-container">
+                {snippet.type === "private" && <Icon name="locked" className="snippet-title-icon" title="Only you can see this snippet"/>}
+                {snippet.type === "local" && <Icon name="home" className="snippet-title-icon" title="This snippet is local to your device"/>}
+                {snippet.type === "gist" && <Icon name="github" className="snippet-title-icon" title="This snippet is hosted on GitHub"/>}
+                <h3 className="snippet-title">{snippet.title}</h3>
+              </div>
+              {snippetUser.isLocal || snippetUser.username === user.username ? (
+                <SnippetDropdown user={snippetUser} snippet={snippet}
+                  uploadSnippet={uploadSnippet}
+                  removeSnippet={showSnippetRemoveModal}
+                  toggleSnippetPrivacy={toggleSnippetPrivacy} />
+              ) : (user.username ? (
+                <button className="btn icon-text-btn snippet-fork-btn" onClick={() => forkSnippet(snippet)}>
+                  <Icon name="fork" />
+                  <span>Fork</span>
+                </button>
+              ) : null)}
+            </div>
+            {snippet.description && (
+              <p className="snippet-description">{snippet.description}</p>
+            )}
+            <div className="snippet-info">
+              <span className="snippet-info-item">{snippet.files.length} {`File${snippet.files.length > 1 ? "s" : ""}`}</span>
+              <span className="snippet-info-item"><DateDiff start={snippet.created} /></span>
+              {snippet.fork ? (
+                <span className="snippet-info-item"><Link to={`/users/${snippet.fork.usernameLowerCase}/${snippet.fork.id}`}>Forked from {snippet.fork.username}</Link></span>
+              ) : null}
+              {snippet.type === "gist" ? (
+                <span className="snippet-info-item"><a href={snippet.url}>GitHub</a></span>
+              ) : null}
+            </div>
+            <Link to={snippet.type === "local" ? `/snippets/${snippet.id}` : `/users/${snippetUser.usernameLowerCase}/${snippet.id}${snippet.type === "gist" ? "?type=gist": ""}`} className="snippet-link">
+              <Editor file={snippet.files[0]} settings={snippet.settings}
+                height={snippet.files[0].height} readOnly preview />
+            </Link>
+          </li>
+        ))}
       </ul>
     );
   }
@@ -347,6 +462,7 @@ export default function Snippets(props) {
     return (
       <div className="snippets-container">
         {renderHeader()}
+        {renderSnippetsTabs()}
         {state.notification && (
           <Notification className="snippets-notification"
             value={state.notification.value}
@@ -354,7 +470,7 @@ export default function Snippets(props) {
             dismiss={hideNotification}/>
         )}
         {renderSnippets()}
-        {state.removeModal ? <SnippetRemoveModal isGist={state.removeModal.isGist} hide={hideSnippetRemoveModal} removeSnippet={removeSnippet} /> : null}
+        {state.removeModal ? <SnippetRemoveModal type={state.removeModal.type} hide={hideSnippetRemoveModal} removeSnippet={removeSnippet} /> : null}
       </div>
     );
   }

@@ -151,6 +151,7 @@ export default function Form(props) {
       created: state.created || new Date(),
       title: state.title,
       description: state.description,
+      type: state.updating ? state.type : snippetType,
       files,
       settings: {
         indentSize,
@@ -162,10 +163,8 @@ export default function Form(props) {
 
     if (state.remote || snippetType !== "local") {
       try {
-        newSnippet.isPrivate = state.isPrivate || snippetType === "private";
-        if (state.isGist || snippetType === "gist") {
+        if (state.updating || state.type === "gist") {
           const gistFilesToRemove = state.gistFilesToRemove || [];
-          newSnippet.isGist = true;
           newSnippet.files = gistFilesToRemove.concat(newSnippet.files);
         }
         delete state.submitMessage;
@@ -192,7 +191,7 @@ export default function Form(props) {
       }
     }
     else {
-      saveSnippet({ ...newSnippet, isLocal: true });
+      saveSnippet({ ...newSnippet });
       props.history.push({ pathname });
     }
   }
@@ -208,7 +207,7 @@ export default function Form(props) {
   }
 
   function removeFile(index) {
-    if (state.isGist && state.updating) {
+    if (state.updating && state.type === "gist") {
       state.gistFilesToRemove = state.gistFilesToRemove || [];
       state.gistFilesToRemove.push({
         initialName: files[index].initialName
@@ -301,7 +300,7 @@ export default function Form(props) {
         <label className="form-input-group-item">
           <div className="form-input-group-item-title">Title</div>
           <input type="text" className="input" value={state.title} name="title"
-            onChange={handleInputChange} disabled={state.isGist}/>
+            onChange={handleInputChange} disabled={state.type === "gist"}/>
           {state.titleInvalid && <div className="form-input-group-item-error">Required</div>}
         </label>
         <label className="form-input-group-item">

@@ -2,7 +2,7 @@ import React from "react";
 import "./snippet-remove-modal.scss";
 import Icon from "../../Icon";
 
-export default function SnippetRemoveModal({ isGist, hide, removeSnippet }) {
+export default function SnippetRemoveModal({ type, hide, removeSnippet }) {
   function handleModalClick(event) {
     if (event.target === event.currentTarget) {
       hide();
@@ -16,7 +16,7 @@ export default function SnippetRemoveModal({ isGist, hide, removeSnippet }) {
           <Icon name="trash" className="snippet-remove-modal-title-icon" />
           <h3 className="snippet-remove-modal-title">Remove Snippet?</h3>
         </div>
-        <p>Are you sure you want to remove this snippet? {isGist && "This will also remove gist on GitHub."}</p>
+        <p>Are you sure you want to remove this snippet? {type === "gist" && "This will also remove gist on GitHub."}</p>
         <div className="snippet-remove-modal-content-bottom">
           <button className="btn text-btn" onClick={hide}>Cancel</button>
           <button className="btn icon-text-btn danger-btn" onClick={removeSnippet}>

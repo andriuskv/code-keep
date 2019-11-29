@@ -41,14 +41,14 @@ async function fetchGists(userId) {
 }
 
 router.get("/:userId", async (req, res) => {
-  const isPrivateValues = [false];
+  const types = ["remote", "forked"];
   let getPrivate = false;
 
   if (req.session.user) {
     getPrivate = req.session.user._id === req.params.userId;
 
     if (getPrivate) {
-      isPrivateValues.push(getPrivate);
+      types.push("private");
     }
   }
 
@@ -58,7 +58,7 @@ router.get("/:userId", async (req, res) => {
     };
     const [gists, snippets] = await Promise.all([
       getPrivate ? fetchGists(req.params.userId) : [],
-      Snippet.find({ $and: [{ userId: req.params.userId }, { isPrivate: { $in: isPrivateValues }}]})
+      Snippet.find({ $and: [{ userId: req.params.userId }, { type: { $in: types }}]})
     ]);
 
     if (Array.isArray(gists)) {
@@ -86,7 +86,7 @@ router.post("/create", async (req, res) => {
     return res.json({ code: 401 });
   }
   try {
-    if (req.body.isGist) {
+    if (req.body.type === "gist") {
       const user = await User.findById(req.session.user._id);
       const gist = {
         description: req.body.description,
@@ -115,6 +115,7 @@ router.post("/create", async (req, res) => {
       if (snippet) {
         return res.json({ code: 200, id: snippet.id });
       }
+      delete req.body._id;
     }
     const snippet = new Snippet({ ...req.body, userId: req.session.user._id });
     await snippet.save();
@@ -131,7 +132,7 @@ router.post("/update", async (req, res) => {
     return res.json({ code: 401 });
   }
   try {
-    if (req.body.isGist) {
+    if (req.body.type === "gist") {
       const files = {};
 
       for (const file of req.body.files) {
@@ -181,11 +182,11 @@ router.post("/update", async (req, res) => {
 });
 
 router.post("/delete", async (req, res) => {
-  if (!req.session.user || req.session.user._id !== req.body.userId) {
+  if (!req.session.user) {
     return res.json({ code: 401 });
   }
   try {
-    if (req.body.isGist) {
+    if (req.body.type === "gist") {
       const user = await User.findById(req.session.user._id);
 
       if (!user) {
@@ -203,7 +204,7 @@ router.post("/delete", async (req, res) => {
       }
       return res.json({ code: 500 });
     }
-    await Snippet.findOneAndRemove({ $and: [{ id: req.body.snippetId }, { userId: req.body.userId }]});
+    await Snippet.findOneAndRemove({ $and: [{ id: req.body.snippetId }, { userId: req.session.user._id }]});
     res.json({ code: 200 });
   } catch (e) {
     console.log(e);
@@ -273,14 +274,14 @@ router.post("/:snippetId/:status?", async (req, res) => {
 });
 
 async function sendSnippet(res, snippetId, userId, getPrivate) {
-  const isPrivateValues = [false];
+  const types = ["remote", "forked"];
 
   if (getPrivate) {
-    isPrivateValues.push(true);
+    types.push("private");
   }
 
   try {
-    const snippet = await Snippet.findOne({ $and: [{ id: snippetId }, { userId }, { isPrivate: {$in: isPrivateValues }}]});
+    const snippet = await Snippet.findOne({ $and: [{ id: snippetId }, { userId }, { type: { $in: types }}]});
 
     if (snippet) {
       res.send(snippet);
@@ -301,7 +302,7 @@ function parseGist(gist, userId) {
     created: gist.created_at,
     title: getGistTitle(gist.id, gist.files),
     description: gist.description,
-    isGist: true,
+    type: "gist",
     url: gist.html_url,
     files: Object.keys(gist.files).map(key => {
       const file = gist.files[key];

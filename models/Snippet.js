@@ -20,6 +20,9 @@ const SnippetSchema = new mongoose.Schema({
   description: {
     type: String
   },
+  type: {
+    type: String
+  },
   files: {
     type: Array,
     required: true
@@ -27,9 +30,6 @@ const SnippetSchema = new mongoose.Schema({
   settings: {
     type: Object,
     required: true
-  },
-  isPrivate: {
-    type: Boolean
   },
   fork: {
     type: Object

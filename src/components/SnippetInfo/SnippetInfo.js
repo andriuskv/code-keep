@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./snippet-info.scss";
-import DateDiff from "../DateDiff";
+import DateDiff from "./DateDiff";
 import Icon from "../Icon";
 
 export default function SnippetInfo({ snippet }) {

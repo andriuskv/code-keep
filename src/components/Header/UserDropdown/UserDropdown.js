@@ -2,9 +2,9 @@ import React, { Fragment, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import "./user-dropdown.scss";
 import { useUser } from "../../../context/user-context";
-import Icon from "../../Icon";
 import Dropdown from "../../Dropdown";
 import ButtonSpinner from "../../ButtonSpinner";
+import UserProfileImage from "../../UserProfileImage";
 
 export default function UserDropdown() {
   const [logout, setLogout] = useState({ buttonDisabled: false, message: "" });
@@ -29,23 +29,25 @@ export default function UserDropdown() {
   }
 
   function getToggleButton() {
-    const path = profileImage ? profileImage.path : "";
     return {
-      content: path ? (
-        <div className="header-dropdown-profile-image-container">
-          <img src={path} className="header-dropdown-profile-image" alt="" />
-        </div>
-      ) : <Icon name="user" />,
+      content:  <UserProfileImage src={profileImage.path}/>,
       title: "Toggle user menu",
-      className: `btn icon-btn header-link header-dropdown-toggle-btn${path ? " with-image" : ""}`
+      className: "btn icon-btn header-link header-dropdown-toggle-btn"
     };
   }
 
   return (
     <Dropdown toggle={getToggleButton()} body={{className: "header-dropdown"}}>
       <Fragment>
-        <div className="header-dropdown-name">{username}</div>
-        <div className="header-dropdown-email">{email}</div>
+        <div className="header-dropdown-user-info">
+          <UserProfileImage src={profileImage.path} size="48px" className="header-dropdown-image" />
+          <div>
+            <div className="header-dropdown-name">{username}</div>
+            <div className="header-dropdown-email">{email}</div>
+          </div>
+        </div>
+        <div className="header-dropdown-divider"></div>
+        <Link to="/snippets/create" className="btn header-dropdown-link">Create Snippet</Link>
         <div className="header-dropdown-divider"></div>
         <Link to="/settings" className="btn header-dropdown-link">Settings</Link>
         <button className="btn dropdown-btn header-dropdown-btn"

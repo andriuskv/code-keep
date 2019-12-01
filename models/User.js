@@ -36,8 +36,14 @@ UserSchema.methods.getUser = function() {
     _id: this._id,
     username: this.username,
     usernameLowerCase: this.usernameLowerCase,
+    profileImage: this.profileImage
+  };
+};
+
+UserSchema.methods.getUserSession = function() {
+  return {
+    ...this.getUser(),
     email: this.email,
-    profileImage: this.profileImage,
     isGithubConnected: !!this.accessToken
   };
 };

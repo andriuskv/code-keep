@@ -5,6 +5,7 @@ import { uploadProfileImage } from "../../../services/userService";
 import Icon from "../../Icon";
 import ButtonSpinner from "../../ButtonSpinner";
 import Notification from "../../Notification";
+import UserProfileImage from "../../UserProfileImage";
 
 export default function ProfileImageForm() {
   const { profileImage, updateUser } = useUser();
@@ -102,15 +103,7 @@ export default function ProfileImageForm() {
     else if (profileImage) {
       imageSrc = profileImage.path;
     }
-
-    if (imageSrc) {
-      return (
-        <div className="profile-image-container">
-          <img src={imageSrc} className="profile-image" alt="" />
-        </div>
-      );
-    }
-    return <Icon name="user" className="profile-image-placeholder" />;
+    return <UserProfileImage src={imageSrc}/>;
   }
 
   return (

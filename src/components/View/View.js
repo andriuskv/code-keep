@@ -8,9 +8,10 @@ import { fetchServerSnippet } from "../../services/snippetServerService";
 import { useUser } from "../../context/user-context";
 import Icon from "../Icon";
 import PageSpinner from "../PageSpinner";
+import UserProfileImage from "../UserProfileImage";
+import SnippetInfo from "../SnippetInfo";
 import FileHeaderDropdown from "./FileHeaderDropdown";
 import Editor from "../Editor";
-import DateDiff from "../DateDiff";
 import Markdown from "../Markdown";
 import NoMatch from "../NoMatch";
 
@@ -126,33 +127,15 @@ export default function View(props) {
   return (
     <div className="view">
       <div className="view-header">
-        <div className="view-header-item">
-          {state.username ? (
-            <Link to={`/users/${state.username}`} className="view-header-user-link">
-              <h2 className="view-header-user-username">{state.username}</h2>
-            </Link>
-          ) : null }
-          <div className="view-title-container">
-            {state.type === "private" && <Icon name="locked" className="view-title-icon" title="Only you can see this snippet" />}
-            {state.type === "local" && <Icon name="home" className="view-title-icon" title="This snippet is local to your device" />}
-            {state.type === "gist" && <Icon name="github" className="view-title-icon" title="This snippet is hosted on GitHub" />}
-            <h3 className="view-title">{state.title}</h3>
-          </div>
-          {state.description && (
-            <p className="view-description">{state.description}</p>
-          )}
-          <div className="view-info">
-            <span className="view-info-item"><DateDiff start={state.created} /></span>
-            {state.fork ? (
-              <span className="view-info-item"><Link to={`/users/${state.fork.usernameLowerCase}/${state.fork.id}`}>Forked from {state.fork.username}</Link></span>
-            ) : null}
-            {state.type === "gist" ? (
-              <span className="view-info-item"><a href={state.url}>GitHub</a></span>
-            ) : null}
-          </div>
-        </div>
-        <button onClick={downloadFiles} className="btn view-header-btn">Download ZIP</button>
+        {state.username ? (
+          <Link to={`/users/${state.username}`} className="view-header-user-link">
+            <UserProfileImage src={user.profileImage.path} size="64px" className="view-header-user-image" />
+            <h2 className="view-header-user-username">{state.username}</h2>
+          </Link>
+        ) : null }
+        <SnippetInfo snippet={state}/>
       </div>
+      <button onClick={downloadFiles} className="btn view-download-btn">Download ZIP</button>
       {state.files.map(file => (
         <div className="view-editor" key={file.id}>
           <div className="view-editor-header">

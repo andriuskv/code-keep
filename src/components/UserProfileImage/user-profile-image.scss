@@ -1,0 +1,28 @@
+.user-profile-image-container {
+  --size: 36px;
+
+  overflow: hidden;
+  position: relative;
+  border-radius: 50%;
+  width: var(--size);
+  height: var(--size);
+}
+
+.user-profile-image {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 100%;
+  min-width: var(--size);
+}
+
+.user-profile-image-placeholder {
+  box-sizing: border-box;
+  width: var(--size);
+  height: var(--size);
+  padding: var(--space-md);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--color-grey-light);
+  color: var(--color-grey-lighter);
+}

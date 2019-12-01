@@ -53,7 +53,7 @@ router.post("/register", async (req, res) => {
       usernameLowerCase: req.body.username.toLowerCase(),
       email: req.body.email
     });
-    const data = user.getUser();
+    const data = user.getUserSession();
     user.setPassword(req.body.password);
     await user.save();
 
@@ -115,7 +115,7 @@ router.get("/me/github", async (req, res) => {
       if (!user.profileImage.path) {
         user.profileImage.path = data.avatar_url;
         await user.save();
-        req.session.user = user.getUser();
+        req.session.user = user.getUserSession();
       }
       res.json({
         name: data.name,
@@ -142,7 +142,7 @@ router.get("/disconnect", async (req, res) => {
     if (user) {
       user.accessToken = undefined;
       await user.save();
-      req.session.user = user.getUser();
+      req.session.user = user.getUserSession();
       return res.json({ code: 200 });
     }
     res.json({ code: 500 });
@@ -194,7 +194,7 @@ router.get("/connect/github/redirect", async (req, res) => {
           if (user) {
             user.accessToken = data.access_token;
             await user.save();
-            req.session.user = user.getUser();
+            req.session.user = user.getUserSession();
             res.redirect(`${process.env.APP_URL}/settings`);
           }
           else {
@@ -244,7 +244,7 @@ router.post("/login", async (req, res) => {
     const user = await User.findUser(req.body.username);
 
     if (user && user.validatePassword(req.body.password)) {
-      const data = user.getUser();
+      const data = user.getUserSession();
       req.session.user = data;
       return res.json(data);
     }
@@ -290,7 +290,7 @@ router.post("/update", async (req, res) => {
       user.usernameLowerCase = req.body.newUsername.toLowerCase();
 
       await user.save();
-      req.session.user = user.getUser();
+      req.session.user = user.getUserSession();
       return res.json({ code: 200 });
     }
     return res.json({ code: 500 });

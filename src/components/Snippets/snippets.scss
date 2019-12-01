@@ -8,7 +8,6 @@
 
 .snippets-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   margin-top: var(--space-xl);
   margin-bottom: var(--space-xxxl);
@@ -16,9 +15,13 @@
   .btn {
     display: flex;
   }
+}
 
-  @include breakpoint-small {
-    margin-top: 0;
+.snippets-header-image {
+  margin-right: var(--space-xl);
+
+  &.placeholder {
+    padding: var(--space-lg);
   }
 }
 
@@ -116,60 +119,11 @@
 .snippet-top {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-md);
-}
-
-.snippet-title-container {
-  display: flex;
-  align-items: flex-end;
-  margin-right: var(--space-md);
-}
-
-.snippet-title-icon {
-  flex-shrink: 0;
-  margin-right: var(--space-md);
-}
-
-.snippet-title {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: var(--text-md);
-  font-weight: 500;
-}
-
-.snippet-description {
-  margin-bottom: var(--space-sm);
-  font-size: var(--text-sm);
+  margin-bottom: var(--space-xl);
 }
 
 .snippet-fork-btn {
   padding: var(--space-sm) var(--space-lg);
-}
-
-.snippet-info {
-  margin-bottom: var(--space-xl);
-  font-size: var(--text-xs);
-  font-weight: 500;
-  color: var(--color-grey-lighter);
-}
-
-.snippet-info-item {
-  &:not(:last-of-type) {
-    margin-right: var(--space-sm);
-
-    &::after {
-      content: "\2022";
-      display: inline;
-      margin-left: var(--space-sm);
-    }
-  }
-
-  a:hover, a.focus-visible {
-    text-decoration: underline;
-    box-shadow: none;
-  }
 }
 
 .snippet-link {

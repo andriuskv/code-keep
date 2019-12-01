@@ -10,9 +10,10 @@ import { useUser } from "../../context/user-context";
 import Icon from "../Icon";
 import PageSpinner from "../PageSpinner";
 import Notification from "../Notification";
+import SnippetInfo from "../SnippetInfo";
 import Editor from "../Editor";
-import DateDiff from "../DateDiff";
 import NoMatch from "../NoMatch";
+import UserProfileImage from "../UserProfileImage";
 import SnippetDropdown from "./SnippetDropdown";
 import SnippetRemoveModal from "./SnippetRemoveModal";
 
@@ -343,10 +344,8 @@ export default function Snippets(props) {
     }
     return (
       <div className="snippets-header">
-        <h2 className="snippets-header-title">{user.username}'s snippets</h2>
-        {user.isLoggedIn && (
-          <Link to="/snippets/create" className="btn btn-secondary">Create Snippet</Link>
-        )}
+        <UserProfileImage src={user.profileImage.path} size="64px" className="snippets-header-image" />
+        <h2 className="snippets-header-title">{user.username}</h2>
       </div>
     );
   }
@@ -392,12 +391,7 @@ export default function Snippets(props) {
         {tabSnippets.map(snippet => (
           <li className="snippet" key={snippet.id}>
             <div className="snippet-top">
-              <div className="snippet-title-container">
-                {snippet.type === "private" && <Icon name="locked" className="snippet-title-icon" title="Only you can see this snippet"/>}
-                {snippet.type === "local" && <Icon name="home" className="snippet-title-icon" title="This snippet is local to your device"/>}
-                {snippet.type === "gist" && <Icon name="github" className="snippet-title-icon" title="This snippet is hosted on GitHub"/>}
-                <h3 className="snippet-title">{snippet.title}</h3>
-              </div>
+              <SnippetInfo snippet={snippet}/>
               {snippetUser.isLocal || snippetUser.username === user.username ? (
                 <SnippetDropdown user={snippetUser} snippet={snippet}
                   uploadSnippet={uploadSnippet}
@@ -409,19 +403,6 @@ export default function Snippets(props) {
                   <span>Fork</span>
                 </button>
               ) : null)}
-            </div>
-            {snippet.description && (
-              <p className="snippet-description">{snippet.description}</p>
-            )}
-            <div className="snippet-info">
-              <span className="snippet-info-item">{snippet.files.length} {`File${snippet.files.length > 1 ? "s" : ""}`}</span>
-              <span className="snippet-info-item"><DateDiff start={snippet.created} /></span>
-              {snippet.fork ? (
-                <span className="snippet-info-item"><Link to={`/users/${snippet.fork.usernameLowerCase}/${snippet.fork.id}`}>Forked from {snippet.fork.username}</Link></span>
-              ) : null}
-              {snippet.type === "gist" ? (
-                <span className="snippet-info-item"><a href={snippet.url}>GitHub</a></span>
-              ) : null}
             </div>
             <Link to={snippet.type === "local" ? `/snippets/${snippet.id}` : `/users/${snippetUser.usernameLowerCase}/${snippet.id}${snippet.type === "gist" ? "?type=gist": ""}`} className="snippet-link">
               <Editor file={snippet.files[0]} settings={snippet.settings}
@@ -439,7 +420,7 @@ export default function Snippets(props) {
     if (user.isLoggedIn || user.isLocal) {
       return (
         <div className="snippets-message-container">
-          <h2>You don't have any snippets yet.</h2>
+          <h2>You don't have any {user.isLocal && "local "}snippets yet.</h2>
           <Link to="/snippets/create" className="btn btn-secondary">Create Snippet</Link>
         </div>
       );

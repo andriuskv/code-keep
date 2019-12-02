@@ -28,7 +28,7 @@ export default function SnippetInfo({ snippet }) {
     return <Icon name={icon.id} className="snippet-info-title-icon"title={icon.title}/>;
   }
   return (
-    <div>
+    <div className="snippet-info">
       <div className="snippet-info-title-container">
         {getIcon(snippet.type)}
         <h3 className="snippet-info-title">{snippet.title}</h3>

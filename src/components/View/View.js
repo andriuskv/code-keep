@@ -133,9 +133,11 @@ export default function View(props) {
             <h2 className="view-header-user-username">{state.username}</h2>
           </Link>
         ) : null }
-        <SnippetInfo snippet={state}/>
+        <div className="view-header-bottom">
+          <SnippetInfo snippet={state}/>
+          <button onClick={downloadFiles} className="btn view-download-btn">Download ZIP</button>
+        </div>
       </div>
-      <button onClick={downloadFiles} className="btn view-download-btn">Download ZIP</button>
       {state.files.map(file => (
         <div className="view-editor" key={file.id}>
           <div className="view-editor-header">

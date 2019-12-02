@@ -34,11 +34,14 @@
   font-weight: 500;
 }
 
+.view-header-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
 .view-download-btn {
-  position: relative;
-  left: 100%;
-  transform: translateX(-100%);
-  margin-bottom: var(--space-xl);
+  flex-shrink: 0;
 }
 
 .view-editor {

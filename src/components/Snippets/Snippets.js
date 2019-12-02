@@ -77,8 +77,16 @@ export default function Snippets(props) {
         count: 0
       }
     };
-    state.tabSnippets = state.snippets;
-    state.visibleTabType = "";
+
+    if (props.location.state) {
+      const { type } = props.location.state;
+      state.tabSnippets = state.snippets.filter(snippet => snippet.type === type);
+      state.visibleTabType = type;
+    }
+    else {
+      state.tabSnippets = state.snippets;
+      state.visibleTabType = "";
+    }
     state.tabs = updateSnippetTypeCount(state.snippets, tabs);
     setState(state);
   }
@@ -105,9 +113,16 @@ export default function Snippets(props) {
     }
 
     if (props.match.url === "/snippets") {
+      if (user.username) {
+        props.history.replace({
+          pathname: `/users/${user.usernameLowerCase}`,
+          state: { type: "local" }
+        });
+        return;
+      }
       initSnippetState({
         snippets: await fetchIDBSnippets(),
-        user: { isLocal: true, ...user, isLoggedIn: !!user.username }
+        user: { isLocal: true }
       });
       setDocumentTitle("Your Snippets");
     }

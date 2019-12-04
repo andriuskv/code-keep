@@ -1,6 +1,7 @@
 import React, { Fragment, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import "./user-dropdown.scss";
+import { FAILED_LOGOUT_MESSAGE } from "../../../messages";
 import { useUser } from "../../../context/user-context";
 import Dropdown from "../../Dropdown";
 import ButtonSpinner from "../../ButtonSpinner";
@@ -20,11 +21,11 @@ export default function UserDropdown() {
         history.replace("/login");
       }
       else {
-        setLogout({ buttonDisabled: false, message: "Could not logout. Try again later." });
+        setLogout({ buttonDisabled: false, message: FAILED_LOGOUT_MESSAGE });
       }
     } catch (e) {
       console.log(e);
-      setLogout({ buttonDisabled: false, message: "Could not logout. Try again later." });
+      setLogout({ buttonDisabled: false, message: FAILED_LOGOUT_MESSAGE });
     }
   }
 

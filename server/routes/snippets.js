@@ -3,7 +3,6 @@ const fetch = require("node-fetch");
 const uuidv4 = require("uuid/v4");
 const Snippet = require("../models/Snippet");
 const User = require("../models/User");
-const fileInfo = require("../src/file-info.json");
 const router = express.Router();
 
 async function fetchGists(userId) {
@@ -313,7 +312,7 @@ function parseGist(gist, userId) {
         initialName: file.filename,
         id: uuidv4(),
         value: file.content,
-        ...fileInfo[type]
+        type
       };
     })
   };

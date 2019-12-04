@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./form.scss";
+import { GENERIC_ERROR_MESSAGE } from "../../messages";
 import { getRandomString, setDocumentTitle, importEditorMode, resetEditorIndentation, markdownToHtml } from "../../utils";
 import { fetchUser } from "../../services/userService";
 import { fetchIDBSnippet, saveSnippet } from "../../services/snippetIDBService";
@@ -14,7 +15,7 @@ import ButtonSpinner from "../ButtonSpinner";
 import Editor from "../Editor";
 import Markdown from "../Markdown";
 import NoMatch from "../NoMatch";
-import fileInfo from "../../file-info.json";
+import fileInfo from "../../data/file-info.json";
 
 export default function Form(props) {
   const [state, setState] = useState({
@@ -69,7 +70,6 @@ export default function Form(props) {
           ...data,
           fontSize: getSetting("fontSize"),
           username: user.username,
-          remote: true,
           updating: true
         });
         saveSettings({...getSettings(), ...data.settings });
@@ -92,12 +92,11 @@ export default function Form(props) {
   }
 
   function getNewFile() {
-    const type = state.files ? state.files[state.files.length - 1].type : "javascript";
     return {
       id: getRandomString(),
       value: "",
       cm: null,
-      ...fileInfo[type]
+      type: state.files ? state.files[state.files.length - 1].type : "javascript"
     };
   }
 
@@ -106,7 +105,9 @@ export default function Form(props) {
     setState({ ...state, loaded: true });
   }
 
-  function getFileName({ name, extension }, index) {
+  function getFileName({ name, type }, index) {
+    const { extension } = fileInfo[type];
+
     if (name) {
       const arr = name.split(".");
 
@@ -129,10 +130,6 @@ export default function Form(props) {
       name: getFileName(file, index),
       initialName: file.initialName,
       value: file.cm.getValue().trimEnd(),
-      displayName: file.displayName,
-      extension: file.extension,
-      mimeType: file.mimeType,
-      mode: file.mode,
       type: file.type
     }));
     const hasUniqueFilenames = new Set(files.map(file => file.name)).size === files.length;
@@ -161,9 +158,9 @@ export default function Form(props) {
     };
     const pathname = usernameLowerCase ? `/users/${usernameLowerCase}` : "/snippets";
 
-    if (state.remote || snippetType !== "local") {
+    if (state.type !== "local" && snippetType !== "local") {
       try {
-        if (state.updating || state.type === "gist") {
+        if (state.updating && state.type === "gist") {
           const gistFilesToRemove = state.gistFilesToRemove || [];
           newSnippet.files = gistFilesToRemove.concat(newSnippet.files);
         }
@@ -179,14 +176,14 @@ export default function Form(props) {
         setState({
           ...state,
           submitButtonDisaled: false,
-          submitMessage: "Something went wrong. Try again later."
+          submitMessage: GENERIC_ERROR_MESSAGE
         });
       } catch (e) {
         console.log(e);
         setState({
           ...state,
           submitButtonDisaled: false,
-          submitMessage: "Something went wrong. Try again later."
+          submitMessage: GENERIC_ERROR_MESSAGE
         });
       }
     }
@@ -223,14 +220,14 @@ export default function Form(props) {
 
   async function handleFileTypeChange({ target }, index) {
     const file = files[index];
-    const info = fileInfo[target.value];
-    files[index] = { ...file, ...info };
+    const { mode } = fileInfo[target.value];
+    file.type = target.value;
 
     if (file.name) {
-      files[index].name = getFileName(files[index]);
+      file.name = getFileName(file);
     }
-    await importEditorMode(info.mode);
-    file.cm.setOption("mode", info.mode);
+    await importEditorMode(mode);
+    file.cm.setOption("mode", mode);
     setState({ ...state });
   }
 

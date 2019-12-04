@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
+import { GENERIC_ERROR_MESSAGE } from "../../../messages";
 import { useUser } from "../../../context/user-context";
 import ButtonSpinner from "../../ButtonSpinner";
 import Notification from "../../Notification";
@@ -73,12 +74,12 @@ export default function Register() {
         setNotification({ [data.field]: data.message });
       }
       else {
-        setNotification({ form: "Something went wrong. Try again later." });
+        setNotification({ form: GENERIC_ERROR_MESSAGE });
       }
     } catch (e) {
       console.log(e);
       setSubmitButtonState(false);
-      setNotification({ form: "Something went wrong. Try again later." });
+      setNotification({ form: GENERIC_ERROR_MESSAGE });
     }
   }
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./view.scss";
+import { GENERIC_ERROR_MESSAGE } from "../../messages";
 import { setDocumentTitle, markdownToHtml } from "../../utils";
 import { fetchUser } from "../../services/userService";
 import { fetchIDBSnippet } from "../../services/snippetIDBService";
@@ -14,6 +15,7 @@ import FileHeaderDropdown from "./FileHeaderDropdown";
 import Editor from "../Editor";
 import Markdown from "../Markdown";
 import NoMatch from "../NoMatch";
+import fileInfo from "../../data/file-info.json";
 
 export default function View(props) {
   const [state, setState] = useState({
@@ -61,7 +63,7 @@ export default function View(props) {
           setState({});
         }
         else if (user.code === 500) {
-          setState({ message: "Something went wrong. Try again later." });
+          setState({ message: GENERIC_ERROR_MESSAGE });
         }
         else {
           const snippet = await fetchServerSnippet({
@@ -74,7 +76,7 @@ export default function View(props) {
             setState({});
           }
           if (snippet.code === 500) {
-            setState({ message: "Something went wrong. Try again later." });
+            setState({ message: GENERIC_ERROR_MESSAGE });
           }
           else {
             snippet.username = user.username;
@@ -84,7 +86,7 @@ export default function View(props) {
         }
       } catch (e) {
         console.log(e);
-        setState({ message: "Something went wrong. Try again later." });
+        setState({ message: GENERIC_ERROR_MESSAGE });
       }
     }
     else {
@@ -100,7 +102,9 @@ export default function View(props) {
     const zip = new JSZip();
 
     state.files.forEach(file => {
-      zip.folder("files").file(file.name, new Blob([file.value], { type: file.mimeType }));
+      const { mimeType } = fileInfo[file.type];
+
+      zip.folder("files").file(file.name, new Blob([file.value], { type: mimeType }));
     });
     const archive = await zip.generateAsync({ type:"blob" });
     saveAs(archive, `${state.title}.zip`);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./snippets.scss";
+import { GENERIC_ERROR_MESSAGE, SESSION_EXPIRATION_MESSAGE } from "../../messages";
 import { setDocumentTitle, getRandomString } from "../../utils";
 import { fetchUser } from "../../services/userService";
 import { fetchIDBSnippets } from "../../services/snippetIDBService";
@@ -151,7 +152,7 @@ export default function Snippets(props) {
       setDocumentTitle(`${user.username} Snippets`);
     } catch (e) {
       console.log(e);
-      setState({ message: "Something went wrong. Try again later." });
+      setState({ message: GENERIC_ERROR_MESSAGE });
     }
   }
 
@@ -163,13 +164,13 @@ export default function Snippets(props) {
         setState({});
       }
       else if (user.code === 500) {
-        setState({ message: "Something went wrong. Try again later." });
+        setState({ message: GENERIC_ERROR_MESSAGE });
       }
       else {
         const data = await fetchServerSnippets(user._id);
 
         if (data.code === 500) {
-          setState({ message: "Something went wrong. Try again later." });
+          setState({ message: GENERIC_ERROR_MESSAGE });
         }
         else {
           initSnippetState({ snippets: sortSnippets(data.snippets), user });
@@ -178,7 +179,7 @@ export default function Snippets(props) {
       }
     } catch (e) {
       console.log(e);
-      setState({ message: "Something went wrong. Try again later." });
+      setState({ message: GENERIC_ERROR_MESSAGE });
     }
   }
 
@@ -235,10 +236,10 @@ export default function Snippets(props) {
       state.tabs = updateSnippetTypeCount(state.snippets, state.tabs);
     }
     else if (data.code === 401) {
-      state.notification = { value: "Seems like your session has expired. Relogin and try again." };
+      state.notification = { value: SESSION_EXPIRATION_MESSAGE };
     }
     else {
-      state.notification = { value: "Something went wrong. Try again later." };
+      state.notification = { value: GENERIC_ERROR_MESSAGE };
     }
     setState({ ...state });
   }
@@ -272,11 +273,11 @@ export default function Snippets(props) {
       });
     }
     else if (data.code === 401) {
-      state.notification = { value: "Seems like your session has expired. Relogin and try again." };
+      state.notification = { value: SESSION_EXPIRATION_MESSAGE };
       setState({ ...state });
     }
     else {
-      state.notification = { value: "Something went wrong. Try again later." };
+      state.notification = { value: GENERIC_ERROR_MESSAGE };
       setState({ ...state });
     }
   }
@@ -307,10 +308,10 @@ export default function Snippets(props) {
       };
     }
     else if (data.code === 401) {
-      state.notification = { value: "Seems like your session has expired. Relogin and try again." };
+      state.notification = { value: SESSION_EXPIRATION_MESSAGE };
     }
     else {
-      state.notification = { value: "Something went wrong. Try again later." };
+      state.notification = { value: GENERIC_ERROR_MESSAGE };
     }
     setState({ ...state });
   }

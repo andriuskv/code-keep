@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import "./github-connect.scss";
+import { GENERIC_ERROR_MESSAGE } from "../../../messages";
 import { fetchUser } from "../../../services/userService";
 import { useUser } from "../../../context/user-context";
 import Icon from "../../Icon";
@@ -19,7 +20,7 @@ export default function GithubConnect() {
     const params = new URLSearchParams(location.search);
 
     if (params.get("status")) {
-      setNotification("Something went wrong. Try again later.");
+      setNotification(GENERIC_ERROR_MESSAGE);
       setInitialized(true);
     }
     else if (user.isGithubConnected) {
@@ -36,14 +37,14 @@ export default function GithubConnect() {
       const data = await fetchUser("/me/github");
 
       if (data.code) {
-        setNotification("Something went wrong. Try again later.");
+        setNotification(GENERIC_ERROR_MESSAGE);
       }
       else {
         setState(data);
       }
     } catch (e) {
       console.log(e);
-      setNotification("Something went wrong. Try again later.");
+      setNotification(GENERIC_ERROR_MESSAGE);
     } finally {
       setInitialized(true);
     }
@@ -69,11 +70,11 @@ export default function GithubConnect() {
         });
       }
       else {
-        setNotification("Something went wrong. Try again later.");
+        setNotification(GENERIC_ERROR_MESSAGE);
       }
     } catch (e) {
       console.log(e);
-      setNotification("Something went wrong. Try again later.");
+      setNotification(GENERIC_ERROR_MESSAGE);
     }
   }
 

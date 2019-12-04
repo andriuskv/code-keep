@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import CodeMirror from "codemirror";
 import "codemirror/lib/codemirror.css";
 import "codemirror/addon/edit/closebrackets";
@@ -6,9 +6,10 @@ import "codemirror/theme/dracula.css";
 import "./editor.scss";
 import { importEditorMode, resetEditorIndentation } from "../../utils";
 import { getSettings } from "../../services/editor-settings";
+import fileInfo from "../../data/file-info.json";
 
 export default function Editor({ file, settings, height, readOnly, preview, handleLoad }) {
-  const { id, mode, value } = file;
+  const container = useRef(null);
 
   useEffect(() => {
     init();
@@ -16,11 +17,12 @@ export default function Editor({ file, settings, height, readOnly, preview, hand
   }, []);
 
   async function init() {
+    const { mode } = fileInfo[file.type];
     const { indentSize, indentWithSpaces, wrapLines } = { ...getSettings(), ...settings };
     await importEditorMode(mode);
 
-    const cm = CodeMirror(document.getElementById(`cm-${id}`), {
-      value,
+    const cm = CodeMirror(container.current, {
+      value: file.value,
       mode,
       readOnly,
       // Negative value hides cursor
@@ -64,5 +66,5 @@ export default function Editor({ file, settings, height, readOnly, preview, hand
     }
   }
 
-  return <div id={`cm-${id}`} className="cm-container" style={{height: height || "auto"}}></div>;
+  return <div ref={container} className="cm-container" style={{height: height || "auto"}}></div>;
 }

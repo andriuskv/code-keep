@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start-dev-server": "source ./config/env && nodemon --inspect ./server.js",
+    "start-dev-server": "source ./config/env && nodemon --inspect ./server/server.js",
     "start": "react-scripts start",
-    "build": "react-scripts build && rm ./build/precache* && cp ./public/*.png ./build && npm run generate-sw",
+    "build": "react-scripts build && rm ./build/precache* && cp ./public/*.png ./build && npm run generate-sw && npm run build:server",
+    "build:server": "cp -r ./server/* .",
     "generate-sw": "workbox generateSW workbox-config.js"
   },
   "dependencies": {

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./profile-image-form.scss";
+import { GENERIC_ERROR_MESSAGE } from "../../../messages";
 import { useUser } from "../../../context/user-context";
 import { uploadProfileImage } from "../../../services/userService";
 import Icon from "../../Icon";
@@ -33,12 +34,12 @@ export default function ProfileImageForm() {
         });
       }
       else if (data.code >= 400) {
-        setNotification({ value: data.message || "Something went wrong. Try again later." });
+        setNotification({ value: data.message || GENERIC_ERROR_MESSAGE });
       }
       setSubmitButtonState(false);
     } catch (e) {
       console.log(e);
-      setNotification({ value: "Something went wrong. Try again later." });
+      setNotification({ value: GENERIC_ERROR_MESSAGE });
       setSubmitButtonState(false);
     }
   }

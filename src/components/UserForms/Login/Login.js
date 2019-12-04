@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useHistory, useLocation } from "react-router-dom";
+import { GENERIC_ERROR_MESSAGE } from "../../../messages";
 import { useUser } from "../../../context/user-context";
 import ButtonSpinner from "../../ButtonSpinner";
 import Notification from "../../Notification";
@@ -31,7 +32,7 @@ export default function Login() {
         setNotification("Incorrect username or password.");
       }
       else if (data.code === 500) {
-        setNotification("Something went wrong. Try again later.");
+        setNotification(GENERIC_ERROR_MESSAGE);
       }
       else if (location.search.startsWith("?redirect=")) {
         history.replace({
@@ -46,7 +47,7 @@ export default function Login() {
     } catch (e) {
       console.log(e);
       setSubmitButtonState(false);
-      setNotification("Something went wrong. Try again later.");
+      setNotification(GENERIC_ERROR_MESSAGE);
     }
   }
 

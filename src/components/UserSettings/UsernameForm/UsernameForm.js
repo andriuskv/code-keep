@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./username-form.scss";
+import { GENERIC_ERROR_MESSAGE } from "../../../messages";
 import { useUser } from "../../../context/user-context";
 import { updateUser } from "../../../services/userService";
 import ButtonSpinner from "../../ButtonSpinner";
@@ -60,12 +61,12 @@ export default function UsernameForm() {
         setNotification({ value: data.message });
       }
       else {
-        setNotification({ value: "Something went wrong. Try again later." });
+        setNotification({ value: GENERIC_ERROR_MESSAGE });
       }
       setSubmitButtonState(false);
     } catch (e) {
       console.log(e);
-      setNotification({ value: "Something went wrong. Try again later." });
+      setNotification({ value: GENERIC_ERROR_MESSAGE });
       setSubmitButtonState(false);
     }
   }

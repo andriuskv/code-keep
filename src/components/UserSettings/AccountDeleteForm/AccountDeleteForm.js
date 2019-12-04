@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./account-delete-form.scss";
+import { GENERIC_ERROR_MESSAGE } from "../../../messages";
 import { useUser } from "../../../context/user-context";
 import { deleteUser } from "../../../services/userService";
 import ButtonSpinner from "../../ButtonSpinner";
@@ -46,12 +47,12 @@ export default function AccountDeleteForm() {
         setUserStatus("deleted");
       }
       else {
-        setNotification("Something went wrong. Try again later.");
+        setNotification(GENERIC_ERROR_MESSAGE);
         setSubmitButtonState(false);
       }
     } catch (e) {
       console.log(e);
-      setNotification("Something went wrong. Try again later.");
+      setNotification(GENERIC_ERROR_MESSAGE);
       setSubmitButtonState(false);
     }
   }

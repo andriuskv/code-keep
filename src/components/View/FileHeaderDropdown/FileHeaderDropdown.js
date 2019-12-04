@@ -2,6 +2,7 @@ import React from "react";
 import "./file-header-dropdown.scss";
 import Dropdown from "../../Dropdown";
 import Icon from "../../Icon";
+import fileInfo from "../../../data/file-info.json";
 
 export default function FileHeaderDropdown({ file, previewMarkdown }) {
   function copyFileContent(value) {
@@ -11,7 +12,8 @@ export default function FileHeaderDropdown({ file, previewMarkdown }) {
   }
 
   function downloadFile(file) {
-    const url = URL.createObjectURL(new Blob([file.value], { type: file.mimeType }));
+    const { mimeType } = fileInfo[file.type];
+    const url = URL.createObjectURL(new Blob([file.value], { type: mimeType }));
     const link = document.createElement("a");
     link.download = file.name;
     link.href = url;

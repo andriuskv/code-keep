@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import "./password-form.scss";
+import { GENERIC_ERROR_MESSAGE } from "../../../messages";
 import { updateUserPassword } from "../../../services/userService";
 import ButtonSpinner from "../../ButtonSpinner";
 import Notification from "../../Notification";
@@ -66,12 +67,12 @@ export default function PasswordForm() {
         setMessage([data.field], { value: data.message });
       }
       else {
-        setMessage("form", { value: "Something went wrong. Try again later." });
+        setMessage("form", { value: GENERIC_ERROR_MESSAGE });
       }
       setSubmitButtonState(false);
     } catch (e) {
       console.log(e);
-      setMessage("form", { value: "Something went wrong. Try again later." });
+      setMessage("form", { value: GENERIC_ERROR_MESSAGE });
       setSubmitButtonState(false);
     }
   }

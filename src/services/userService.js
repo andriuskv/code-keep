@@ -1,48 +1,60 @@
-function postUser(data, endPoint) {
-  return fetch(`/users${endPoint}`, {
+async function fetchUser(username) {
+  return fetch(`/users/${username}`).then(getResponse);
+}
+
+function createUser(data) {
+  return fetch("/users", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify(data)
-  }).then(res => res.json());
-}
-
-async function fetchUser(username) {
-  return fetch(`/users/${username}`).then(res => res.json());
-}
-
-function createUser(data) {
-  return postUser(data, "/register");
+  }).then(getResponse);
 }
 
 function loginUser(data) {
-  return postUser(data, "/login");
+  return fetch("/users/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  }).then(getResponse);
 }
 
 function logoutUser() {
-  return fetch("/users/logout").then(res => res.json());
+  return fetch("/users/logout").then(res => res.status);
 }
 
-function updateUserPassword(data) {
-  return postUser(data, "/change/password");
+function updateUser(username, data) {
+  return fetch(`/users/${username}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  }).then(getResponse);
 }
 
-function updateUser(data) {
-  return postUser(data, "/update");
-}
-
-function uploadProfileImage(data) {
-  return fetch("/users/upload", {
+function uploadProfileImage(username, data) {
+  return fetch(`/users/${username}`, {
     method: "POST",
     body: data
-  }).then(res => res.json());
+  }).then(getResponse);
 }
 
-function deleteUser() {
-  return fetch("/users/delete", {
+function deleteUser(username) {
+  return fetch(`/users/${username}`, {
     method: "DELETE"
-  }).then(res => res.json());
+  }).then(res => res.status);
+}
+
+async function getResponse(response) {
+  const contentType = response.headers.get("content-type");
+  const isJson = contentType && contentType.includes("application/json");
+  const json = isJson ? await response.json() : {};
+
+  return { code: response.status, ...json };
 }
 
 export {
@@ -50,7 +62,6 @@ export {
   createUser,
   loginUser,
   logoutUser,
-  updateUserPassword,
   updateUser,
   uploadProfileImage,
   deleteUser

@@ -28,9 +28,9 @@ async function deleteSnippet({ snippetId, type }) {
     return deleteIDBSnippet(snippetId);
   }
   else {
-    const data = await deleteServerSnippet({ snippetId, type });
+    const status = await deleteServerSnippet({ snippetId, type });
 
-    return data.code === 200;
+    return status === 204;
   }
 }
 

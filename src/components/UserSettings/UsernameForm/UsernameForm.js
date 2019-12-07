@@ -43,12 +43,12 @@ export default function UsernameForm() {
     setSubmitButtonState(true);
 
     try {
-      const data = await updateUser({
+      const data = await updateUser(user.username, {
         oldUsername: user.username,
         newUsername
       });
 
-      if (data.code === 200) {
+      if (data.code === 204) {
         user.updateUser({
           username: newUsername,
           usernameLowerCase: newUsername.toLowerCase()
@@ -91,11 +91,6 @@ export default function UsernameForm() {
           {submitButtonState.username && <ButtonSpinner/>}
         </button>
       </form>
-      {/* {notification.value && (
-        <Notification className="username-form-notification"
-          value={notification.value} type={notification.type}
-          dismiss={hideNotification}/>
-      )} */}
     </div>
   );
 }

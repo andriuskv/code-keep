@@ -7,7 +7,7 @@ import ButtonSpinner from "../../ButtonSpinner";
 import Notification from "../../Notification";
 
 export default function AccountDeleteForm() {
-  const { setUserStatus } = useUser();
+  const { username, setUserStatus } = useUser();
   const [notification, setNotification] = useState("");
   const [submitButtonState, setSubmitButtonState] = useState(false);
   const [inputValid, setInputValid] = useState(false);
@@ -41,9 +41,9 @@ export default function AccountDeleteForm() {
     }
     try {
       setSubmitButtonState(true);
-      const status = await deleteUser();
+      const status = await deleteUser(username);
 
-      if (status.code === 200) {
+      if (status === 204) {
         setUserStatus("deleted");
       }
       else {

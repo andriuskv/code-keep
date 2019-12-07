@@ -1,11 +1,13 @@
 import React, { useState, useRef } from "react";
 import "./password-form.scss";
 import { GENERIC_ERROR_MESSAGE } from "../../../messages";
-import { updateUserPassword } from "../../../services/userService";
+import { useUser } from "../../../context/user-context";
+import { updateUser } from "../../../services/userService";
 import ButtonSpinner from "../../ButtonSpinner";
 import Notification from "../../Notification";
 
 export default function PasswordForm() {
+  const { username } = useUser();
   const formElement = useRef(null);
   const [submitButtonState, setSubmitButtonState] = useState(false);
   const [notification, setNotification] = useState({});
@@ -44,19 +46,23 @@ export default function PasswordForm() {
       setMessage("newPassword", { value: "Passwords don't match." });
       return;
     }
+    else if (currentPassword === newPassword) {
+      setMessage("newPassword", { value: "New and old passwords cannot be the same.", field: "newPassword" });
+      return;
+    }
 
     try {
       if (notification.form) {
         hideNotification("form");
       }
       setSubmitButtonState(true);
-      const data = await updateUserPassword({
+      const data = await updateUser(username, {
         currentPassword,
         newPassword,
         repeatedNewPassword
       });
 
-      if (data.code === 200) {
+      if (data.code === 204) {
         formElement.current.reset();
         setMessage("form", {
           value: "Password has been changed successfully.",

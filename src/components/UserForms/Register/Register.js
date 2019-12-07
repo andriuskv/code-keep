@@ -71,7 +71,7 @@ export default function Register() {
         });
       }
       else if (data.code === 400) {
-        setNotification({ [data.field]: data.message });
+        setNotification({ [data.field]: data.message || GENERIC_ERROR_MESSAGE });
       }
       else {
         setNotification({ form: GENERIC_ERROR_MESSAGE });

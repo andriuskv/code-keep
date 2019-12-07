@@ -9,7 +9,7 @@ import Notification from "../../Notification";
 import UserProfileImage from "../../UserProfileImage";
 
 export default function ProfileImageForm() {
-  const { profileImage, updateUser } = useUser();
+  const user = useUser();
   const [image, setImage] = useState(null);
   const [submitButtonState, setSubmitButtonState] = useState(false);
   const [notification, setNotification] = useState({});
@@ -22,10 +22,10 @@ export default function ProfileImageForm() {
     setSubmitButtonState(true);
 
     try {
-      const data = await uploadProfileImage(formData);
+      const data = await uploadProfileImage(user.username, formData);
 
       if (data.username) {
-        updateUser({
+        user.updateUser({
           profileImage: data.profileImage
         });
         setNotification({
@@ -101,8 +101,8 @@ export default function ProfileImageForm() {
     if (image) {
       imageSrc = URL.createObjectURL(image.blob);
     }
-    else if (profileImage) {
-      imageSrc = profileImage.path;
+    else if (user.profileImage) {
+      imageSrc = user.profileImage.path;
     }
     return <UserProfileImage src={imageSrc}/>;
   }

@@ -5,40 +5,6 @@ const Snippet = require("../models/Snippet");
 const User = require("../models/User");
 const router = express.Router();
 
-async function fetchGists(userId) {
-  try {
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return { code: 500 };
-    }
-    else if (!user.accessToken) {
-      return [];
-    }
-    const data = await fetch("https://api.github.com/gists", {
-      method: "GET",
-      headers: {
-        "Authorization": `token ${user.accessToken}`
-      }
-    }).then(res => res.json());
-
-    if (Array.isArray(data)) {
-      return Promise.all(data.map(({ url }) => {
-        return fetch(url, {
-          method: "GET",
-          headers: {
-            "Authorization": `token ${user.accessToken}`
-          }
-        }).then(res => res.json());
-      }));
-    }
-    return { code: 500 };
-  } catch (e) {
-    console.log(e);
-    return { code: 500 };
-  }
-}
-
 router.get("/:userId", async (req, res) => {
   const types = ["remote", "forked"];
   let getPrivate = false;
@@ -76,13 +42,13 @@ router.get("/:userId", async (req, res) => {
     res.json(data);
   } catch (e) {
     console.log(e);
-    res.json({ code: 500 });
+    res.sendStatus(500);
   }
 });
 
-router.post("/create", async (req, res) => {
+router.post("/", async (req, res) => {
   if (!req.session.user) {
-    return res.json({ code: 401 });
+    return res.sendStatus(401);
   }
   try {
     if (req.body.type === "gist") {
@@ -103,32 +69,32 @@ router.post("/create", async (req, res) => {
       }).then(res => res.json());
 
       if (data.message) {
-        return res.json({ code: 500, message: data.message });
+        return res.status(500).json({ message: data.message });
       }
-      return res.json({ code: 200 });
+      return res.sendStatus(201);
     }
     // If user tries to fork same snippet, ignore it.
     if (req.body.fork) {
       const snippet = await Snippet.findOne({ $and: [{ "fork.id": req.body.fork.id }, { userId: req.session.user._id }]});
 
       if (snippet) {
-        return res.json({ code: 200, id: snippet.id });
+        return res.status(201).json({ id: snippet.id });
       }
       delete req.body._id;
     }
     const snippet = new Snippet({ ...req.body, userId: req.session.user._id });
     await snippet.save();
 
-    res.json({ code: 200 });
+    res.sendStatus(201);
   } catch (e) {
     console.log(e);
-    return res.json({ code: 500 });
+    res.sendStatus(500);
   }
 });
 
-router.post("/update", async (req, res) => {
+router.put("/:snippetId", async (req, res) => {
   if (!req.session.user) {
-    return res.json({ code: 401 });
+    return res.sendStatus(401);
   }
   try {
     if (req.body.type === "gist") {
@@ -150,9 +116,9 @@ router.post("/update", async (req, res) => {
       const user = await User.findById(req.session.user._id);
 
       if (!user) {
-        return res.json({ code: 500 });
+        return res.sendStatus(500);
       }
-      const data = await fetch(`https://api.github.com/gists/${req.body.id}`, {
+      const data = await fetch(`https://api.github.com/gists/${req.params.snippetId}`, {
         method: "PATCH",
         headers: {
           "Authorization": `token ${user.accessToken}`
@@ -164,111 +130,105 @@ router.post("/update", async (req, res) => {
       }).then(res => res.json());
 
       if (data.message) {
-        return res.json({ code: 500, message: data.message });
+        return res.status(500).json({ message: data.message });
       }
-      return res.json({ code: 200 });
+      return res.sendStatus(200);
     }
-    const snippet = await Snippet.findOneAndUpdate({ $and: [{ id: req.body.id }, { userId: req.session.user._id }]}, req.body);
+    const snippet = await Snippet.findOneAndUpdate({ $and: [{ id: req.params.snippetId }, { userId: req.session.user._id }]}, req.body);
 
     if (snippet) {
-      return res.json({ code: 200 });
+      return res.sendStatus(200);
     }
-    res.json({ code: 404 });
+    res.sendStatus(404);
   } catch (e) {
     console.log(e);
-    return res.json({ code: 500 });
+    res.sendStatus(500);
   }
 });
 
-router.post("/delete", async (req, res) => {
+router.delete("/:snippetId", async (req, res) => {
   if (!req.session.user) {
-    return res.json({ code: 401 });
+    return res.sendStatus(401);
   }
   try {
     if (req.body.type === "gist") {
       const user = await User.findById(req.session.user._id);
 
       if (!user) {
-        return res.json({ code: 500 });
+        return res.sendStatus(500);
       }
-      const response = await fetch(`https://api.github.com/gists/${req.body.snippetId}`, {
+      const response = await fetch(`https://api.github.com/gists/${req.params.snippetId}`, {
         method: "DELETE",
         headers: {
           "Authorization": `token ${user.accessToken}`
         }
       });
 
-      if (response.status === 204) {
-        return res.json({ code: 200 });
+      if (response.status !== 204) {
+        return res.sendStatus(500);
       }
-      return res.json({ code: 500 });
     }
-    await Snippet.findOneAndRemove({ $and: [{ id: req.body.snippetId }, { userId: req.session.user._id }]});
-    res.json({ code: 200 });
+    else {
+      await Snippet.findOneAndRemove({ $and: [{ id: req.params.snippetId }, { userId: req.session.user._id }]});
+    }
+    res.sendStatus(204);
   } catch (e) {
     console.log(e);
-    res.json({ code: 500 });
+    res.sendStatus(500);
   }
 });
 
-router.post("/:snippetId/:status?", async (req, res) => {
+router.get("/:username/:snippetId/:status?", async (req, res) => {
   let userId = null;
   let getPrivate = false;
 
-  if (req.params.status === "edit") {
-    if (req.session.user) {
-      userId = req.session.user._id;
-      getPrivate = true;
+  try {
+    const user = await User.findUser(req.params.username);
+
+    if (user) {
+      userId = user._id.toString();
+
+      if (req.session.user) {
+        getPrivate = req.session.user._id === userId;
+      }
     }
     else {
-      return res.json({ code: 401 });
+      return res.status(404).json({ message: "User not found." });
     }
-  }
-  else {
-    try {
-      const user = await User.findById(req.body.id);
 
-      if (user) {
-        userId = user._id.toString();
+    if (req.params.status === "edit") {
+      if (!req.session.user) {
+        return res.sendStatus(401);
+      }
+      else if (!getPrivate) {
+        return res.sendStatus(404);
+      }
+    }
 
-        if (req.session.user) {
-          getPrivate = req.session.user._id === userId;
+    if (req.query.type === "gist" && getPrivate) {
+      if (!user.accessToken) {
+        return res.status(404).json({ message: "Snippet not found." });
+      }
+      const data = await fetch(`https://api.github.com/gists/${req.params.snippetId}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `token ${user.accessToken}`
         }
+      }).then(res => res.json());
+
+      if (data.message === "Not Found") {
+        res.status(404).json({ message: "Snippet not found." });
       }
       else {
-        return res.json({ code: 404, message: "User not found." });
+        res.json(parseGist(data, userId));
       }
-    } catch (e) {
-      console.log(e);
-      return res.json({ code: 500 });
-    }
-  }
-
-  if (req.query.type === "gist" && req.session.user && req.session.user._id === req.body.id) {
-    const user = await User.findById(req.body.id);
-
-    if (!user) {
-      return res.json({ code: 404, message: "User not found." });
-    }
-    if (!user.accessToken) {
-      return res.json({ code: 404, message: "Snippet not found." });
-    }
-    const data = await fetch(`https://api.github.com/gists/${req.params.snippetId}`, {
-      method: "GET",
-      headers: {
-        "Authorization": `token ${user.accessToken}`
-      }
-    }).then(res => res.json());
-
-    if (data.message === "Not Found") {
-      res.json({ code: 404, message: "Snippet not found." });
     }
     else {
-      res.json(parseGist(data, req.body.id));
+      sendSnippet(res, req.params.snippetId, userId, getPrivate);
     }
-  }
-  else {
-    sendSnippet(res, req.params.snippetId, userId, getPrivate);
+  } catch (e) {
+    console.log(e);
+    res.sendStatus(500);
   }
 });
 
@@ -286,11 +246,43 @@ async function sendSnippet(res, snippetId, userId, getPrivate) {
       res.send(snippet);
     }
     else {
-      res.json({ code: 404, message: "Snippet not found." });
+      res.status(404).json({ message: "Snippet not found." });
     }
   } catch (e) {
     console.log(e);
-    res.json({ code: 500 });
+    res.sendStatus(500);
+  }
+}
+
+async function fetchGists(userId) {
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return;
+    }
+    else if (!user.accessToken) {
+      return [];
+    }
+    const data = await fetch("https://api.github.com/gists", {
+      method: "GET",
+      headers: {
+        "Authorization": `token ${user.accessToken}`
+      }
+    }).then(res => res.json());
+
+    if (Array.isArray(data)) {
+      return Promise.all(data.map(({ url }) => {
+        return fetch(url, {
+          method: "GET",
+          headers: {
+            "Authorization": `token ${user.accessToken}`
+          }
+        }).then(res => res.json());
+      }));
+    }
+  } catch (e) {
+    console.log(e);
   }
 }
 

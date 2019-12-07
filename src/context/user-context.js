@@ -14,7 +14,7 @@ function UserProvider({ children }) {
     try {
       const user = await fetchUser("me");
 
-      if (user.code) {
+      if (user.code === 204) {
         setUser({});
       }
       else {
@@ -45,9 +45,9 @@ function UserProvider({ children }) {
   }
 
   async function signOutUser() {
-    const data = await logoutUser();
+    const status = await logoutUser();
 
-    if (data.code === 200) {
+    if (status === 204) {
       setUserStatus("logged-out");
       return true;
     }

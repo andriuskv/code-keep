@@ -8,35 +8,35 @@ const { getStore } = require("../session");
 const reservedUsernames = require("../data/reserved_usernames.json");
 const router = express.Router();
 
-router.post("/register", async (req, res) => {
-  const missingFields = ValidateFields(["username", "email", "password", "repeatedPassword"], req.body);
+router.post("/", async (req, res) => {
+  const fieldsValids = validateFields(["username", "email", "password", "repeatedPassword"], req.body);
 
-  if (missingFields.length) {
-    return res.json({ code: 400, message: `${missingFields.join()} ${missingFields.length > 1 ? "are" : "is"} required`, field: "form" });
+  if (!fieldsValids) {
+    return res.sendStatus(400);
   }
 
   if (!validator.isAlphanumeric(req.body.username)) {
-    return res.json({ code: 400, message: "Username can only contain alphanumeric characters.", field: "username" });
+    return res.status(400).json({ message: "Username can only contain alphanumeric characters.", field: "username" });
   }
 
   if (!validator.isLength(req.body.username, { min: 3, max: 20 })) {
-    return res.json({ code: 400, message: "Username length shuold be between 3 and 20 characters.", field: "username" });
+    return res.status(400).json({ message: "Username length shuold be between 3 and 20 characters.", field: "username" });
   }
 
   if (!validator.isEmail(req.body.email)) {
-    return res.json({ code: 400, message: "Invalid email.", field: "email" });
+    return res.status(400).json({ message: "Invalid email.", field: "email" });
   }
 
   if (!validator.isLength(req.body.password, { min: 6, max: 254 })) {
-    return res.json({ code: 400, message: "Password must be atleast 6 characters.", field: "password" });
+    return res.status(400).json({ message: "Password must be atleast 6 characters.", field: "password" });
   }
 
   if (req.body.password !== req.body.repeatedPassword) {
-    return res.json({ code: 400, message: "Passwords don't match.", field: "password" });
+    return res.status(400).json({ message: "Passwords don't match.", field: "password" });
   }
 
   if (reservedUsernames.includes(req.body.username.toLowerCase())) {
-    return res.json({ code: 400, message: "User with that username or email already exists.", field: "form" });
+    return res.status(400).json({ message: "User with that username or email already exists.", field: "form" });
   }
 
   try {
@@ -46,12 +46,12 @@ router.post("/register", async (req, res) => {
     ]});
 
     if (exsistingUser) {
-      return res.json({ code: 400, message: "User with that username or email already exists.", field: "form" });
+      return res.status(400).json({ message: "User with that username or email already exists.", field: "form" });
     }
     const user = new User({
       username: req.body.username,
       usernameLowerCase: req.body.username.toLowerCase(),
-      email: req.body.email
+      email: req.body.email.toLowerCase()
     });
     const data = user.getUserSession();
     user.setPassword(req.body.password);
@@ -61,22 +61,52 @@ router.post("/register", async (req, res) => {
     res.json(data);
   } catch (e) {
     console.log(e);
-    res.json({ code: 500 });
+    res.sendStatus(500);
+  }
+});
+
+router.post("/login", async (req, res) => {
+  const fieldsValid = validateFields(["username", "password"], req.body);
+
+  if (!fieldsValid) {
+    return res.sendStatus(400);
+  }
+
+  if (!validator.isLength(req.body.username, { min: 3, max: 20 })) {
+    return res.sendStatus(400);
+  }
+
+  if (!validator.isLength(req.body.password, { min: 6, max: 254 })) {
+    return res.sendStatus(400);
+  }
+
+  try {
+    const user = await User.findUser(req.body.username);
+
+    if (user && user.validatePassword(req.body.password)) {
+      const data = user.getUserSession();
+      req.session.user = data;
+      return res.json(data);
+    }
+    return res.sendStatus(400);
+  } catch (e) {
+    console.log(e);
+    res.sendStatus(500);
   }
 });
 
 router.get("/logout", (req, res) => {
   if (!req.session.user) {
-    return res.json({ code: 200 });
+    return res.sendStatus(204);
   }
   req.session.destroy(err => {
     if (err) {
       console.log(err);
-      res.json({ code: 500 });
+      res.sendStatus(500);
     }
     else {
       res.clearCookie("sid");
-      res.json({ code: 200 });
+      res.sendStatus(204);
     }
   });
 });
@@ -86,19 +116,19 @@ router.get("/me", async ({ session: { user }}, res) => {
     res.json(user);
   }
   else {
-    res.json({ code: 401 });
+    res.sendStatus(204);
   }
 });
 
 router.get("/me/github", async (req, res) => {
   if (!req.session.user) {
-    return res.json({ code: 401 });
+    return res.sendStatus(401);
   }
   try {
     const user = await User.findUser(req.session.user.username);
 
     if (!user) {
-      return res.json({ code: 500 });
+      return res.sendStatus(500);
     }
     const data = await fetch("https://api.github.com/user", {
       method: "GET",
@@ -108,7 +138,7 @@ router.get("/me/github", async (req, res) => {
     }).then(res => res.json());
 
     if (data.message) {
-      return res.json({ code: 500 });
+      return res.sendStatus(500);
     }
     else {
       // Use github profile image if user doesn't have it set.
@@ -126,7 +156,7 @@ router.get("/me/github", async (req, res) => {
     }
   } catch (e) {
     console.log(e);
-    res.json({ code: 500 });
+    res.sendStatus(500);
   }
 });
 
@@ -134,7 +164,7 @@ router.get("/image/:filename", fetchImage);
 
 router.get("/disconnect", async (req, res) => {
   if (!req.session.user) {
-    return res.json({ code: 401 });
+    return res.sendStatus(204);
   }
   try {
     const user = await User.findUser(req.session.user.username);
@@ -143,12 +173,12 @@ router.get("/disconnect", async (req, res) => {
       user.accessToken = undefined;
       await user.save();
       req.session.user = user.getUserSession();
-      return res.json({ code: 200 });
+      return res.sendStatus(204);
     }
-    res.json({ code: 500 });
+    res.sendStatus(500);
   } catch (e) {
     console.log(e);
-    res.json({ code: 500 });
+    res.sendStatus(500);
   }
 });
 
@@ -218,133 +248,39 @@ router.get("/:username", async (req, res) => {
     if (user) {
       return res.json(user.getUser());
     }
-    res.json({ code: 404 });
+    res.sendStatus(404);
   } catch (e) {
     console.log(e);
-    res.json({ code: 500 });
+    res.sendStatus(500);
   }
 });
 
-router.post("/login", async (req, res) => {
-  const missingFields = ValidateFields(["username", "password"], req.body);
+router.post("/:username", uploadImage);
 
-  if (missingFields.length) {
-    return res.json({ code: 400 });
-  }
-
-  if (!validator.isLength(req.body.username, { min: 3, max: 20 })) {
-    return res.json({ code: 400 });
-  }
-
-  if (!validator.isLength(req.body.password, { min: 6, max: 254 })) {
-    return res.json({ code: 400 });
-  }
-
-  try {
-    const user = await User.findUser(req.body.username);
-
-    if (user && user.validatePassword(req.body.password)) {
-      const data = user.getUserSession();
-      req.session.user = data;
-      return res.json(data);
-    }
-    return res.json({ code: 400 });
-  } catch (e) {
-    console.log(e);
-    res.json({ code: 500 });
-  }
-});
-
-router.post("/update", async (req, res) => {
+router.patch("/:username", async (req, res) => {
   if (!req.session.user) {
-    return res.json({ code: 401 });
-  }
-  const missingFields = ValidateFields(["oldUsername", "newUsername"], req.body);
-
-  if (missingFields.length) {
-    return res.json({ code: 400 });
+    return res.sendStatus(401);
   }
 
-  if (!validator.isAlphanumeric(req.body.newUsername)) {
-    return res.json({ code: 400, message: "Username can only contain alphanumeric characters." });
+  if (validateFields(["oldUsername", "newUsername"], req.body)) {
+    changeUsername(req, res);
   }
-
-  if (!validator.isLength(req.body.newUsername, { min: 3, max: 20 })) {
-    return res.json({ code: 400, message: "Username length shuold be between 3 and 20 characters." });
+  else if (validateFields(["currentPassword", "newPassword", "repeatedNewPassword"], req.body)) {
+    changePassword(req, res);
   }
-
-  if (req.body.newUsername === req.body.oldUsername) {
-    return res.json({ code: 400, message: "Can't change to the same username." });
-  }
-
-  try {
-    const user = await User.findUser(req.body.oldUsername);
-
-    if (user) {
-      const userWithNewName = await User.findUser(req.body.newUsername);
-
-      if (userWithNewName && user.username !== userWithNewName.username) {
-        return res.json({ code: 400, message: "User with that username already exists." });
-      }
-      user.username = req.body.newUsername;
-      user.usernameLowerCase = req.body.newUsername.toLowerCase();
-
-      await user.save();
-      req.session.user = user.getUserSession();
-      return res.json({ code: 200 });
-    }
-    return res.json({ code: 500 });
-  } catch (e) {
-    console.log(e);
-    res.json({ code: 500 });
+  else {
+    res.sendStatus(400);
   }
 });
 
-router.post("/change/password", async (req, res) => {
+router.delete("/:username", async (req, res) => {
   if (!req.session.user) {
-    return res.json({ code: 401 });
-  }
-  try {
-    const missingFields = ValidateFields(["currentPassword", "newPassword", "repeatedNewPassword"], req.body);
-
-    if (missingFields.length) {
-      return res.json({ code: 400, message: `${missingFields.join()} ${missingFields.length > 1 ? "are" : "is"} required`, field: "passwordForm" });
-    }
-    const user = await User.findById(req.session.user._id);
-
-    if (user) {
-      if (!user.validatePassword(req.body.currentPassword)) {
-        return res.json({ code: 400, message: "Incorrect password.", field: "currentPassword" });
-      }
-
-      if (req.body.newPassword !== req.body.repeatedNewPassword) {
-        return res.json({ code: 400, message: "Passwords don't match.", field: "newPassword" });
-      }
-
-      if (req.body.currentPassword === req.body.newPassword) {
-        return res.json({ code: 400, message: "New and old passwords cannot be the same.", field: "newPassword" });
-      }
-      user.setPassword(req.body.newPassword);
-      await user.save();
-      return res.json({ code: 200 });
-    }
-    else {
-      res.json({ code: 500 });
-    }
-  } catch (e) {
-    console.log(e);
-    res.json({ code: 500 });
-  }
-});
-
-router.delete("/delete", async (req, res) => {
-  if (!req.session.user) {
-    return res.json({ code: 401 });
+    return res.sendStatus(401);
   }
   try {
     const user = await User.findById(req.session.user._id);
 
-    if (user) {
+    if (user && user.username === req.session.user.username) {
       deleteImage(user.profileImage);
       await user.remove();
       await Snippet.deleteMany({ userId: req.session.user._id });
@@ -352,35 +288,98 @@ router.delete("/delete", async (req, res) => {
       req.session.destroy(err => {
         if (err) {
           console.log(err);
-          res.json({ code: 500 });
+          res.sendStatus(500);
         }
         else {
           res.clearCookie("sid");
-          res.json({ code: 200 });
+          res.sendStatus(204);
         }
       });
     }
     else {
-      res.json({ code: 404 });
+      res.sendStatus(404);
     }
   } catch (e) {
     console.log(e);
-    res.json({ code: 500 });
+    res.sendStatus(500);
   }
 });
 
-router.post("/upload", uploadImage);
-
-function ValidateFields(requiredFields, presentFields) {
-  const missingFields = [];
-
-  for (const field of requiredFields) {
-    if (!presentFields[field]) {
-      missingFields.push(field);
-    }
+async function changeUsername(req, res) {
+  if (!validator.isAlphanumeric(req.body.newUsername)) {
+    return res.status(400).json({ message: "Username can only contain alphanumeric characters." });
   }
 
-  return missingFields;
+  if (!validator.isLength(req.body.newUsername, { min: 3, max: 20 })) {
+    return res.status(400).json({ message: "Username length shuold be between 3 and 20 characters." });
+  }
+
+  if (req.body.newUsername === req.body.oldUsername) {
+    return res.status(400).json({ message: "Can't change to the same username." });
+  }
+
+  try {
+    const user = await User.findUser(req.body.oldUsername);
+
+    if (user && user.username === req.session.user.username) {
+      const userWithNewName = await User.findUser(req.body.newUsername);
+
+      if (userWithNewName && user.username !== userWithNewName.username) {
+        return res.status(400).json({ message: "User with that username already exists." });
+      }
+      user.username = req.body.newUsername;
+      user.usernameLowerCase = req.body.newUsername.toLowerCase();
+
+      await user.save();
+      req.session.user = user.getUserSession();
+      return res.sendStatus(204);
+    }
+    res.sendStatus(400);
+  } catch (e) {
+    console.log(e);
+    res.sendStatus(500);
+  }
+}
+
+async function changePassword(req, res) {
+  if (!validator.isLength(req.body.newPassword, { min: 6, max: 254 }) ||
+    !validator.isLength(req.body.repeatedNewPassword, { min: 6, max: 254 })
+  ) {
+    return res.status(400).json({ message: "New password must be atleast 6 characters.", field: "newPassword" });
+  }
+  if (req.body.newPassword !== req.body.repeatedNewPassword) {
+    return res.status(400).json({ message: "Passwords don't match.", field: "newPassword" });
+  }
+  if (req.body.currentPassword === req.body.newPassword) {
+    return res.status(400).json({ message: "New and old passwords cannot be the same.", field: "newPassword" });
+  }
+  try {
+    const user = await User.findById(req.session.user._id);
+
+    if (user) {
+      if (!user.validatePassword(req.body.currentPassword)) {
+        return res.status(400).json({ message: "Incorrect password.", field: "currentPassword" });
+      }
+      user.setPassword(req.body.newPassword);
+      await user.save();
+      return res.sendStatus(204);
+    }
+    else {
+      res.sendStatus(500);
+    }
+  } catch (e) {
+    console.log(e);
+    res.sendStatus(500);
+  }
+}
+
+function validateFields(requiredFields, presentFields) {
+  for (const field of requiredFields) {
+    if (!presentFields[field]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 module.exports = router;

@@ -37,7 +37,7 @@ mongoose.connection.once("open", async () => {
 
 function uploadImage(req, res) {
   if (!req.session.user) {
-    return res.json({ code: 401 });
+    return res.sendStatus(401);
   }
   upload(req, res, async err => {
     try {
@@ -45,13 +45,13 @@ function uploadImage(req, res) {
         console.log(err);
 
         if (err.code === "LIMIT_FILE_SIZE") {
-          return res.json({ code: 400, message: "File is too large." });
+          return res.status(400).json({ message: "File is too large." });
         }
-        return res.json({ code: 400 });
+        return res.sendStatus(400);
       }
       else if (err) {
         console.log(err);
-        return res.json({ code: 500 });
+        return res.sendStatus(500);
       }
       const user = await User.findUser(req.session.user.username);
 
@@ -63,14 +63,14 @@ function uploadImage(req, res) {
           name: req.file.filename
         };
         await user.save();
-        const data = user.getUser();
+        const data = user.getUserSession();
         req.session.user = data;
         return res.json(data);
       }
-      res.json({ code: 500 });
+      res.sendStatus(500);
     } catch (e) {
       console.log(e);
-      res.json({ code: 500 });
+      res.sendStatus(500);
     }
   });
 }
@@ -80,10 +80,9 @@ async function fetchImage(req, res) {
 
   stream.on("error", err => {
     if (err.code === "ENOENT") {
-      res.status(404).send("File not found");
-      return;
+      return res.sendStatus(404);
     }
-    res.status(500).send(err.message);
+    res.sendStatus(500);
   });
   stream.pipe(res);
 }

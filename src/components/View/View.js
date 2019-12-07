@@ -45,7 +45,6 @@ export default function View(props) {
         const snippet = await fetchIDBSnippet(id);
 
         if (snippet) {
-          snippet.username = user.username;
           setDocumentTitle(snippet.title);
           setState(snippet);
         }
@@ -68,7 +67,7 @@ export default function View(props) {
         else {
           const snippet = await fetchServerSnippet({
             snippetId,
-            userId: user._id,
+            username,
             queryParams: props.location.search
           });
 
@@ -79,7 +78,7 @@ export default function View(props) {
             setState({ message: GENERIC_ERROR_MESSAGE });
           }
           else {
-            snippet.username = user.username;
+            snippet.user = user;
             setDocumentTitle(snippet.title);
             setState(snippet);
           }
@@ -131,10 +130,10 @@ export default function View(props) {
   return (
     <div className="view">
       <div className="view-header">
-        {state.username ? (
-          <Link to={`/users/${state.username}`} className="view-header-user-link">
-            <UserProfileImage src={user.profileImage.path} size="64px" className="view-header-user-image" />
-            <h2 className="view-header-user-username">{state.username}</h2>
+        {state.user ? (
+          <Link to={`/users/${state.user.username}`} className="view-header-user-link">
+            <UserProfileImage src={state.user.profileImage.path} size="64px" className="view-header-user-image" />
+            <h2 className="view-header-user-username">{state.user.username}</h2>
           </Link>
         ) : null }
         <div className="view-header-bottom">

@@ -35,8 +35,11 @@ export default function Login() {
         setNotification(GENERIC_ERROR_MESSAGE);
       }
       else if (location.search.startsWith("?redirect=")) {
+        const [pathname, search] = location.search.split("?redirect=")[1].split("?");
+
         history.replace({
-          pathname: location.search.split("=")[1]
+          pathname,
+          search: search ? `?${search}` : ""
         });
       }
       else {

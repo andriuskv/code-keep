@@ -22,7 +22,7 @@ export default function UserForms(props) {
     if (props.match.path === "/login") {
       if(usernameLowerCase) {
         if (props.location.search.startsWith("?redirect=")) {
-          redirectUser(props.location.search.split("=")[1]);
+          redirectUser(props.location.search.split("?redirect=")[1]);
         }
         else {
           redirectUser(`/users/${usernameLowerCase}`);
@@ -45,8 +45,11 @@ export default function UserForms(props) {
   }
 
   function redirectUser(path) {
+    const [pathname, search] = path.split("?");
+
     props.history.replace({
-      pathname: path
+      pathname,
+      search: search ? `?${search}` : ""
     });
   }
 

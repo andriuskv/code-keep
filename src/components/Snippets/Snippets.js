@@ -38,6 +38,20 @@ export default function Snippets(props) {
   }, [state.notification]);
 
   function initSnippetState(state) {
+    if (props.location.state) {
+      const { type } = props.location.state;
+      state.tabSnippets = state.snippets.filter(snippet => snippet.type === type);
+      state.visibleTabType = type;
+    }
+    else {
+      state.tabSnippets = state.snippets;
+      state.visibleTabType = "";
+    }
+    state.tabs = updateSnippetTypeCount(state.snippets);
+    setState(state);
+  }
+
+  function updateSnippetTypeCount(snippets) {
     const tabs = {
       all: {
         name: "All",
@@ -79,22 +93,7 @@ export default function Snippets(props) {
       }
     };
 
-    if (props.location.state) {
-      const { type } = props.location.state;
-      state.tabSnippets = state.snippets.filter(snippet => snippet.type === type);
-      state.visibleTabType = type;
-    }
-    else {
-      state.tabSnippets = state.snippets;
-      state.visibleTabType = "";
-    }
-    state.tabs = updateSnippetTypeCount(state.snippets, tabs);
-    setState(state);
-  }
-
-  function updateSnippetTypeCount(snippets, tabs) {
     for (const snippet of snippets) {
-      tabs.all = tabs.all || { name: "All", type: "", count: 0 };
       tabs.all.count += 1;
 
       if (snippet.type === "private" || snippet.type === "forked") {
@@ -197,10 +196,7 @@ export default function Snippets(props) {
       hideNotification();
     }
     const { id, type } = state.removeModal;
-    const deleted = await deleteSnippet({
-      snippetId: id,
-      type
-    });
+    const deleted = await deleteSnippet({ snippetId: id, type });
 
     if (deleted) {
       state.snippets = state.snippets.filter(snippet => snippet.id !== id);
@@ -208,7 +204,10 @@ export default function Snippets(props) {
       if (state.visibleTabType) {
         state.tabSnippets = state.snippets.filter(snippet => snippet.type === type);
       }
-      state.tabs = updateSnippetTypeCount(state.snippets, state.tabs);
+      else {
+        state.tabSnippets = state.snippets;
+      }
+      state.tabs = updateSnippetTypeCount(state.snippets);
     }
     else {
       state.notification = { value: "Snippet removal was unsuccessful." };
@@ -233,7 +232,7 @@ export default function Snippets(props) {
       if (state.visibleTabType === "private") {
         state.tabSnippets = state.tabSnippets.filter(({ id }) => snippet.id !== id);
       }
-      state.tabs = updateSnippetTypeCount(state.snippets, state.tabs);
+      state.tabs = updateSnippetTypeCount(state.snippets);
     }
     else if (data.code === 401) {
       state.notification = { value: SESSION_EXPIRATION_MESSAGE };
@@ -267,19 +266,19 @@ export default function Snippets(props) {
       }
     });
 
-    if (data.code === 200) {
+    if (data.code === 201) {
       props.history.push({
         pathname:`/users/${user.usernameLowerCase}/${data.id ? data.id : id}`
       });
+      return;
     }
     else if (data.code === 401) {
       state.notification = { value: SESSION_EXPIRATION_MESSAGE };
-      setState({ ...state });
     }
     else {
       state.notification = { value: GENERIC_ERROR_MESSAGE };
-      setState({ ...state });
     }
+    setState({ ...state });
   }
 
   async function uploadSnippet(snippet) {
@@ -301,7 +300,7 @@ export default function Snippets(props) {
 
     if (data.code === 200) {
       state.snippets.unshift(remoteSnippet);
-      state.tabs = updateSnippetTypeCount(state.snippets, state.tabs);
+      state.tabs = updateSnippetTypeCount(state.snippets);
       state.notification = {
         value: "Upload was successful.",
         type: "positive"

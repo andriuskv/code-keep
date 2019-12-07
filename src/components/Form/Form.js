@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import "./form.scss";
 import { GENERIC_ERROR_MESSAGE } from "../../messages";
 import { getRandomString, setDocumentTitle, importEditorMode, resetEditorIndentation, markdownToHtml } from "../../utils";
-import { fetchUser } from "../../services/userService";
 import { fetchIDBSnippet, saveSnippet } from "../../services/snippetIDBService";
 import { fetchServerSnippet, updateServerSnippet, createServerSnippet } from "../../services/snippetServerService";
 import { getSetting, getSettings, saveSettings } from "../../services/editor-settings";
@@ -42,15 +41,9 @@ export default function Form(props) {
     }
     else if (props.match.path === "/users/:username/:snippetId/edit") {
       const { username, snippetId } = props.match.params;
-      const user = await fetchUser(username);
-
-      if (user.code) {
-        setState({ error: true });
-        return;
-      }
       const data = await fetchServerSnippet({
         snippetId,
-        userId: user._id,
+        username,
         status: "edit",
         queryParams: props.location.search
       });
@@ -58,10 +51,10 @@ export default function Form(props) {
       if (data.code === 401) {
         props.history.replace({
           pathname: "/login",
-          search: `?redirect=${props.match.url}`
+          search: `?redirect=${props.location.pathname + props.location.search}`
         });
       }
-      else if (data.code === 400 || data.code === 404) {
+      else if (data.code === 404 || data.code === 500) {
         setState({ error: true });
       }
       else {
@@ -69,7 +62,6 @@ export default function Form(props) {
         setState({
           ...data,
           fontSize: getSetting("fontSize"),
-          username: user.username,
           updating: true
         });
         saveSettings({...getSettings(), ...data.settings });
@@ -120,6 +112,8 @@ export default function Form(props) {
   }
 
   async function handleSubmit(snippetType) {
+    snippetType = typeof snippetType === "string" ? snippetType : state.type;
+
     if (snippetType !== "gist" && !state.title.trim()) {
       setState({ ...state, titleInvalid: true });
       return;
@@ -137,7 +131,7 @@ export default function Form(props) {
     if (!hasUniqueFilenames) {
       setState({
         ...state,
-        submitButtonDisaled: false,
+        disabledSubmitButton: "",
         submitMessage: "File names must be unique."
       });
       return;
@@ -158,38 +152,37 @@ export default function Form(props) {
     };
     const pathname = usernameLowerCase ? `/users/${usernameLowerCase}` : "/snippets";
 
-    if (state.type !== "local" && snippetType !== "local") {
-      try {
-        if (state.updating && state.type === "gist") {
-          const gistFilesToRemove = state.gistFilesToRemove || [];
-          newSnippet.files = gistFilesToRemove.concat(newSnippet.files);
-        }
-        delete state.submitMessage;
-        setState({ ...state, submitButtonDisaled: true });
-        const callback = state.updating ? updateServerSnippet : createServerSnippet;
-        const data = await callback(newSnippet);
-
-        if (data.code === 200) {
-          props.history.push({ pathname });
-          return;
-        }
-        setState({
-          ...state,
-          submitButtonDisaled: false,
-          submitMessage: GENERIC_ERROR_MESSAGE
-        });
-      } catch (e) {
-        console.log(e);
-        setState({
-          ...state,
-          submitButtonDisaled: false,
-          submitMessage: GENERIC_ERROR_MESSAGE
-        });
-      }
-    }
-    else {
+    if (snippetType === "local") {
       saveSnippet({ ...newSnippet });
       props.history.push({ pathname });
+      return;
+    }
+    try {
+      if (state.updating && snippetType) {
+        const gistFilesToRemove = state.gistFilesToRemove || [];
+        newSnippet.files = gistFilesToRemove.concat(newSnippet.files);
+      }
+      delete state.submitMessage;
+      setState({ ...state, disabledSubmitButton: snippetType });
+      const callback = state.updating ? updateServerSnippet : createServerSnippet;
+      const data = await callback(newSnippet);
+
+      if (data.code === 200 || data.code === 201) {
+        props.history.push({ pathname });
+        return;
+      }
+      setState({
+        ...state,
+        disabledSubmitButton: "",
+        submitMessage: data.message || GENERIC_ERROR_MESSAGE
+      });
+    } catch (e) {
+      console.log(e);
+      setState({
+        ...state,
+        disabledSubmitButton: "",
+        submitMessage: GENERIC_ERROR_MESSAGE
+      });
     }
   }
 
@@ -345,13 +338,13 @@ export default function Form(props) {
             <button className="btn" onClick={addFile}>Add File</button>
             {state.updating ? (
               <button className="btn form-update-btn"
-                disabled={state.submitButtonDisaled} onClick={handleSubmit}>
+                disabled={state.disabledSubmitButton} onClick={handleSubmit}>
                 <span>Update</span>
-                {state.submitButtonDisaled && <ButtonSpinner/>}
+                {state.disabledSubmitButton && <ButtonSpinner/>}
               </button>
             ) : (
               <SubmitDropdown username={usernameLowerCase}
-                submitButtonDisaled={state.submitButtonDisaled}
+                disabledSubmitButton={state.disabledSubmitButton}
                 handleSubmit={handleSubmit} />
             )}
           </div>

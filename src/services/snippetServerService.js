@@ -1,48 +1,48 @@
 function fetchServerSnippets(userId) {
-  return fetch(`/snippets/${userId}`).then(res => res.json());
+  return fetch(`/snippets/${userId}`).then(getResponse);
 }
 
-function fetchServerSnippet({ snippetId, userId, status, queryParams }) {
-  return fetch(`/snippets/${snippetId}${status === "edit" ? "/edit" : ""}${queryParams}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ id: userId })
-  }).then(res => res.json());
+function fetchServerSnippet({ snippetId, username, status, queryParams }) {
+  return fetch(`/snippets/${username}/${snippetId}${status === "edit" ? "/edit" : ""}${queryParams}`).then(getResponse);
 }
 
 function createServerSnippet(snippet) {
-  return fetch("/snippets/create", {
+  return fetch("/snippets", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify(snippet)
-  }).then(res => res.json());
+  }).then(getResponse);
 }
 
 function updateServerSnippet(snippet) {
-  return fetch("/snippets/update", {
-    method: "POST",
+  return fetch(`/snippets/${snippet.id}`, {
+    method: "PUT",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify(snippet)
-  }).then(res => res.json());
+  }).then(getResponse);
 }
 
-function deleteServerSnippet(data) {
-  return fetch("/snippets/delete", {
-    method: "POST",
+function deleteServerSnippet({ snippetId, type }) {
+  return fetch(`/snippets/${snippetId}`, {
+    method: "DELETE",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify(data)
-  }).then(res => res.json());
+    body: JSON.stringify({ type })
+  }).then(res => res.status);
 }
 
+async function getResponse(response) {
+  const contentType = response.headers.get("content-type");
+  const isJson = contentType && contentType.includes("application/json");
+  const json = isJson ? await response.json() : {};
 
+  return { code: response.status, ...json };
+}
 export {
   fetchServerSnippets,
   fetchServerSnippet,

@@ -36,11 +36,11 @@ export default function GithubConnect() {
     try {
       const data = await fetchUser("/me/github");
 
-      if (data.code) {
-        setNotification(GENERIC_ERROR_MESSAGE);
+      if (data.code === 200) {
+        setState(data);
       }
       else {
-        setState(data);
+        setNotification(GENERIC_ERROR_MESSAGE);
       }
     } catch (e) {
       console.log(e);
@@ -61,9 +61,9 @@ export default function GithubConnect() {
 
   async function disconnect() {
     try {
-      const data = await fetch("/users/disconnect").then(res => res.json());
+      const status = await fetch("/users/disconnect").then(res => res.status);
 
-      if (data.code === 200) {
+      if (status === 204) {
         setState({});
         user.updateUser({
           isGithubConnected: false

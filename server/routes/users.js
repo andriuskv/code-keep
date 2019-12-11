@@ -255,7 +255,7 @@ router.get("/:username", async (req, res) => {
   }
 });
 
-router.post("/:username", uploadImage);
+router.post("/:username/image", uploadImage);
 
 router.patch("/:username", async (req, res) => {
   if (!req.session.user) {
@@ -295,6 +295,60 @@ router.delete("/:username", async (req, res) => {
           res.sendStatus(204);
         }
       });
+    }
+    else {
+      res.sendStatus(404);
+    }
+  } catch (e) {
+    console.log(e);
+    res.sendStatus(500);
+  }
+});
+
+router.post("/:username/favorites", async (req, res) => {
+  if (!req.session.user) {
+    return res.sendStatus(401);
+  }
+  try {
+    const user = await User.findUser(req.params.username);
+
+    if (user) {
+      if (req.body.userId === user._id.toString()) {
+        return res.status(400).json({ message: "Can't favorite your own snippet." });
+      }
+      const snippet = await Snippet.findOne({ $and: [{ id: req.body.snippetId }, { userId: req.body.userId } ]});
+      const index = user.favorites.findIndex(fav => {
+        return fav.snippetId === req.body.snippetId && fav.userId === req.body.userId;
+      });
+
+      if (!snippet) {
+        if (index >= 0) {
+          user.favorites.splice(index, 1);
+          await user.save();
+        }
+        res.sendStatus(204);
+        return;
+      }
+      let status = 201;
+
+      if (index >= 0) {
+        if (!req.body.type) {
+          return res.sendStatus(400);
+        }
+        if (req.body.type === "favorite") {
+          user.favorites.splice(index, 1);
+          status = 204;
+        }
+        else {
+          return res.sendStatus(status);
+        }
+      }
+      else {
+        delete req.body.type;
+        user.favorites.push(req.body);
+      }
+      await user.save();
+      res.sendStatus(status);
     }
     else {
       res.sendStatus(404);

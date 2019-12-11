@@ -10,17 +10,11 @@ async function fetchSnippets(id) {
       snippets: sortSnippets(idbSnippets)
     };
   }
-  const data = {
-    snippets: sortSnippets(idbSnippets.concat(response.snippets))
+  return {
+    code: response.code,
+    snippets: sortSnippets(idbSnippets.concat(response.snippets)),
+    message: response.message
   };
-
-  if (response.snippetError) {
-    data.message = "Could not retrieve snippets.";
-  }
-  else if (response.gistError) {
-    data.message = "Could not retrieve gists.";
-  }
-  return data;
 }
 
 async function deleteSnippet({ snippetId, type }) {

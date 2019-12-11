@@ -36,5 +36,19 @@ const SnippetSchema = new mongoose.Schema({
   }
 });
 
+SnippetSchema.methods.getSnippet = function() {
+  return {
+    id: this.id,
+    created: this.created,
+    title: this.title,
+    description: this.description,
+    type: this.type,
+    userId: this.userId,
+    settings: this.settings,
+    files: this.files,
+    fork: this.fork
+  };
+};
+
 module.exports = mongoose.model("Snippet", SnippetSchema);
 

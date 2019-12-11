@@ -18,6 +18,10 @@ export default function SnippetInfo({ snippet }) {
       gist: {
         id: "github",
         title: "This snippet is hosted on GitHub"
+      },
+      favorite: {
+        id: "star",
+        title: "One of your favorite snippets"
       }
     };
     const icon = icons[type];

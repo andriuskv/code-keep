@@ -21,9 +21,10 @@ router.get("/:userId", async (req, res) => {
     const data = {
       snippets: []
     };
-    const [gists, snippets] = await Promise.all([
+    const [gists, snippets, favorites] = await Promise.all([
       getPrivate ? fetchGists(req.params.userId) : [],
-      Snippet.find({ $and: [{ userId: req.params.userId }, { type: { $in: types }}]})
+      Snippet.find({ $and: [{ userId: req.params.userId }, { type: { $in: types }}]}),
+      fetchFavoriteSnippets(req.params.userId)
     ]);
 
     if (Array.isArray(gists)) {
@@ -38,6 +39,12 @@ router.get("/:userId", async (req, res) => {
     }
     else {
       data.snippetError = true;
+    }
+    if (Array.isArray(favorites)) {
+      data.snippets = data.snippets.concat(favorites);
+    }
+    else {
+      data.favoriteError = true;
     }
     res.json(data);
   } catch (e) {
@@ -80,7 +87,11 @@ router.post("/", async (req, res) => {
       if (snippet) {
         return res.status(201).json({ id: snippet.id });
       }
+      const user = await User.findById(req.body.fork.userId);
+      req.body.fork.username = user.username;
+      req.body.fork.usernameLowerCase = user.usernameLowerCase;
       delete req.body._id;
+      delete req.body.username;
     }
     const snippet = new Snippet({ ...req.body, userId: req.session.user._id });
     await snippet.save();
@@ -251,6 +262,39 @@ async function sendSnippet(res, snippetId, userId, getPrivate) {
   } catch (e) {
     console.log(e);
     res.sendStatus(500);
+  }
+}
+
+async function fetchFavoriteSnippets(userId) {
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return;
+    }
+    const snippets = await Promise.all(user.favorites.map(item => {
+      return Snippet.findOne({ $and: [{ id: item.snippetId }, { userId: item.userId }]});
+    }));
+    const { favoriteSnippets, removedSnippets } = snippets.reduce((obj, snippet, index) => {
+      if (snippet) {
+        snippet = snippet.getSnippet();
+        snippet.username = user.favorites[index].username;
+        snippet.type = "favorite";
+        obj.favoriteSnippets.push(snippet);
+      }
+      else {
+        obj.removedSnippets.push(user.favorites[index]);
+      }
+      return obj;
+    }, { favoriteSnippets: [], removedSnippets: [] });
+
+    if (removedSnippets.length) {
+      user.favorites = user.favorites.filter(item => !removedSnippets.some(({ snippetId }) => snippetId === item.snippetId));
+      user.save();
+    }
+    return favoriteSnippets;
+  } catch (e) {
+    console.log(e);
   }
 }
 

@@ -1,10 +1,12 @@
 .snippet-info {
   overflow: auto;
+  margin-right: auto;
 }
 
 .snippet-info-title-container {
   display: flex;
   align-items: flex-end;
+  min-height: 20px;
 }
 
 .snippet-info-title-icon {

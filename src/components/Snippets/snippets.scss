@@ -119,12 +119,7 @@
 
 .snippet-top {
   display: flex;
-  justify-content: space-between;
   margin-bottom: var(--space-xl);
-}
-
-.snippet-fork-btn {
-  padding: var(--space-sm) var(--space-lg);
 }
 
 .snippet-link {
@@ -154,5 +149,35 @@
 
   .btn {
     margin-top: var(--space-xl);
+  }
+}
+
+.snippet-dropdown {
+  position: absolute;
+  right: 0;
+  display: none;
+  padding: var(--space-md);
+  border-radius: 4px;
+  background-color: var(--color-grey);
+  box-shadow: 0 1px 4px 0 var(--color-black-10);
+  transform: translateY(var(--space-sm));
+
+  &.visible {
+    display: block;
+  }
+}
+
+.snippet-dropdown-btn {
+  justify-content: flex-start;
+  width: 100%;
+  padding: var(--space-sm) var(--space-lg);
+  white-space: nowrap;
+
+  &:hover, &.focus-visible {
+    background-color: var(--color-grey-dark);
+  }
+
+  &:not(:last-of-type) {
+    margin-bottom: var(--space-md);
   }
 }

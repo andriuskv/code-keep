@@ -26,6 +26,11 @@ const UserSchema = new mongoose.Schema({
     path: String,
     name: String
   },
+  favorites: [{
+    snippetId: String,
+    userId: String,
+    username: String
+  }],
   accessToken: String,
   hash: String,
   salt: String

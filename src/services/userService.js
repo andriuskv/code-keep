@@ -36,17 +36,27 @@ function updateUser(username, data) {
   }).then(getResponse);
 }
 
-function uploadProfileImage(username, data) {
+function deleteUser(username) {
   return fetch(`/users/${username}`, {
+    method: "DELETE"
+  }).then(res => res.status);
+}
+
+function uploadProfileImage(username, data) {
+  return fetch(`/users/${username}/image`, {
     method: "POST",
     body: data
   }).then(getResponse);
 }
 
-function deleteUser(username) {
-  return fetch(`/users/${username}`, {
-    method: "DELETE"
-  }).then(res => res.status);
+function favoriteSnippet(username, data) {
+  return fetch(`/users/${username}/favorites`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  }).then(getResponse);
 }
 
 async function getResponse(response) {
@@ -63,6 +73,7 @@ export {
   loginUser,
   logoutUser,
   updateUser,
+  deleteUser,
   uploadProfileImage,
-  deleteUser
+  favoriteSnippet
 };

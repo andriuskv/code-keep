@@ -1,5 +1,18 @@
 function fetchServerSnippets(userId) {
-  return fetch(`/snippets/${userId}`).then(getResponse);
+  return fetch(`/snippets/${userId}`)
+    .then(getResponse)
+    .then(data => {
+      if (data.snippetError) {
+        data.message = "Could not retrieve snippets.";
+      }
+      else if (data.gistError) {
+        data.message = "Could not retrieve gist snippets.";
+      }
+      else if (data.favoriteError) {
+        data.message = "Could not retrieve favorite snippets.";
+      }
+      return data;
+    });
 }
 
 function fetchServerSnippet({ snippetId, username, status, queryParams }) {
@@ -43,6 +56,7 @@ async function getResponse(response) {
 
   return { code: response.status, ...json };
 }
+
 export {
   fetchServerSnippets,
   fetchServerSnippet,

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import "./snippets.scss";
 import { GENERIC_ERROR_MESSAGE, SESSION_EXPIRATION_MESSAGE } from "../../messages";
 import { setDocumentTitle, getRandomString } from "../../utils";
-import { fetchUser } from "../../services/userService";
+import { fetchUser, favoriteSnippet } from "../../services/userService";
 import { fetchIDBSnippets } from "../../services/snippetIDBService";
 import { fetchSnippets, deleteSnippet, sortSnippets } from "../../services/snippetService";
 import { fetchServerSnippets, createServerSnippet, updateServerSnippet } from "../../services/snippetServerService";
@@ -15,6 +15,7 @@ import SnippetInfo from "../SnippetInfo";
 import Editor from "../Editor";
 import NoMatch from "../NoMatch";
 import UserProfileImage from "../UserProfileImage";
+import SnippetAuthDropdown from "./SnippetAuthDropdown";
 import SnippetDropdown from "./SnippetDropdown";
 import SnippetRemoveModal from "./SnippetRemoveModal";
 
@@ -89,6 +90,12 @@ export default function Snippets(props) {
         type: "local",
         iconName: "home",
         require: true,
+        count: 0
+      },
+      favorite: {
+        name: "Favorites",
+        type: "favorite",
+        iconName: "star",
         count: 0
       }
     };
@@ -172,7 +179,15 @@ export default function Snippets(props) {
           setState({ message: GENERIC_ERROR_MESSAGE });
         }
         else {
-          initSnippetState({ snippets: sortSnippets(data.snippets), user });
+          const newState = {
+            snippets: sortSnippets(data.snippets),
+            user
+          };
+
+          if (data.message) {
+            newState.notification = { value: data.message };
+          }
+          initSnippetState(newState);
           setDocumentTitle(`${user.username} Snippets`);
         }
       }
@@ -260,9 +275,7 @@ export default function Snippets(props) {
       type: "forked",
       fork: {
         id: snippet.id,
-        userId: snippet.userId,
-        username: state.user.username,
-        usernameLowerCase: state.user.usernameLowerCase
+        userId: snippet.userId
       }
     });
 
@@ -277,6 +290,41 @@ export default function Snippets(props) {
     }
     else {
       state.notification = { value: GENERIC_ERROR_MESSAGE };
+    }
+    setState({ ...state });
+  }
+
+  async function toggleSnippetFavoriteStatus(snippet) {
+    if (state.notification) {
+      hideNotification();
+    }
+    const data = await favoriteSnippet(user.usernameLowerCase, {
+      snippetId: snippet.id,
+      username: state.user.usernameLowerCase,
+      userId: snippet.userId,
+      type: snippet.type
+    });
+
+    if (data.code === 201) {
+      props.history.push({
+        pathname: `/users/${user.usernameLowerCase}`,
+        state: { type: "favorite" }
+      });
+      return;
+    }
+    else if (data.code === 204) {
+      state.snippets = state.snippets.filter(({ id }) => snippet.id !== id);
+
+      if (state.visibleTabType) {
+        state.tabSnippets = state.snippets.filter(snippet => snippet.type === "favorite");
+      }
+      else {
+        state.tabSnippets = state.snippets;
+      }
+      state.tabs = updateSnippetTypeCount(state.snippets);
+    }
+    else {
+      state.notification = { value: data.message || GENERIC_ERROR_MESSAGE };
     }
     setState({ ...state });
   }
@@ -318,6 +366,16 @@ export default function Snippets(props) {
   function hideNotification() {
     delete state.notification;
     setState({ ...state });
+  }
+
+  function getSnippetLink(snippet) {
+    if (snippet.type === "local") {
+      return `/snippets/${snippet.id}`;
+    }
+    else if (snippet.type === "favorite") {
+      return `/users/${snippet.username}/${snippet.id}`;
+    }
+    return `/users/${state.user.usernameLowerCase}/${snippet.id}${snippet.type === "gist" ? "?type=gist": ""}`;
   }
 
   function showSnippets(type) {
@@ -407,19 +465,18 @@ export default function Snippets(props) {
           <li className="snippet" key={snippet.id}>
             <div className="snippet-top">
               <SnippetInfo snippet={snippet}/>
-              {snippetUser.isLocal || snippetUser.username === user.username ? (
-                <SnippetDropdown user={snippetUser} snippet={snippet}
+              {(snippetUser.isLocal || snippetUser.username === user.username) && snippet.type !== "favorite" ? (
+                <SnippetAuthDropdown user={snippetUser} snippet={snippet}
                   uploadSnippet={uploadSnippet}
                   removeSnippet={showSnippetRemoveModal}
                   toggleSnippetPrivacy={toggleSnippetPrivacy} />
               ) : (user.username ? (
-                <button className="btn icon-text-btn snippet-fork-btn" onClick={() => forkSnippet(snippet)}>
-                  <Icon name="fork" />
-                  <span>Fork</span>
-                </button>
+                <SnippetDropdown snippet={snippet} authUser={user} snippetUser={snippetUser}
+                  toggleSnippetFavoriteStatus={toggleSnippetFavoriteStatus}
+                  forkSnippet={forkSnippet}/>
               ) : null)}
             </div>
-            <Link to={snippet.type === "local" ? `/snippets/${snippet.id}` : `/users/${snippetUser.usernameLowerCase}/${snippet.id}${snippet.type === "gist" ? "?type=gist": ""}`} className="snippet-link">
+            <Link to={getSnippetLink(snippet)} className="snippet-link">
               <Editor file={snippet.files[0]} settings={snippet.settings}
                 height={snippet.files[0].height} readOnly preview />
             </Link>

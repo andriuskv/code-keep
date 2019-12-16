@@ -1,0 +1,238 @@
+@import "../../../styles/mixins.scss";
+
+.home-visual-container {
+  z-index: -1;
+  position: absolute;
+  right: 4%;
+  max-width: 60%;
+  width: 100%;
+  height: calc(100% - var(--header-height));
+  perspective: 1024px;
+}
+
+.home-visual {
+  position: absolute;
+  top: 50%;
+  width: 360px;
+  max-width: 100%;
+  padding: var(--space-md) 8%;
+  border-radius: 8px;
+  background-color: var(--color-grey-darkest);
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.04),
+              0 2px 4px rgba(0, 0, 0, 0.04),
+              0 2px 8px rgba(0, 0, 0, 0.04),
+              0 2px 16px rgba(0, 0, 0, 0.04);
+  filter: brightness(1.1);
+
+  &-1 {
+    right: 10%;
+    transform: translateY(-50%) rotateX(8deg) rotateY(-22deg) rotateZ(10deg);
+  }
+
+  &-2 {
+    right: 14%;
+    transform: translateY(-50%) rotateX(8deg) rotateY(-22deg) rotateZ(-2deg);
+  }
+
+  &-3 {
+    right: 6%;
+    transform: translateY(-50%) rotateX(8deg) rotateY(-22deg) rotateZ(20deg);
+  }
+}
+
+.home-visual-user {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.home-visual-user-image {
+  width: 24px;
+  height: 24px;
+  margin-right: var(--space-md);
+  border-radius: 50%;
+  background-color: var(--color-grey-dark);
+}
+
+.home-visual-user-name {
+  width: 72px;
+  height: 8px;
+  border-radius: 999px;
+  background-color: var(--color-grey-dark);
+}
+
+.home-visual-tabs {
+  display: flex;
+  margin-bottom: var(--space-md);
+}
+
+.home-visual-tab {
+  height: 10px;
+  border-radius: 999px;
+  background-color: var(--color-grey-dark);
+
+  &:nth-of-type(1) {
+    width: 9%;
+  }
+
+  &:nth-of-type(2), &:nth-of-type(5) {
+    width: 11%;
+  }
+
+  &:nth-of-type(3), &:nth-of-type(4) {
+    width: 15%;
+  }
+
+  &:nth-of-type(6) {
+    width: 16%;
+  }
+
+  &:not(:last-of-type) {
+    margin-right: var(--space-sm);
+  }
+}
+
+.home-visual-editor {
+  width: 100%;
+  padding: var(--space-sm);
+  border-radius: 4px;
+  background-color: var(--color-grey-dark);
+
+  &:not(:last-of-type) {
+    margin-bottom: var(--space-sm);
+  }
+
+  &:nth-of-type(3) {
+    .home-visual-editor-title {
+      width: 15%;
+    }
+
+    .home-visual-editor-info {
+      width: 18%;
+    }
+  }
+
+  &:nth-of-type(4) {
+    .home-visual-editor-title {
+      width: 40%;
+    }
+
+    .home-visual-editor-info {
+      width: 21%;
+    }
+  }
+
+  &:nth-of-type(5) {
+    .home-visual-editor-title {
+      width: 27%;
+    }
+
+    .home-visual-editor-info {
+      width: 14%;
+    }
+  }
+}
+
+.home-visual-editor-title {
+  height: 6px;
+  margin-bottom: var(--space-sm);
+  border-radius: 999px;
+  background-color: var(--color-grey);
+}
+
+.home-visual-editor-info {
+  height: 2px;
+  margin-bottom: var(--space-sm);
+  border-radius: 999px;
+  background-color: var(--color-grey);
+}
+
+.home-visual-editor-content {
+  width: 100%;
+  padding: var(--space-sm);
+  border-radius: 4px;
+  border: 1px solid var(--color-grey);
+
+  &-1 {
+    .home-visual-editor-content-line:nth-of-type(1) {
+      width: 22%;
+    }
+
+    .home-visual-editor-content-line:nth-of-type(2) {
+      width: 48%;
+    }
+
+    .home-visual-editor-content-line:nth-of-type(3) {
+      width: 32%;
+    }
+
+    .home-visual-editor-content-line:nth-of-type(4) {
+      width: 63%;
+    }
+  }
+
+  &-2 {
+    .home-visual-editor-content-line:nth-of-type(1) {
+      width: 35%;
+    }
+
+    .home-visual-editor-content-line:nth-of-type(2) {
+      width: 27%;
+    }
+
+    .home-visual-editor-content-line:nth-of-type(3) {
+      width: 49%;
+    }
+  }
+
+  &-3 {
+    .home-visual-editor-content-line:nth-of-type(1) {
+      width: 25%;
+    }
+
+    .home-visual-editor-content-line:nth-of-type(2) {
+      width: 34%;
+    }
+
+    .home-visual-editor-content-line:nth-of-type(3) {
+      width: 22%;
+    }
+
+    .home-visual-editor-content-line:nth-of-type(4) {
+      width: 47%;
+    }
+
+    .home-visual-editor-content-line:nth-of-type(5) {
+      width: 29%;
+    }
+  }
+}
+
+.home-visual-editor-content-line {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background-color: var(--color-grey);
+
+  &:not(:last-of-type) {
+    margin-bottom: var(--space-sm);
+  }
+}
+
+.home-visual-background {
+  position: absolute;
+  top: 50%;
+  right: 8%;
+  width: 100%;
+  max-width: 340px;
+  height: 100%;
+  min-height: 520px;
+  max-height: 1024px;
+  border-radius: 999px;
+  background-color: var(--color-grey);
+  transform: translateY(-50%) rotateZ(-45deg);
+
+  @include home-breakpoint {
+    height: 80%;
+  }
+}

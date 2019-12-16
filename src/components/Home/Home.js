@@ -1,25 +1,24 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./home.scss";
-import img from "../../assets/home-image.png";
+import HomeVisual from "./HomeVisual";
+import logoFull from "../../assets/logo-full.svg";
 
 export default function Home() {
-  const isFirefox = navigator.userAgent.includes("Firefox");
-
   useEffect(() => {
     document.title = "CodeKeep - Code Snippet Manager";
   }, []);
 
   return (
-    <div className="home">
-      <div>
-        <h2 className="home-intro-main-title">CodeKeep</h2>
-        <h2 className="home-intro-title">A Simple code<br />snippet manager</h2>
-        <h3 className="home-intro-subtitle">Create and share your favorite snippets</h3>
-        <Link to="/snippets/create" className="btn btn-secondary home-intro-btn">Get Started</Link>
-      </div>
-      <div className={`home-image-container${isFirefox ? "" : " shadow"}`}>
-        <img src={img} className="home-image" alt=""/>
+    <div className="home-container">
+      <div className="container home">
+        <div>
+          <img src={logoFull} className="home-intro-logo" alt="codekeep" height="32px"/>
+          <h2 className="home-intro-title">A Simple Code<br />Snippet Manager</h2>
+          <h3 className="home-intro-subtitle">Create and share your favorite snippets</h3>
+          <Link to="/snippets/create" className="btn btn-secondary home-intro-btn">Get Started</Link>
+        </div>
+        <HomeVisual/>
       </div>
     </div>
   );

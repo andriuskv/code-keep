@@ -1,17 +1,14 @@
 .user-form {
   display: flex;
   flex-direction: column;
-  width: 100%;
   max-width: 372px;
-  margin: auto;
 }
 
 .user-form-image {
-  margin: 0 auto;
+  margin: var(--space-xxxxl) 0;
 }
 
 .user-form-title {
-  margin-top: var(--space-xl);
   font-weight: 500;
   font-size: var(--text-xl);
   text-align: center;
@@ -71,6 +68,7 @@
   display: flex;
   justify-content: flex-end;
   margin-top: var(--space-xl);
+  margin-bottom: auto;
 }
 
 .user-form-bottom-link {

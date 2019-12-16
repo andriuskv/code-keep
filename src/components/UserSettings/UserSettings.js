@@ -35,7 +35,7 @@ export default function UserSettings(props) {
     return <PageSpinner/>;
   }
   return (
-    <div className="settings">
+    <div className="container settings">
       <h2 className="settings-title">Settings</h2>
       <GithubConnect/>
       <ProfileImageForm/>

@@ -1,18 +1,19 @@
 import React, { Fragment } from "react";
 import { Link, NavLink } from "react-router-dom";
 import "./header.scss";
-import img from "../../assets/header-image.png";
 import { useUser } from "../../context/user-context";
 import Icon from "../Icon";
 import Dropdown from "../Dropdown";
 import UserDropdown from "./UserDropdown";
+import logoFull from "../../assets/logo-full.svg";
+import spinner from "../../assets/ring.svg";
 
 export default function Header() {
   const { usernameLowerCase, loading } = useUser();
 
   function renderItems() {
     if (loading) {
-      return null;
+      return <img src={spinner} className="header-spinner" height="20px" alt="" />;
     }
 
     if (usernameLowerCase) {
@@ -46,7 +47,7 @@ export default function Header() {
         <ul className="header-nav-items">
           <li className="header-nav-item">
             <Link to="/" className="header-home-link">
-              <img src={img} alt="CodeKeep" />
+              <img src={logoFull} height="20px" alt="CodeKeep" />
             </Link>
           </li>
           {renderItems()}

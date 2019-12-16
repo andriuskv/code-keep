@@ -4,7 +4,7 @@ import { GENERIC_ERROR_MESSAGE } from "../../../messages";
 import { useUser } from "../../../context/user-context";
 import ButtonSpinner from "../../ButtonSpinner";
 import Notification from "../../Notification";
-import img from "../../../assets/header-image.png";
+import logo from "../../../assets/logo.svg";
 
 export default function Register() {
   const [notification, setNotification] = useState({});
@@ -84,8 +84,8 @@ export default function Register() {
   }
 
   return (
-    <form className="user-form" onSubmit={handleSignUp} onKeyDown={handleKeydown}>
-      <img src={img} className="user-form-image" width="344px" height="98px" alt="" />
+    <form className="container user-form" onSubmit={handleSignUp} onKeyDown={handleKeydown}>
+      <img src={logo} className="user-form-image" height="64px" alt="" />
       <h2 className="user-form-title">Sign Up</h2>
       {notification.form && (
         <Notification className="user-form-notification"

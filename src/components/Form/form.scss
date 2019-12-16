@@ -1,11 +1,7 @@
 @import "../../styles/mixins.scss";
 
-.form {
-  width: 100%;
-
-  .CodeMirror-scroll {
-    min-height: 332px;
-  }
+.form .CodeMirror-scroll {
+  min-height: 332px;
 }
 
 .form-input-group {

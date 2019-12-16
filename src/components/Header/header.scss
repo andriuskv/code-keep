@@ -31,10 +31,6 @@
   align-items: center;
   font-size: var(--text-lg);
   color: var(--color-primary);
-
-  img {
-    height: calc(var(--header-height) - var(--space-xl));
-  }
 }
 
 .header-link {
@@ -95,4 +91,8 @@
       }
     }
   }
+}
+
+.header-spinner {
+  margin: auto 0;
 }

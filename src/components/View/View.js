@@ -128,7 +128,7 @@ export default function View(props) {
     return <NoMatch message={state.message} />;
   }
   return (
-    <div className="view">
+    <div className="container view">
       <div className="view-header">
         {state.user ? (
           <Link to={`/users/${state.user.username}`} className="view-header-user-link">

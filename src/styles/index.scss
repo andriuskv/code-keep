@@ -69,8 +69,14 @@ body {
 
 main {
   display: flex;
-  max-width: 1024px;
+  flex-direction: column;
   min-height: calc(100% - var(--header-height));
+}
+
+.container {
+  flex-grow: 1;
+  width: 100%;
+  max-width: 1024px;
   padding: var(--space-xl);
   margin: 0 auto;
 

@@ -8,6 +8,10 @@
     @media (max-width: 680px) { @content; }
 }
 
+@mixin home-breakpoint {
+    @media (max-width: 500px) { @content; }
+}
+
 @mixin form-submit-breakpoint {
     @media (max-width: 710px) { @content; }
 }

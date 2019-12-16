@@ -513,7 +513,7 @@ export default function Snippets(props) {
   }
   else if (state.snippets.length) {
     return (
-      <div className="snippets-container">
+      <div className="container snippets-container">
         {renderHeader()}
         {renderSnippetsTabs()}
         {state.notification && (
@@ -531,7 +531,7 @@ export default function Snippets(props) {
     return renderMessage();
   }
   return (
-    <div className="snippets-container">
+    <div className="container snippets-container">
       {renderHeader()}
       {renderMessage()}
     </div>

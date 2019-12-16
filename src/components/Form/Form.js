@@ -281,7 +281,7 @@ export default function Form(props) {
   }
 
   return (
-    <div className="form" style={{ "--cm-font-size": `${state.fontSize}px` }}>
+    <div className="container form" style={{ "--cm-font-size": `${state.fontSize}px` }}>
       <button className="btn icon-text-btn form-settings-btn" onClick={showSettings}>
         <Icon name="settings" />
         <span>Settings</span>

@@ -4,7 +4,7 @@ import { GENERIC_ERROR_MESSAGE } from "../../../messages";
 import { useUser } from "../../../context/user-context";
 import ButtonSpinner from "../../ButtonSpinner";
 import Notification from "../../Notification";
-import img from "../../../assets/header-image.png";
+import logo from "../../../assets/logo.svg";
 
 export default function Login() {
   const [notification, setNotification] = useState("");
@@ -55,8 +55,8 @@ export default function Login() {
   }
 
   return (
-    <form onSubmit={handleSignIn} className="user-form">
-      <img src={img} className="user-form-image" width="344px" height="98px" alt="" />
+    <form onSubmit={handleSignIn} className="container user-form">
+      <img src={logo} className="user-form-image" height="64px" alt="" />
       <h2 className="user-form-title">Sign In</h2>
       {notification && (
         <Notification className="user-form-notification"

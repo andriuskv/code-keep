@@ -1,12 +1,8 @@
 @import "../../styles/mixins.scss";
 
-.view {
-  width: 100%;
-
-  .CodeMirror {
-    min-height: auto;
-    padding-bottom: var(--space-sm);
-  }
+.view .CodeMirror {
+  min-height: auto;
+  padding-bottom: var(--space-sm);
 }
 
 .view-header {

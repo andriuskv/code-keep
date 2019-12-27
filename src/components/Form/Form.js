@@ -103,10 +103,10 @@ export default function Form(props) {
     if (name) {
       const arr = name.split(".");
 
-      if (arr[1] !== extension) {
-        return `${arr[0]}.${extension}`;
+      if (arr[1]) {
+        return name;
       }
-      return name;
+      return `${arr[0]}.${extension}`;
     }
     return `file${index + 1}.${extension}`;
   }
@@ -213,15 +213,24 @@ export default function Form(props) {
 
   async function handleFileTypeChange({ target }, index) {
     const file = files[index];
-    const { mode } = fileInfo[target.value];
-    file.type = target.value;
+    const { extension, mode } = fileInfo[target.value];
 
     if (file.name) {
-      file.name = getFileName(file);
+      const arr = file.name.split(".");
+
+      if (arr[1] !== extension) {
+        file.name = `${arr[0]}.${extension}`;
+      }
     }
-    await importEditorMode(mode);
-    file.cm.setOption("mode", mode);
+    await updateFileMode(file, target.value, mode);
     setState({ ...state });
+  }
+
+  async function updateFileMode(file, type, mode) {
+    await importEditorMode(mode);
+
+    file.type = type;
+    file.cm.setOption("mode", mode);
   }
 
   async function updateEditorOptions({ wrapLines, indentSize, indentWithSpaces }) {
@@ -253,8 +262,23 @@ export default function Form(props) {
     }
   }
 
-  function handleFilenameChange({ target }, index) {
-    files[index].name = target.value;
+  async function handleFilenameChange({ target }, index) {
+    const file = files[index];
+    const arr = target.value.split(".");
+    file.name = target.value;
+
+    if (arr[1]) {
+      for (const key of Object.keys(fileInfo)) {
+        const obj = fileInfo[key];
+
+        if (obj.extension === arr[1]) {
+          await updateFileMode(file, obj.type, obj.mode);
+          setState({ ...state });
+          return;
+        }
+      }
+      await updateFileMode(file, "default", "default");
+    }
     setState({ ...state });
   }
 
@@ -277,7 +301,7 @@ export default function Form(props) {
   }
 
   if (state.error) {
-    return <NoMatch />;
+    return <NoMatch/>;
   }
 
   return (

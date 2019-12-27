@@ -5,6 +5,38 @@ const Snippet = require("../models/Snippet");
 const User = require("../models/User");
 const router = express.Router();
 
+router.get("/", async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page, 10) - 1 : 0;
+
+    if (Number.isNaN(page) || page < 0) {
+      return res.sendStatus(404);
+    }
+    const snippetsPerPage = 5;
+    const offset = page * snippetsPerPage;
+    const snippets = await Snippet.find({ type: "remote" });
+    const endIndex = snippets.length - offset;
+
+    if (endIndex < 0) {
+      return res.sendStatus(404);
+    }
+    const startIndex = endIndex - snippetsPerPage;
+    const pageSnippets = snippets.slice(startIndex < 0 ? 0 : startIndex, endIndex).reverse();
+    const users = await Promise.all(pageSnippets.map(snippet => User.findById(snippet.userId)));
+
+    res.json({
+      snippets: pageSnippets.map((snippet, index) => {
+        snippet.user = users[index].getUser();
+        return snippet;
+      }),
+      hasMore: snippets.length > offset + snippetsPerPage
+    });
+  } catch (e) {
+    console.log(e);
+    res.sendStatus(500);
+  }
+});
+
 router.get("/:userId", async (req, res) => {
   const types = ["remote", "forked"];
   let getPrivate = false;

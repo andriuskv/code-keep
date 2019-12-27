@@ -50,6 +50,9 @@ export default function Header() {
               <img src={logoFull} height="20px" alt="CodeKeep" />
             </Link>
           </li>
+          <li className="header-nav-item">
+            <NavLink to="/snippets/recent" className="btn text-btn header-link" activeClassName="active">Recent</NavLink>
+          </li>
           {renderItems()}
         </ul>
       </nav>

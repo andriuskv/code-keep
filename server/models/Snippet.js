@@ -33,7 +33,8 @@ const SnippetSchema = new mongoose.Schema({
   },
   fork: {
     type: Object
-  }
+  },
+  user: Object
 });
 
 SnippetSchema.methods.getSnippet = function() {

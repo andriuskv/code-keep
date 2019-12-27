@@ -19,6 +19,10 @@ function fetchServerSnippet({ snippetId, username, status, queryParams }) {
   return fetch(`/snippets/${username}/${snippetId}${status === "edit" ? "/edit" : ""}${queryParams}`).then(getResponse);
 }
 
+function fetchServerRecentSnippets(page) {
+  return fetch(`/snippets?page=${page}`).then(getResponse);
+}
+
 function createServerSnippet(snippet) {
   return fetch("/snippets", {
     method: "POST",
@@ -60,6 +64,7 @@ async function getResponse(response) {
 export {
   fetchServerSnippets,
   fetchServerSnippet,
+  fetchServerRecentSnippets,
   createServerSnippet,
   updateServerSnippet,
   deleteServerSnippet

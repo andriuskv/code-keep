@@ -4,6 +4,10 @@
     white-space: nowrap;
 }
 
+@mixin breakpoint-smaller {
+    @media (max-width: 420px) { @content; }
+}
+
 @mixin breakpoint-small {
     @media (max-width: 680px) { @content; }
 }

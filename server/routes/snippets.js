@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
     if (Number.isNaN(page) || page < 0) {
       return res.sendStatus(404);
     }
-    const snippetsPerPage = 5;
+    const snippetsPerPage = 10;
     const offset = page * snippetsPerPage;
     const snippets = await Snippet.find({ type: "remote" });
     const endIndex = snippets.length - offset;

@@ -477,8 +477,7 @@ export default function Snippets(props) {
               ) : null)}
             </div>
             <Link to={getSnippetLink(snippet)} className="snippet-link">
-              <Editor file={snippet.files[0]} settings={snippet.settings}
-                height={snippet.files[0].height} readOnly preview />
+              <Editor file={snippet.files[0]} settings={snippet.settings} readOnly preview />
             </Link>
           </li>
         ))}

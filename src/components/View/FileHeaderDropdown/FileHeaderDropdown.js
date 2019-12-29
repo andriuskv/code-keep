@@ -28,7 +28,7 @@ export default function FileHeaderDropdown({ file, previewMarkdown }) {
     <Dropdown
       toggle={{ content: <Icon name="dots" />, title: "Toggle action menu", className: "btn icon-btn view-editor-header-menu-toggle-btn" }}
       body={{ className: "view-editor-header-menu-items" }}>
-      {file.mode === "gfm" && (
+      {file.type === "markdown" && (
         <button onClick={() => previewMarkdown(file)}
           className={`btn icon-text-btn dropdown-btn view-editor-header-btn${file.renderAsMarkdown ? " active" : ""}`}>
           <Icon name="eye" />

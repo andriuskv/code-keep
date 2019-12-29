@@ -20,6 +20,9 @@ export default function Header() {
       return (
         <Fragment>
           <li className="header-nav-item">
+            <NavLink to="/snippets/recent" className="btn text-btn header-link" activeClassName="active">Recent</NavLink>
+          </li>
+          <li className="header-nav-item">
             <NavLink to={usernameLowerCase ? `/users/${usernameLowerCase}` : "/snippets"} exact
               className="btn text-btn header-link" activeClassName="active">Snippets</NavLink>
           </li>
@@ -32,6 +35,7 @@ export default function Header() {
         <Dropdown
           toggle={{ content: <Icon name="menu" />, title: "Toggle navigation menu", className: "btn icon-btn header-nav-dropdown-toggle-btn" }}
           body={{ className: "header-nav-dropdown" }}>
+          <NavLink to="/snippets/recent" className="btn text-btn header-link" activeClassName="active">Recent</NavLink>
           <NavLink to={usernameLowerCase ? `/users/${usernameLowerCase}` : "/snippets"} exact
             className="btn text-btn header-link" activeClassName="active">Snippets</NavLink>
           <NavLink to="/login" className="btn text-btn header-link" activeClassName="active">Log In</NavLink>
@@ -49,9 +53,6 @@ export default function Header() {
             <Link to="/" className="header-home-link">
               <img src={logoFull} height="20px" alt="CodeKeep" />
             </Link>
-          </li>
-          <li className="header-nav-item">
-            <NavLink to="/snippets/recent" className="btn text-btn header-link" activeClassName="active">Recent</NavLink>
           </li>
           {renderItems()}
         </ul>

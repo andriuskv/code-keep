@@ -92,7 +92,7 @@ export default function Form(props) {
     };
   }
 
-  async function setEditorInstance({ cm, file }) {
+  function setEditorInstance({ cm, file }) {
     file.cm = cm;
     setState({ ...state, loaded: true });
   }
@@ -336,7 +336,7 @@ export default function Form(props) {
                 return <option value={info.type} key={i}>{info.displayName}</option>;
               })}
             </select>
-            {file.mode === "gfm" && (
+            {file.type === "markdown" && (
               <button onClick={() => previewMarkdown(file)} title="Preview changes"
                 className={`btn icon-btn form-markdown-preview-btn${file.renderAsMarkdown ? " active" : ""}`}>
                 <Icon name="eye" />

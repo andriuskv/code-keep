@@ -115,9 +115,15 @@ export default function View(props) {
       delete file.renderAsMarkdown;
     }
     else {
+      file.height = file.container.clientHeight;
       file.markdown = await markdownToHtml(file.value);
       file.renderAsMarkdown = true;
     }
+    setState({ ...state });
+  }
+
+  function handleEditorLoad({ container, file }) {
+    file.container = container;
     setState({ ...state });
   }
 
@@ -149,8 +155,8 @@ export default function View(props) {
             <FileHeaderDropdown file={file} previewMarkdown={previewMarkdown} />
           </div>
           {file.renderAsMarkdown ? <Markdown content={file.markdown} /> :
-            <Editor file={file} settings={state.settings}
-              height={file.height} readOnly />
+            <Editor file={file} settings={state.settings} handleLoad={handleEditorLoad}
+              height={file.height} readOnly/>
           }
         </div>
       ))}

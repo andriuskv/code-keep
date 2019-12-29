@@ -136,7 +136,10 @@
 
   .cm-container {
     pointer-events: none;
-    max-height: 218px;
+
+    .editor-content-container {
+      overflow: hidden;
+    }
   }
 }
 

@@ -3,6 +3,35 @@
   border-radius: 4px;
 }
 
+.editor-content-container {
+  overflow: auto;
+
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--color-grey-light);
+  }
+}
+
+.editor-content {
+  padding-left: var(--gutter-width);
+  padding-right: 4px;
+  white-space: pre;
+}
+
+.editor-gutter {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--gutter-width);
+  padding: 4px 0;
+  cursor: default;
+  user-select: none;
+  background-color: var( --editor-background-color, var(--color-grey-dark));
+}
+
 .CodeMirror {
   height: auto;
   min-height: 332px;

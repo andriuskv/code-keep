@@ -44,11 +44,11 @@
   "browserslist": [
     "last 4 chrome versions",
     "last 4 firefox versions",
-    "last 2 edge versions",
+    "last 2 and_chr versions",
     "last 2 opera versions",
-    "last 1 and_chr versions",
+    "last 1 edge versions",
     "last 1 safari versions",
-    "last 1 ios versions"
+    "last 1 ios_saf versions"
   ],
   "proxy": "http://localhost:9000"
 }

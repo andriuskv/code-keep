@@ -1,7 +1,19 @@
 @import "../../styles/mixins.scss";
 
-.form .CodeMirror-scroll {
-  min-height: 332px;
+.form {
+  .CodeMirror {
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: var(--color-grey-light);
+    }
+  }
+
+  .CodeMirror-scroll {
+    min-height: 332px;
+  }
 }
 
 .form-input-group {

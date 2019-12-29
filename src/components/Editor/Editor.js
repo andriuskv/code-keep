@@ -1,10 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import CodeMirror from "codemirror";
 import "codemirror/lib/codemirror.css";
-import "codemirror/addon/edit/closebrackets";
 import "codemirror/theme/dracula.css";
 import "./editor.scss";
-import { importEditorMode, resetEditorIndentation } from "../../utils";
+import { importEditorMode, resetEditorIndentation, renderReadOnlyEditor } from "../../utils";
 import { getSettings } from "../../services/editor-settings";
 import fileInfo from "../../data/file-info.json";
 
@@ -18,26 +17,37 @@ export default function Editor({ file, settings, height, readOnly, preview, hand
 
   async function init() {
     const { mode } = fileInfo[file.type];
-    const { indentSize, indentWithSpaces, wrapLines } = { ...getSettings(), ...settings };
     await importEditorMode(mode);
 
+    if (readOnly) {
+      await import("codemirror/addon/runmode/runmode");
+
+      renderReadOnlyEditor(CodeMirror, container.current, {
+        content: file.value,
+        mode,
+        preview
+      });
+
+      if (handleLoad) {
+        handleLoad({ container: container.current, file });
+      }
+      return;
+    }
+    await import("codemirror/addon/edit/closebrackets");
+
+    const { indentSize, indentWithSpaces, wrapLines } = { ...getSettings(), ...settings };
     const cm = CodeMirror(container.current, {
       value: file.value,
       mode,
-      readOnly,
-      // Negative value hides cursor
-      cursorBlinkRate: readOnly ? -1 : CodeMirror.defaults.cursorBlinkRate,
       lineNumbers: true,
       showCursorWhenSelecting: true,
-      lineWrapping: readOnly ? false : wrapLines,
+      lineWrapping: wrapLines,
       indentUnit: indentSize,
       tabSize: indentSize,
       autoCloseBrackets: true,
       indentWithTabs: !indentWithSpaces,
-      viewportMargin: readOnly ? CodeMirror.defaults.viewportMargin : Infinity,
       scrollbarStyle: preview ? "null" : "native",
       theme: "dracula",
-      disableInput: readOnly,
       inputStyle: "textarea",
       extraKeys: {
         Tab: cm => {
@@ -52,18 +62,7 @@ export default function Editor({ file, settings, height, readOnly, preview, hand
       }
     });
     resetEditorIndentation(cm);
-
-    if (readOnly) {
-      cm.getInputField().setAttribute("tabindex", "-1");
-    }
-
-    if (handleLoad) {
-      handleLoad({
-        cm,
-        file,
-        height: cm.getWrapperElement().offsetHeight
-      });
-    }
+    handleLoad({ cm, file });
   }
 
   return <div ref={container} className="cm-container" style={{height: height || "auto"}}></div>;

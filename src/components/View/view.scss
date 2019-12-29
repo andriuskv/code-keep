@@ -2,7 +2,10 @@
 
 .view .CodeMirror {
   min-height: auto;
-  padding-bottom: var(--space-sm);
+
+  ::selection {
+    background-color: var(--selection-color);
+  }
 }
 
 .view-header {

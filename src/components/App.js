@@ -9,6 +9,7 @@ const Snippets = lazy(() => import("./Snippets"));
 const RecentSnippets = lazy(() => import("./RecentSnippets"));
 const View = lazy(() => import("./View"));
 const Form = lazy(() => import("./Form"));
+const Search = lazy(() => import("./Search"));
 const UserForms = lazy(() => import("./UserForms"));
 const UserSettings = lazy(() => import("./UserSettings"));
 const NoMatch = lazy(() => import("./NoMatch"));
@@ -30,6 +31,7 @@ export default function App() {
               <Route path="/users/:username" exact component={Snippets} key="remote" />
               <Route path="/users/:username/:snippetId" exact component={View} key="remote" />
               <Route path="/users/:username/:snippetId/edit" component={Form} key="remote" />
+              <Route path="/search" component={Search}/>
               <Route path="/login" component={UserForms} key="login" />
               <Route path="/register" component={UserForms} key="register" />
               <Route path="/settings" component={UserSettings} />

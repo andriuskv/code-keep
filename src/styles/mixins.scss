@@ -11,6 +11,9 @@
 @mixin breakpoint-small {
     @media (max-width: 680px) { @content; }
 }
+@mixin header-breakpoint {
+    @media (max-width: 720px) { @content; }
+}
 
 @mixin home-breakpoint {
     @media (max-width: 500px) { @content; }

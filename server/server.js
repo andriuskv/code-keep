@@ -30,6 +30,7 @@ app.use(getSession());
 
 app.use("/users", require("./routes/users"));
 app.use("/snippets", require("./routes/snippets"));
+app.use("/search", require("./routes/search"));
 
 app.use(express.static(path.join(__dirname, "build")));
 

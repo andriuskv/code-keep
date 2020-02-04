@@ -24,7 +24,7 @@
   &:not(:first-of-type) {
     margin-left: var(--space-xl);
 
-    @include breakpoint-smaller {
+    @include header-breakpoint {
       margin-left: var(--space-md);
     }
   }
@@ -36,7 +36,7 @@
   font-size: var(--text-lg);
   color: var(--color-primary);
 
-  @include breakpoint-smaller {
+  @include header-breakpoint {
     img {
       height: 16px;
     }
@@ -57,8 +57,25 @@
     --text-color: var(--color-white);
   }
 
-  @include breakpoint-smaller {
+  @include header-breakpoint {
     padding: var(--space-md) var(--space-lg);
+  }
+}
+
+.header-search-item {
+  display: none;
+
+  @include header-breakpoint {
+    display: flex;
+  }
+}
+
+.header-search-link {
+  display: flex;
+  align-items: center;
+
+  svg {
+    margin-right: 4px;
   }
 }
 
@@ -66,21 +83,24 @@
   display: none;
   padding: var(--space-md);
 
-  @include breakpoint-small {
+  @include header-breakpoint {
     display: block;
   }
 }
 
 .header-nav-dropdown {
+  display: flex;
+  align-items: center;
+
   .header-link:not(:first-of-type) {
     margin-left: var(--space-xl);
 
-    @include breakpoint-small {
+    @include header-breakpoint {
       margin-left: 0;
     }
   }
 
-  @include breakpoint-small {
+  @include header-breakpoint {
     position: absolute;
     right: 0;
     display: none;
@@ -97,6 +117,7 @@
     }
 
     .header-link {
+      width: 100%;
       text-align: center;
 
       &:not(:last-of-type) {

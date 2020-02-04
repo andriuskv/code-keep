@@ -132,7 +132,7 @@ export default function RecentSnippets() {
           <li className="recent-snippet" key={snippet.id}>
             <Link to={`/users/${snippet.user.usernameLowerCase}`} className="recent-snippet-user-link">
               <UserProfileImage src={snippet.user.profileImage.path} size="24px"/>
-              <h2 className="recent-snippet-username">{snippet.user.username}</h2>
+              <div className="recent-snippet-username">{snippet.user.username}</div>
             </Link>
             <div className="recent-snippet-top">
               <SnippetInfo snippet={snippet}/>

@@ -1,0 +1,24 @@
+@import "../../../styles/mixins.scss";
+
+.header-search-input-container {
+  position: relative;
+
+  @include header-breakpoint {
+    display: none;
+  }
+}
+
+.header-search-input-icon {
+  position: absolute;
+  top: 50%;
+  left: var(--space-lg);
+  color: var(--color-grey-lighter);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.header-search-input {
+  max-width: 160px;
+  padding-left: 40px;
+}
+

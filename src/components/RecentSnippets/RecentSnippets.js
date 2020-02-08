@@ -9,10 +9,8 @@ import { favoriteSnippet } from "../../services/userService";
 import { fetchServerRecentSnippets, createServerSnippet } from "../../services/snippetServerService";
 import Notification from "../Notification";
 import NoMatch from "../NoMatch";
-import SnippetInfo from "../SnippetInfo";
-import Editor from "../Editor";
-import UserProfileImage from "../UserProfileImage";
 import SnippetDropdown from "./SnippetDropdown";
+import SnippetPreview from "../SnippetPreview";
 
 export default function RecentSnippets() {
   const location = useLocation();
@@ -129,24 +127,13 @@ export default function RecentSnippets() {
       )}
       <ul className="recent-snippet-items">
         {state.snippets && state.snippets.map(snippet => (
-          <li className="recent-snippet" key={snippet.id}>
-            <Link to={`/users/${snippet.user.usernameLowerCase}`} className="recent-snippet-user-link">
-              <UserProfileImage src={snippet.user.profileImage.path} size="24px"/>
-              <div className="recent-snippet-username">{snippet.user.username}</div>
-            </Link>
-            <div className="recent-snippet-top">
-              <SnippetInfo snippet={snippet}/>
-              {!user.username || user._id === snippet.user._id ? null : (
-                <SnippetDropdown snippet={snippet}
-                  toggleSnippetFavoriteStatus={toggleSnippetFavoriteStatus}
-                  forkSnippet={forkSnippet}/>
-              )}
-            </div>
-            <Link to={`/users/${snippet.user.usernameLowerCase}/${snippet.id}`} className="recent-snippet-link">
-              <Editor file={snippet.files[0]} settings={snippet.settings}
-                height={snippet.files[0].height} readOnly preview />
-            </Link>
-          </li>
+          <SnippetPreview key={snippet.id} snippet={snippet} to={`/users/${snippet.user.usernameLowerCase}/${snippet.id}`}>
+            {!user.username || user._id === snippet.user._id ? null : (
+              <SnippetDropdown snippet={snippet}
+                toggleSnippetFavoriteStatus={toggleSnippetFavoriteStatus}
+                forkSnippet={forkSnippet}/>
+            )}
+          </SnippetPreview>
         ))}
       </ul>
       <div className="recent-snippets-footer">

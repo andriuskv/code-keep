@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, Fragment } from "react";
-import { Link, useLocation, useHistory } from "react-router-dom";
+import { useLocation, useHistory } from "react-router-dom";
 import uuidv4 from "uuid/v4";
 import "./search.scss";
 import { setDocumentTitle } from "../../utils";
@@ -12,10 +12,9 @@ import PageSpinner from "../PageSpinner";
 import ButtonSpinner from "../ButtonSpinner";
 import Icon from "../Icon";
 import Notification from "../Notification";
-import UserProfileImage from "../UserProfileImage";
-import SnippetInfo from "../SnippetInfo";
+import SnippetPreview from "../SnippetPreview";
+import SnippetUserLink from "../SnippetUserLink";
 import SearchDropdown from "./SearchDropdown";
-import Editor from "../Editor";
 
 export default function Search() {
   const location = useLocation();
@@ -157,28 +156,15 @@ export default function Search() {
       }
       return (
         <ul>
-          {tab.snippets.map((snippet, index) => {
-            return (
-              <li key={index} className="search-item search-snippet">
-                <Link to={`/users/${snippet.user.usernameLowerCase}`} className="search-item-user-link search-snippet-user-link">
-                  <UserProfileImage src={snippet.user.profileImage.path} size="24px"/>
-                  <div className="search-item-username">{snippet.user.username}</div>
-                </Link>
-                <div className="search-snippet-top">
-                  <SnippetInfo snippet={snippet}/>
-                  {!user.username || user._id === snippet.user._id ? null : (
-                    <SearchDropdown snippet={snippet}
-                      toggleSnippetFavoriteStatus={toggleSnippetFavoriteStatus}
-                      forkSnippet={forkSnippet}/>
-                  )}
-                </div>
-                <Link to={`/users/${snippet.user.usernameLowerCase}/${snippet.id}`} className="search-snippet-link">
-                  <Editor file={snippet.files[0]} settings={snippet.settings}
-                    height={snippet.files[0].height} readOnly preview />
-                </Link>
-              </li>
-            );
-          })}
+          {tab.snippets.map((snippet) => (
+            <SnippetPreview key={snippet.id} snippet={snippet} to={`/users/${snippet.user.usernameLowerCase}/${snippet.id}`}>
+              {!user.username || user._id === snippet.user._id ? null : (
+                <SearchDropdown snippet={snippet}
+                  toggleSnippetFavoriteStatus={toggleSnippetFavoriteStatus}
+                  forkSnippet={forkSnippet}/>
+              )}
+            </SnippetPreview>
+          ))}
         </ul>
       );
     }
@@ -190,11 +176,8 @@ export default function Search() {
       <ul>
         {tab.users.map((user, index) => {
           return (
-            <li key={index} className="search-item">
-              <Link to={`/users/${user.usernameLowerCase}`} className="search-item-user-link">
-                <UserProfileImage src={user.profileImage.path}/>
-                <div className="search-item-username search-user-username">{user.username}</div>
-              </Link>
+            <li key={index} className="search-user">
+              <SnippetUserLink user={user} to={`/users/${user.usernameLowerCase}`}/>
             </li>
           );
         })}

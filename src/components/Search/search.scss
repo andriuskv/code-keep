@@ -90,57 +90,20 @@
   }
 }
 
-.search-item {
+.search-user {
+  display: flex;
   padding: var(--space-xl);
   margin-bottom: var(--space-xl);
   border-radius: 4px;
   background-color: var(--color-grey-dark);
   box-shadow: 0 1px 4px 0 var(--color-black-10);
-}
 
-.search-item-user-link {
-  display: inline-flex;
-  align-items: center;
-
-  &:hover, &.focus-visible {
-    text-decoration: underline;
-  }
-}
-
-.search-item-username {
-  margin-left: var(--space-md);
-  font-size: var(--text-sm);
-  font-weight: 500;
-}
-
-.search-snippet .CodeMirror {
-  min-height: auto;
-}
-
-.search-snippet-user-link {
-  margin-bottom: var(--space-xl);
-}
-
-.search-snippet-top {
-  display: flex;
-  margin-bottom: var(--space-xl);
-}
-
-.search-snippet-link {
-  display: block;
-  min-height: 29px;
-  padding-right: var(--space-sm);
-  border-radius: 4px;
-  box-shadow: 0 0 0 1px var(--color-grey-light);
-
-  &:hover, &.focus-visible {
-    --editor-background-color: var(--color-grey-light);
-
-    background-color: var(--color-grey-light);
+  .snippet-user-link {
+    margin-bottom: 0;
   }
 
-  .cm-container {
-    pointer-events: none;
+  .snippet-user-username {
+    font-size: var(--text-md);
   }
 }
 
@@ -172,8 +135,4 @@
   &:not(:last-of-type) {
     margin-bottom: var(--space-md);
   }
-}
-
-.search-user-username {
-  font-size: var(--text-md);
 }

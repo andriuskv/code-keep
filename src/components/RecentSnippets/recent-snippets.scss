@@ -18,57 +18,6 @@
   flex-grow: 1;
 }
 
-.recent-snippet {
-  padding: var(--space-xl);
-  margin-bottom: var(--space-xl);
-  border-radius: 4px;
-  background-color: var(--color-grey-dark);
-  box-shadow: 0 1px 4px 0 var(--color-black-10);
-
-  .CodeMirror {
-    min-height: auto;
-  }
-}
-
-.recent-snippet-user-link {
-  display: inline-flex;
-  align-items: center;
-  margin-bottom: var(--space-xl);
-
-  &:hover, &.focus-visible {
-    text-decoration: underline;
-  }
-}
-
-.recent-snippet-username {
-  margin-left: var(--space-md);
-  font-size: var(--text-sm);
-  font-weight: 500;
-}
-
-.recent-snippet-top {
-  display: flex;
-  margin-bottom: var(--space-xl);
-}
-
-.recent-snippet-link {
-  display: block;
-  min-height: 29px;
-  padding-right: var(--space-sm);
-  border-radius: 4px;
-  box-shadow: 0 0 0 1px var(--color-grey-light);
-
-  &:hover, &.focus-visible {
-    --editor-background-color: var(--color-grey-light);
-
-    background-color: var(--color-grey-light);
-  }
-
-  .cm-container {
-    pointer-events: none;
-  }
-}
-
 .recent-snippets-footer {
   display: flex;
   justify-content: center;

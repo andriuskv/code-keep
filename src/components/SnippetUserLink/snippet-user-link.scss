@@ -1,0 +1,15 @@
+.snippet-user-link {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: var(--space-xl);
+
+  &:hover, &.focus-visible {
+    text-decoration: underline;
+  }
+}
+
+.snippet-user-username {
+  margin-left: var(--space-md);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}

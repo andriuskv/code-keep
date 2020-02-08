@@ -19,7 +19,7 @@
     "focus-visible": "^5.0.2",
     "github-markdown-css": "^3.0.1",
     "idb-keyval": "^3.2.0",
-    "interweave": "^12.2.0",
+    "interweave": "^12.2.1",
     "jimp": "^0.9.3",
     "jszip": "^3.2.2",
     "mongoose": "^5.8.11",

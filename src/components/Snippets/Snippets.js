@@ -11,8 +11,7 @@ import { useUser } from "../../context/user-context";
 import Icon from "../Icon";
 import PageSpinner from "../PageSpinner";
 import Notification from "../Notification";
-import SnippetInfo from "../SnippetInfo";
-import Editor from "../Editor";
+import SnippetPreview from "../SnippetPreview";
 import NoMatch from "../NoMatch";
 import UserProfileImage from "../UserProfileImage";
 import SnippetAuthDropdown from "./SnippetAuthDropdown";
@@ -461,26 +460,20 @@ export default function Snippets(props) {
     }
     return (
       <ul>
-        {tabSnippets.map(snippet => (
-          <li className="snippet" key={snippet.id}>
-            <div className="snippet-top">
-              <SnippetInfo snippet={snippet}/>
-              {(snippetUser.isLocal || snippetUser.username === user.username) && snippet.type !== "favorite" ? (
-                <SnippetAuthDropdown user={snippetUser} snippet={snippet}
-                  uploadSnippet={uploadSnippet}
-                  removeSnippet={showSnippetRemoveModal}
-                  toggleSnippetPrivacy={toggleSnippetPrivacy} />
-              ) : (user.username ? (
-                <SnippetDropdown snippet={snippet} authUser={user} snippetUser={snippetUser}
-                  toggleSnippetFavoriteStatus={toggleSnippetFavoriteStatus}
-                  forkSnippet={forkSnippet}/>
-              ) : null)}
-            </div>
-            <Link to={getSnippetLink(snippet)} className="snippet-link">
-              <Editor file={snippet.files[0]} settings={snippet.settings} readOnly preview />
-            </Link>
-          </li>
-        ))}
+        {tabSnippets.map(snippet =>
+          <SnippetPreview key={snippet.id} to={getSnippetLink(snippet)} snippet={snippet}>
+            {(snippetUser.isLocal || snippetUser.username === user.username) && snippet.type !== "favorite" ? (
+              <SnippetAuthDropdown user={snippetUser} snippet={snippet}
+                uploadSnippet={uploadSnippet}
+                removeSnippet={showSnippetRemoveModal}
+                toggleSnippetPrivacy={toggleSnippetPrivacy} />
+            ) : (user.username ? (
+              <SnippetDropdown snippet={snippet} authUser={user} snippetUser={snippetUser}
+                toggleSnippetFavoriteStatus={toggleSnippetFavoriteStatus}
+                forkSnippet={forkSnippet}/>
+            ) : null)}
+          </SnippetPreview>
+        )}
       </ul>
     );
   }

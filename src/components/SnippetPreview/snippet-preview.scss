@@ -1,13 +1,10 @@
 .snippet-preview {
   padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
   border-radius: 4px;
   background-color: var(--color-grey-dark);
   box-shadow: 0 1px 4px 0 var(--color-black-10);
   transition: 0.2s opacity, 0.2s visibility;
-
-  &:not(:last-of-type) {
-    margin-bottom: var(--space-xl);
-  }
 
   .CodeMirror {
     min-height: auto;

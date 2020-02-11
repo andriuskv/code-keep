@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, Fragment } from "react";
+import { Link, useHistory } from "react-router-dom";
 import "./snippets.scss";
-import { GENERIC_ERROR_MESSAGE, SESSION_EXPIRATION_MESSAGE } from "../../messages";
+import { GENERIC_ERROR_MESSAGE, SESSION_EXPIRATION_MESSAGE, NON_EXISTENT_PAGE_MESSAGE } from "../../messages";
 import { setDocumentTitle, getRandomString } from "../../utils";
 import { fetchUser, favoriteSnippet } from "../../services/userService";
 import { fetchIDBSnippets } from "../../services/snippetIDBService";
@@ -18,18 +18,36 @@ import SnippetAuthDropdown from "./SnippetAuthDropdown";
 import SnippetDropdown from "./SnippetDropdown";
 import SnippetRemoveModal from "./SnippetRemoveModal";
 
-export default function Snippets(props) {
+export default function Snippets({ match }) {
+  const history = useHistory();
   const [state, setState] = useState({
     snippets: [],
     loading: true,
     user: null
   });
   const user = useUser();
+  const { location } = history;
+  const snippetsPerPage = 10;
 
   useEffect(() => {
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, props.match.url]);
+  }, [user, location.pathname]);
+
+  useEffect(() => {
+    if (location.pathname === "/snippets") {
+      if (state.snippets.length) {
+        showSnippets(state, "");
+      }
+      return;
+    }
+
+    if (state.user?.usernameLowerCase === match.params.username.toLowerCase()) {
+      setSnippetState(state);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search]);
+  // }, [location.pathname + location.search]);
 
   useEffect(() => {
     if (state.notification && window.scrollY >= 100) {
@@ -37,18 +55,19 @@ export default function Snippets(props) {
     }
   }, [state.notification]);
 
-  function initSnippetState(state) {
-    if (props.location.state) {
-      const { type } = props.location.state;
-      state.tabSnippets = state.snippets.filter(snippet => snippet.type === type);
-      state.visibleTabType = type;
+  function setSnippetState(state) {
+    const type = new URLSearchParams(location.search).get("type") || "";
+
+    if (state.user?.usernameLowerCase !== user.usernameLowerCase) {
+      const allowedTypes = ["all", "forked", "favorite"];
+
+      if (type && !allowedTypes.includes(type)) {
+        setState({ ...state, message: NON_EXISTENT_PAGE_MESSAGE });
+        return;
+      }
     }
-    else {
-      state.tabSnippets = state.snippets;
-      state.visibleTabType = "";
-    }
-    state.tabs = updateSnippetTypeCount(state.snippets);
-    setState(state);
+    delete state.message;
+    showSnippets(state, type);
   }
 
   function updateSnippetTypeCount(snippets) {
@@ -111,22 +130,22 @@ export default function Snippets(props) {
   }
 
   async function init() {
-    const { username } = props.match.params;
+    const { username } = match.params;
 
     if (user.status === "logged-out") {
       user.resetUser();
       return;
     }
 
-    if (props.match.url === "/snippets") {
+    if (location.pathname === "/snippets") {
       if (user.username) {
-        props.history.replace({
+        history.replace({
           pathname: `/users/${user.usernameLowerCase}`,
-          state: { type: "local" }
+          search: "?type=local"
         });
         return;
       }
-      initSnippetState({
+      setSnippetState({
         snippets: await fetchIDBSnippets(),
         user: { isLocal: true }
       });
@@ -153,7 +172,7 @@ export default function Snippets(props) {
       if (data.message) {
         newState.notification = { value: data.message };
       }
-      initSnippetState(newState);
+      setSnippetState(newState);
       setDocumentTitle(`${user.username} Snippets`);
     } catch (e) {
       console.log(e);
@@ -186,7 +205,7 @@ export default function Snippets(props) {
           if (data.message) {
             newState.notification = { value: data.message };
           }
-          initSnippetState(newState);
+          setSnippetState(newState);
           setDocumentTitle(`${user.username} Snippets`);
         }
       }
@@ -279,7 +298,7 @@ export default function Snippets(props) {
     });
 
     if (data.code === 201) {
-      props.history.push({
+      history.push({
         pathname:`/users/${user.usernameLowerCase}/${data.id ? data.id : id}`
       });
       return;
@@ -305,9 +324,9 @@ export default function Snippets(props) {
     });
 
     if (data.code === 201) {
-      props.history.push({
+      history.push({
         pathname: `/users/${user.usernameLowerCase}`,
-        state: { type: "favorite" }
+        search: "?type=favorite"
       });
       return;
     }
@@ -377,30 +396,72 @@ export default function Snippets(props) {
     return `/users/${state.user.usernameLowerCase}/${snippet.id}${snippet.type === "gist" ? "?type=gist": ""}`;
   }
 
-  function showSnippets(type) {
-    if (type === state.visibleTabType) {
-      return;
-    }
-    let snippets = [];
-
-    if (!type) {
-      snippets = state.snippets;
+  function getTypeSnippets(snippets, type) {
+    if (!type || type === "all") {
+      return snippets;
     }
     else if (type === "remote") {
-      snippets = state.snippets.filter(snippet => (
+      return snippets.filter(snippet => (
         snippet.type === type ||
         snippet.type === "private" ||
         snippet.type === "forked"
       ));
     }
     else {
-      snippets = state.snippets.filter(snippet => snippet.type === type);
+      return snippets.filter(snippet => snippet.type === type);
+    }
+  }
+
+  function showSnippets(state, type) {
+    const snippets = getTypeSnippets(state.snippets, type);
+    const tabs = state.tabs || updateSnippetTypeCount(state.snippets);
+    const page = parseInt(new URLSearchParams(location.search).get("page"), 10) || 1;
+    const offset = (page - 1) * snippetsPerPage;
+
+    if (offset > snippets.length || (type && !tabs[type])) {
+      setState({ ...state, message: NON_EXISTENT_PAGE_MESSAGE });
+      return;
+    }
+
+    if (type === state.visibleTabType && page !== state.page) {
+      window.scrollTo(0, 0);
     }
     setState({
       ...state,
-      visibleTabType: type,
-      tabSnippets: snippets
+      tabs,
+      visibleTabType: type === "all" ? "" : type,
+      tabSnippets: snippets,
+      pageSnippets: snippets.slice(offset, offset + snippetsPerPage),
+      hasMorePages: snippets.length > offset + snippetsPerPage,
+      page
     });
+  }
+
+  function changeTab(type) {
+    history.replace({
+      pathname: location.pathname,
+      search: type ? `?type=${type}` : ""
+    });
+  }
+
+  function renderPageLinks() {
+    const pathname = location.pathname;
+    const searchNewer = new URLSearchParams(location.search);
+    const searchOlder = new URLSearchParams(location.search);
+
+    searchNewer.set("page", state.page - 1);
+    searchOlder.set("page", state.page + 1);
+
+    return (
+      <div className="snippets-footer">
+        {state.page > 1 ? (
+          <Link to={`${pathname}?${searchNewer.toString()}`} className="btn">Newer</Link>
+        ) : <button className="btn" disabled>Newer</button>}
+        {state.hasMorePages ? (
+          <Link to={`${pathname}?${searchOlder.toString()}`} className="btn">Older</Link>
+        ) : <button className="btn" disabled>Older</button>}
+      </div>
+    );
   }
 
   function renderHeader() {
@@ -440,7 +501,7 @@ export default function Snippets(props) {
           return (
             <li className="snippet-tab-selection-item" key={index}>
               <button className={`btn snippet-tab-selection-btn${state.visibleTabType === tab.type ? " active" : ""}`}
-                onClick={() => showSnippets(tab.type)}>
+                onClick={() => changeTab(tab.type)}>
                 {tab.iconName && <Icon name={tab.iconName} className="snippet-tab-selection-btn-icon"/>}
                 <span>{tab.name}</span>
                 <span className="snippet-tab-item-count">{tab.count}</span>
@@ -453,28 +514,31 @@ export default function Snippets(props) {
   }
 
   function renderSnippets() {
-    const { user: snippetUser, tabSnippets } = state;
+    const { user: snippetUser, tabSnippets, pageSnippets } = state;
 
     if (!tabSnippets.length) {
       return <p className="snippets-visible-snippet-message">{state.user.isLoggedIn ? "You don't" : "This user doesn't"} have any {state.visibleTabType} snippets.</p>;
     }
     return (
-      <ul>
-        {tabSnippets.map(snippet =>
-          <SnippetPreview key={snippet.id} to={getSnippetLink(snippet)} snippet={snippet}>
-            {(snippetUser.isLocal || snippetUser.username === user.username) && snippet.type !== "favorite" ? (
-              <SnippetAuthDropdown user={snippetUser} snippet={snippet}
-                uploadSnippet={uploadSnippet}
-                removeSnippet={showSnippetRemoveModal}
-                toggleSnippetPrivacy={toggleSnippetPrivacy} />
-            ) : (user.username ? (
-              <SnippetDropdown snippet={snippet} authUser={user} snippetUser={snippetUser}
-                toggleSnippetFavoriteStatus={toggleSnippetFavoriteStatus}
-                forkSnippet={forkSnippet}/>
-            ) : null)}
-          </SnippetPreview>
-        )}
-      </ul>
+      <Fragment>
+        <ul>
+          {pageSnippets.map(snippet =>
+            <SnippetPreview key={snippet.id} to={getSnippetLink(snippet)} snippet={snippet}>
+              {(snippetUser.isLocal || snippetUser.username === user.username) && snippet.type !== "favorite" ? (
+                <SnippetAuthDropdown user={snippetUser} snippet={snippet}
+                  uploadSnippet={uploadSnippet}
+                  removeSnippet={showSnippetRemoveModal}
+                  toggleSnippetPrivacy={toggleSnippetPrivacy} />
+              ) : (user.username ? (
+                <SnippetDropdown snippet={snippet} authUser={user} snippetUser={snippetUser}
+                  toggleSnippetFavoriteStatus={toggleSnippetFavoriteStatus}
+                  forkSnippet={forkSnippet}/>
+              ) : null)}
+            </SnippetPreview>
+          )}
+        </ul>
+        {renderPageLinks()}
+      </Fragment>
     );
   }
 

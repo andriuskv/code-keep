@@ -91,6 +91,16 @@
   transition: 0.2s background-color;
 }
 
+.snippets-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+
+  .btn:first-of-type {
+    margin-right: var(--space-md);
+  }
+}
+
 .snippets-visible-snippet-message {
   display: flex;
   justify-content: center;

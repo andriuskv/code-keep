@@ -32,6 +32,7 @@ export default function RecentSnippets() {
       if (data.snippets) {
         setDocumentTitle("Most Recent Snippets");
         setState({ ...data, page: parseInt(page, 10) });
+        window.scrollTo(0, 0);
       }
       else if (data.code === 404) {
         setState({ pageNotification: "This page doesn't exists." });
@@ -68,7 +69,7 @@ export default function RecentSnippets() {
     if (data.code === 201) {
       history.push({
         pathname: `/users/${user.usernameLowerCase}`,
-        state: { type: "forked" }
+        search: "?type=fork"
       });
       return;
     }
@@ -95,7 +96,7 @@ export default function RecentSnippets() {
     if (data.code === 201 || data.code === 204) {
       history.push({
         pathname: `/users/${user.usernameLowerCase}`,
-        state: { type: "favorite" }
+        search: "?type=favorite"
       });
       return;
     }

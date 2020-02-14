@@ -7,17 +7,14 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    const page = req.query.page ? parseInt(req.query.page, 10) - 1 : 0;
-
-    if (Number.isNaN(page) || page < 0) {
-      return res.sendStatus(404);
-    }
+    let page = parseInt(req.query.page, 10);
+    page = Number.isNaN(page) || page < 0 ? 0 : page - 1;
     const snippetsPerPage = 10;
     const offset = page * snippetsPerPage;
     const snippets = await Snippet.find({ type: "remote" });
     const endIndex = snippets.length - offset;
 
-    if (endIndex < 0) {
+    if (endIndex <= 0) {
       return res.sendStatus(404);
     }
     const startIndex = endIndex - snippetsPerPage;

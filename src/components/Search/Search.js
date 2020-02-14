@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, Fragment } from "react";
-import { useLocation, useHistory } from "react-router-dom";
+import { useLocation, useHistory, Link } from "react-router-dom";
 import uuidv4 from "uuid/v4";
 import "./search.scss";
 import { setDocumentTitle } from "../../utils";
-import { GENERIC_ERROR_MESSAGE, SESSION_EXPIRATION_MESSAGE } from "../../messages";
+import { GENERIC_ERROR_MESSAGE, SESSION_EXPIRATION_MESSAGE, NON_EXISTENT_PAGE_MESSAGE } from "../../messages";
 import { useUser } from "../../context/user-context";
 import { fetchQuery } from "../../services/serverService";
 import { favoriteSnippet } from "../../services/userService";
@@ -11,6 +11,7 @@ import { createServerSnippet } from "../../services/snippetServerService";
 import PageSpinner from "../PageSpinner";
 import ButtonSpinner from "../ButtonSpinner";
 import Icon from "../Icon";
+import NoMatch from "../NoMatch";
 import Notification from "../Notification";
 import SnippetPreview from "../SnippetPreview";
 import SnippetUserLink from "../SnippetUserLink";
@@ -21,74 +22,111 @@ export default function Search() {
   const history = useHistory();
   const user = useUser();
   const inputRef = useRef(null);
-  const [state, setState] = useState(new URLSearchParams(location.search).get("q") || "");
+  const [state, setState] = useState({
+    query: new URLSearchParams(location.search).get("q") || "",
+    page: 1,
+    loading: true,
+    searching: false
+  });
   const [tab, setTab] = useState(null);
-  const [notification, setNotification] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [searhing, setSearhing] = useState(false);
 
   useEffect(() => {
-    if (history.action === "REPLACE") {
-      return;
-    }
-    const query = new URLSearchParams(location.search).get("q") || "";
+    const searchParams = new URLSearchParams(location.search);
+    const tabName = searchParams.get("tab") || "snippets";
+    const query = searchParams.get("q") || "";
+    const page = searchParams.get("page") || 1;
+    delete state.message;
 
     if (query) {
-      inputRef.current.value = query;
-      search(query).then(() => setLoading(false));
+      if (inputRef.current) {
+        inputRef.current.value = query;
+      }
       setDocumentTitle(`Search - ${query}`);
+      search(state, { query, tabName, page });
     }
     else {
       if (tab) {
         setTab(null);
       }
       inputRef.current.value = "";
-      setLoading(false);
+      setState({ ...state, loading: false });
       setDocumentTitle("Search");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
 
   function hideNotification() {
-    setNotification("");
+    delete state.notification;
+    setState({ ...state });
   }
 
   function handleSubmit(event) {
     const query = event.target.elements.query.value.trim();
 
     event.preventDefault();
-    setSearhing(true);
 
     if (query) {
-      setState(query);
-      search(query).then(() => setSearhing(false));
-      setDocumentTitle(`Search - ${query}`);
+      const search = new URLSearchParams(location.search);
 
+      setState({ ...state, searching: true });
+      search.set("q", query);
       history.replace({
-        pathname: "/search",
-        search: `?q=${query}`
+        pathname: location.pathname,
+        search: search.toString()
       });
     }
   }
 
-  async function search(query) {
-    const data = await fetchQuery(query);
+  async function search(state, { query, tabName, page }) {
+    const newState = {
+      ...state,
+      query,
+      page: parseInt(page, 10),
+      searching: false,
+      loading: false
+    };
 
-    if (data.code === 200) {
-      if (tab) {
-        setTab({ ...tab, snippets: data.snippets, users: data.users });
+    try {
+      const data = await fetchQuery(query, { tabName, page });
+
+      if (data.code === 200) {
+        setTab({
+          name: tabName,
+          items: data.items,
+          itemCounts: data.itemCounts,
+          hasMorePages: data.hasMorePages
+        });
+      }
+      else if (data.code === 404) {
+        newState.message = NON_EXISTENT_PAGE_MESSAGE;
       }
       else {
-        setTab({ name: "snippets", snippets: data.snippets, users: data.users });
+        newState.notification = GENERIC_ERROR_MESSAGE;
       }
-    }
-    else {
-      setNotification(GENERIC_ERROR_MESSAGE);
+
+      if (state.page !== newState.page) {
+        window.scrollTo(0, 0);
+      }
+      setState(newState);
+    } catch (e) {
+      console.log(e);
+      newState.notification = GENERIC_ERROR_MESSAGE;
+      setState(newState);
     }
   }
 
   function changeTab(tabName) {
-    setTab({ ...tab, name: tabName });
+    if (tab.name === tabName) {
+      return;
+    }
+    const search = new URLSearchParams(location.search);
+
+    search.delete("page");
+    search.set("tab", tabName);
+    history.replace({
+      pathname: location.pathname,
+      search: search.toString()
+    });
   }
 
   async function forkSnippet(snippet) {
@@ -114,15 +152,15 @@ export default function Search() {
     if (data.code === 201) {
       history.push({
         pathname: `/users/${user.usernameLowerCase}`,
-        state: { type: "forked" }
+        search: "?type=fork"
       });
       return;
     }
     else if (data.code === 401) {
-      setNotification(SESSION_EXPIRATION_MESSAGE);
+      setState({ ...state, notification: data.message || SESSION_EXPIRATION_MESSAGE });
     }
     else {
-      setNotification(GENERIC_ERROR_MESSAGE);
+      setState({ ...state, notification: GENERIC_ERROR_MESSAGE });
     }
   }
 
@@ -140,23 +178,23 @@ export default function Search() {
     if (data.code === 201 || data.code === 204) {
       history.push({
         pathname: `/users/${user.usernameLowerCase}`,
-        state: { type: "favorite" }
+        search: "?type=favorite"
       });
       return;
     }
     else {
-      setNotification(data.message || GENERIC_ERROR_MESSAGE);
+      setState({ ...state, notification: data.message || GENERIC_ERROR_MESSAGE });
     }
   }
 
   function renderTabContent() {
     if (tab.name === "snippets") {
-      if (!tab.snippets.length) {
-        return <p className="search-not-found-message">Couldn't find any snippets with the title of <strong>{state}</strong>.</p>;
+      if (!tab.itemCounts.snippets) {
+        return <p className="search-not-found-message">Couldn't find any snippets with the title of <strong>{state.query}</strong>.</p>;
       }
       return (
         <ul>
-          {tab.snippets.map((snippet) => (
+          {tab.items.map((snippet) => (
             <SnippetPreview key={snippet.id} snippet={snippet} to={`/users/${snippet.user.usernameLowerCase}/${snippet.id}`}>
               {!user.username || user._id === snippet.user._id ? null : (
                 <SearchDropdown snippet={snippet}
@@ -169,12 +207,12 @@ export default function Search() {
       );
     }
 
-    if (!tab.users.length) {
-      return <p className="search-not-found-message">Couldn't find any users with the username of <strong>{state}</strong>.</p>;
+    if (!tab.itemCounts.users) {
+      return <p className="search-not-found-message">Couldn't find any users with the username of <strong>{state.query}</strong>.</p>;
     }
     return (
       <ul>
-        {tab.users.map((user, index) => {
+        {tab.items.map((user, index) => {
           return (
             <li key={index} className="search-user">
               <SnippetUserLink user={user} to={`/users/${user.usernameLowerCase}`}/>
@@ -185,6 +223,29 @@ export default function Search() {
     );
   }
 
+  function renderPageLinks() {
+    const pathname = location.pathname;
+    const searchNewer = new URLSearchParams(location.search);
+    const searchOlder = new URLSearchParams(location.search);
+
+    searchNewer.set("page", state.page - 1);
+    searchOlder.set("page", state.page + 1);
+
+    return (
+      <div className="search-footer">
+        {state.page > 1 ? (
+          <Link to={`${pathname}?${searchNewer.toString()}`} className="btn">Newer</Link>
+        ) : <button className="btn" disabled>Newer</button>}
+        {tab.hasMorePages ? (
+          <Link to={`${pathname}?${searchOlder.toString()}`} className="btn">Older</Link>
+        ) : <button className="btn" disabled>Older</button>}
+      </div>
+    );
+  }
+
+  if (state.message) {
+    return <NoMatch message={state.message}/>;
+  }
   return (
     <div className="container search">
       <h2 className="search-title">Search for snippets or users</h2>
@@ -192,19 +253,19 @@ export default function Search() {
         <div className="search-form-input-container">
           <Icon name="search" className="search-form-input-icon"/>
           <input type="text" className="input search-form-input" name="query"
-            placeholder="Search" defaultValue={state} ref={inputRef} required/>
+            placeholder="Search" defaultValue={state.query} ref={inputRef} required/>
         </div>
-        <button className="btn search-form-btn" disabled={searhing}>
+        <button className="btn search-form-btn" disabled={state.searhing}>
           <span>Search</span>
-          {searhing && <ButtonSpinner/>}
+          {state.searhing && <ButtonSpinner/>}
         </button>
       </form>
-      {notification && (
+      {state.notification && (
         <Notification className="search-notification"
-          value={notification}
+          value={state.notification}
           dismiss={hideNotification}/>
       )}
-      {loading && <PageSpinner/>}
+      {state.loading && <PageSpinner/>}
       {tab && (
         <Fragment>
           <ul className="search-tabs">
@@ -213,7 +274,7 @@ export default function Search() {
                 className={`btn search-tabs-item-btn${tab.name === "snippets" ? " active" : ""}`}
                 onClick={() => changeTab("snippets")}>
                 <span>Snippets</span>
-                <span className="search-tabs-item-count">{tab.snippets.length}</span>
+                <span className="search-tabs-item-count">{tab.itemCounts.snippets}</span>
               </button>
             </li>
             <li className="search-tabs-item">
@@ -221,11 +282,12 @@ export default function Search() {
                 className={`btn search-tabs-item-btn${tab.name === "users" ? " active" : ""}`}
                 onClick={() => changeTab("users")}>
                 <span>Users</span>
-                <span className="search-tabs-item-count">{tab.users.length}</span>
+                <span className="search-tabs-item-count">{tab.itemCounts.users}</span>
               </button>
             </li>
           </ul>
           {renderTabContent()}
+          {renderPageLinks()}
         </Fragment>
       )}
     </div>

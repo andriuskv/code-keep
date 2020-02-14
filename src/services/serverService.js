@@ -1,5 +1,5 @@
-function fetchQuery(query) {
-  return fetch(`/search?q=${query}`).then(getResponse);
+function fetchQuery(query, { tabName, page }) {
+  return fetch(`/search?q=${query}&type=${tabName}&page=${page}`).then(getResponse);
 }
 
 async function getResponse(response) {

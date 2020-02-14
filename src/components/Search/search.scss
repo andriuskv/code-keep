@@ -107,6 +107,16 @@
   }
 }
 
+.search-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+
+  .btn:first-of-type {
+    margin-right: var(--space-md);
+  }
+}
+
 .search-snippet-dropdown {
   position: absolute;
   right: 0;

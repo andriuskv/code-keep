@@ -66,14 +66,8 @@ export default function Search() {
     event.preventDefault();
 
     if (query) {
-      const search = new URLSearchParams(location.search);
-
       setState({ ...state, searching: true });
-      search.set("q", query);
-      history.replace({
-        pathname: location.pathname,
-        search: search.toString()
-      });
+      setQueryParam("q", query);
     }
   }
 
@@ -90,6 +84,16 @@ export default function Search() {
       const data = await fetchQuery(query, { tabName, page });
 
       if (data.code === 200) {
+        if (state.searching || state.loading) {
+          if (data.itemCounts.snippets && !data.itemCounts.users && tabName === "users") {
+            setQueryParam("tab", "snippets");
+            return;
+          }
+          else if (data.itemCounts.users && !data.itemCounts.snippets && tabName === "snippets") {
+            setQueryParam("tab", "users");
+            return;
+          }
+        }
         setTab({
           name: tabName,
           items: data.items,
@@ -123,6 +127,15 @@ export default function Search() {
 
     search.delete("page");
     search.set("tab", tabName);
+    history.replace({
+      pathname: location.pathname,
+      search: search.toString()
+    });
+  }
+
+  function setQueryParam(name, value) {
+    const search = new URLSearchParams(location.search);
+    search.set(name, value);
     history.replace({
       pathname: location.pathname,
       search: search.toString()

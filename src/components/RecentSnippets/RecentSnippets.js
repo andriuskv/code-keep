@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useHistory } from "react-router-dom";
-import uuidv4 from "uuid/v4";
+import { v4 as uuidv4 } from "uuid";
 import "./recent-snippets.scss";
 import { GENERIC_ERROR_MESSAGE, SESSION_EXPIRATION_MESSAGE } from "../../messages";
 import { setDocumentTitle } from "../../utils";

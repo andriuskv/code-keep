@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Fragment } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 import "./snippets.scss";
 import { GENERIC_ERROR_MESSAGE, SESSION_EXPIRATION_MESSAGE, NON_EXISTENT_PAGE_MESSAGE } from "../../messages";
 import { setDocumentTitle, getRandomString } from "../../utils";
@@ -18,8 +18,9 @@ import SnippetAuthDropdown from "./SnippetAuthDropdown";
 import SnippetDropdown from "./SnippetDropdown";
 import SnippetRemoveModal from "./SnippetRemoveModal";
 
-export default function Snippets({ match }) {
+export default function Snippets() {
   const history = useHistory();
+  const { username } = useParams();
   const [state, setState] = useState({
     snippets: [],
     loading: true,
@@ -42,12 +43,11 @@ export default function Snippets({ match }) {
       return;
     }
 
-    if (state.user?.usernameLowerCase === match.params.username.toLowerCase()) {
+    if (state.user?.usernameLowerCase === username.toLowerCase()) {
       setSnippetState(state);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
-  // }, [location.pathname + location.search]);
 
   useEffect(() => {
     if (state.notification && window.scrollY >= 100) {
@@ -130,8 +130,6 @@ export default function Snippets({ match }) {
   }
 
   async function init() {
-    const { username } = match.params;
-
     if (user.status === "logged-out") {
       user.resetUser();
       return;
@@ -231,22 +229,37 @@ export default function Snippets({ match }) {
     const { id, type } = state.removeModal;
     const deleted = await deleteSnippet({ snippetId: id, type });
 
-    if (deleted) {
-      state.snippets = state.snippets.filter(snippet => snippet.id !== id);
+    delete state.removeModal;
 
-      if (state.visibleTabType) {
-        state.tabSnippets = state.snippets.filter(snippet => snippet.type === type);
+    if (deleted) {
+      const snippets = state.snippets.filter(snippet => snippet.id !== id);
+      const tabSnippets = getTypeSnippets(snippets, state.visibleTabType);
+      const tabs = updateSnippetTypeCount(snippets);
+      const { page, offset } = getPageOffset();
+
+      if (offset === tabSnippets.length && page > 1) {
+        const search = new URLSearchParams(location.search);
+
+        setState({ ...state, snippets, tabs });
+        search.set("page", page - 1);
+        history.replace({
+          pathname: location.pathname,
+          search: search.toString()
+        });
+        return;
       }
-      else {
-        state.tabSnippets = state.snippets;
-      }
-      state.tabs = updateSnippetTypeCount(state.snippets);
+      setState({
+        ...state,
+        tabs,
+        snippets,
+        tabSnippets,
+        pageSnippets: tabSnippets.slice(offset, offset + snippetsPerPage)
+      });
     }
     else {
       state.notification = { value: "Snippet removal was unsuccessful." };
+      setState({ ...state });
     }
-    delete state.removeModal;
-    setState({ ...state });
   }
 
   async function toggleSnippetPrivacy(snippet) {
@@ -396,6 +409,15 @@ export default function Snippets({ match }) {
     return `/users/${state.user.usernameLowerCase}/${snippet.id}${snippet.type === "gist" ? "?type=gist": ""}`;
   }
 
+  function getPageOffset() {
+    const page = parseInt(new URLSearchParams(location.search).get("page"), 10) || 1;
+
+    return {
+      page,
+      offset: (page - 1) * snippetsPerPage
+    };
+  }
+
   function getTypeSnippets(snippets, type) {
     if (!type || type === "all") {
       return snippets;
@@ -415,10 +437,9 @@ export default function Snippets({ match }) {
   function showSnippets(state, type) {
     const snippets = getTypeSnippets(state.snippets, type);
     const tabs = state.tabs || updateSnippetTypeCount(state.snippets);
-    const page = parseInt(new URLSearchParams(location.search).get("page"), 10) || 1;
-    const offset = (page - 1) * snippetsPerPage;
+    const { page, offset } = getPageOffset();
 
-    if (offset > snippets.length || (type && !tabs[type])) {
+    if (offset >= snippets.length || (type && !tabs[type])) {
       setState({ ...state, message: NON_EXISTENT_PAGE_MESSAGE });
       return;
     }

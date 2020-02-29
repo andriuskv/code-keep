@@ -1,6 +1,6 @@
 const express = require("express");
 const fetch = require("node-fetch");
-const uuidv4 = require("uuid/v4");
+const { v4: uuidv4 } = require("uuid");
 const Snippet = require("../models/Snippet");
 const User = require("../models/User");
 const router = express.Router();

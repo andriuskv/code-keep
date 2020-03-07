@@ -439,7 +439,7 @@ export default function Snippets() {
     const tabs = state.tabs || updateSnippetTypeCount(state.snippets);
     const { page, offset } = getPageOffset();
 
-    if (offset >= snippets.length || (type && !tabs[type])) {
+    if ((snippets.length && offset >= snippets.length) || (type && !tabs[type])) {
       setState({ ...state, message: NON_EXISTENT_PAGE_MESSAGE });
       return;
     }

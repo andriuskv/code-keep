@@ -9,7 +9,7 @@ import { favoriteSnippet } from "../../services/userService";
 import { fetchServerRecentSnippets, createServerSnippet } from "../../services/snippetServerService";
 import Notification from "../Notification";
 import NoMatch from "../NoMatch";
-import SnippetDropdown from "./SnippetDropdown";
+import SnippetDropdown from "../SnippetDropdown";
 import SnippetPreview from "../SnippetPreview";
 
 export default function RecentSnippets() {
@@ -52,10 +52,12 @@ export default function RecentSnippets() {
     }
     const data = await createServerSnippet({
       ...snippet,
-      files: snippet.files.map(file => {
-        file.id = uuidv4();
-        return file;
-      }),
+      files: snippet.files.map(file => ({
+        id: uuidv4(),
+        name: file.name,
+        type: file.type,
+        value: file.value
+      })),
       userId: user._id,
       created: new Date(),
       id: uuidv4(),
@@ -69,7 +71,7 @@ export default function RecentSnippets() {
     if (data.code === 201) {
       history.push({
         pathname: `/users/${user.usernameLowerCase}`,
-        search: "?type=fork"
+        search: "?type=forked"
       });
       return;
     }
@@ -130,7 +132,7 @@ export default function RecentSnippets() {
         {state.snippets && state.snippets.map(snippet => (
           <SnippetPreview key={snippet.id} snippet={snippet} to={`/users/${snippet.user.usernameLowerCase}/${snippet.id}`}>
             {!user.username || user._id === snippet.user._id ? null : (
-              <SnippetDropdown snippet={snippet}
+              <SnippetDropdown snippet={snippet} snippetUser={snippet.user} authUser={user}
                 toggleSnippetFavoriteStatus={toggleSnippetFavoriteStatus}
                 forkSnippet={forkSnippet}/>
             )}

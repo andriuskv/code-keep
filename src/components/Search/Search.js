@@ -15,7 +15,7 @@ import NoMatch from "../NoMatch";
 import Notification from "../Notification";
 import SnippetPreview from "../SnippetPreview";
 import SnippetUserLink from "../SnippetUserLink";
-import SearchDropdown from "./SearchDropdown";
+import SnippetDropdown from "../SnippetDropdown";
 
 export default function Search() {
   const location = useLocation();
@@ -148,10 +148,12 @@ export default function Search() {
     }
     const data = await createServerSnippet({
       ...snippet,
-      files: snippet.files.map(file => {
-        file.id = uuidv4();
-        return file;
-      }),
+      files: snippet.files.map(file => ({
+        id: uuidv4(),
+        name: file.name,
+        type: file.type,
+        value: file.value
+      })),
       userId: user._id,
       created: new Date(),
       id: uuidv4(),
@@ -210,7 +212,7 @@ export default function Search() {
           {tab.items.map((snippet) => (
             <SnippetPreview key={snippet.id} snippet={snippet} to={`/users/${snippet.user.usernameLowerCase}/${snippet.id}`}>
               {!user.username || user._id === snippet.user._id ? null : (
-                <SearchDropdown snippet={snippet}
+                <SnippetDropdown snippet={snippet} snippetUser={snippet.user} authUser={user}
                   toggleSnippetFavoriteStatus={toggleSnippetFavoriteStatus}
                   forkSnippet={forkSnippet}/>
               )}

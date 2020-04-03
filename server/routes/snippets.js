@@ -264,7 +264,12 @@ router.get("/:username/:snippetId/:status?", async (req, res) => {
       }
     }
     else {
-      sendSnippet(res, req.params.snippetId, userId, getPrivate);
+      sendSnippet(res, {
+        snippetId: req.params.snippetId,
+        getPrivate,
+        sessionUser: req.session.user,
+        userId
+      });
     }
   } catch (e) {
     console.log(e);
@@ -272,7 +277,7 @@ router.get("/:username/:snippetId/:status?", async (req, res) => {
   }
 });
 
-async function sendSnippet(res, snippetId, userId, getPrivate) {
+async function sendSnippet(res, { snippetId, getPrivate, sessionUser, userId }) {
   const types = ["remote", "forked"];
 
   if (getPrivate) {
@@ -280,9 +285,24 @@ async function sendSnippet(res, snippetId, userId, getPrivate) {
   }
 
   try {
-    const snippet = await Snippet.findOne({ $and: [{ id: snippetId }, { userId }, { type: { $in: types }}]});
+    const [user, snippet] = await Promise.all([
+      User.findById(sessionUser._id),
+      Snippet.findOne({ $and: [{ id: snippetId }, { userId }, { type: { $in: types }}]})
+    ]);
+    let type = "";
+
+    if (user) {
+      const index = user.favorites.findIndex(fav => {
+        return fav.snippetId === snippetId && fav.userId === userId;
+      });
+
+      if (index >= 0) {
+        type = "favorite";
+      }
+    }
 
     if (snippet) {
+      snippet.type = type || snippet.type;
       res.send(snippet);
     }
     else {

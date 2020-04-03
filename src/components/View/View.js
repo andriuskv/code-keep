@@ -1,26 +1,33 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 import "./view.scss";
-import { GENERIC_ERROR_MESSAGE } from "../../messages";
+import { GENERIC_ERROR_MESSAGE, SESSION_EXPIRATION_MESSAGE } from "../../messages";
 import { setDocumentTitle, markdownToHtml } from "../../utils";
-import { fetchUser } from "../../services/userService";
+import { fetchUser, favoriteSnippet } from "../../services/userService";
 import { fetchIDBSnippet } from "../../services/snippetIDBService";
-import { fetchServerSnippet } from "../../services/snippetServerService";
+import { fetchServerSnippet, createServerSnippet, updateServerSnippet } from "../../services/snippetServerService";
+import { deleteSnippet } from "../../services/snippetService";
 import { useUser } from "../../context/user-context";
 import Icon from "../Icon";
 import PageSpinner from "../PageSpinner";
+import Notification from "../Notification";
 import UserProfileImage from "../UserProfileImage";
 import SnippetInfo from "../SnippetInfo";
 import FileHeaderDropdown from "./FileHeaderDropdown";
+import SnippetDropdown from "../SnippetDropdown";
+import SnippetRemoveModal from "./SnippetRemoveModal";
 import Editor from "../Editor";
 import Markdown from "../Markdown";
 import NoMatch from "../NoMatch";
 import fileInfo from "../../data/file-info.json";
 
 export default function View(props) {
+  const history = useHistory();
   const [state, setState] = useState({
     loading: true
   });
+  const [removeModal, setRemoveModal] = useState(null);
   const user = useUser();
 
   useEffect(() => {
@@ -46,7 +53,14 @@ export default function View(props) {
 
         if (snippet) {
           setDocumentTitle(snippet.title);
-          setState(snippet);
+          setState({
+            snippet,
+            user: {
+              ...user,
+              isLocal: true,
+              isLoggedIn: !!user.username
+            }
+          });
         }
         else {
           setState({});
@@ -56,12 +70,12 @@ export default function View(props) {
     else if (props.match.path === "/users/:username/:snippetId") {
       try {
         const { username, snippetId } = props.match.params;
-        const user = await fetchUser(username);
+        const snippetUser = await fetchUser(username);
 
-        if (user.code === 404) {
+        if (snippetUser.code === 404) {
           setState({});
         }
-        else if (user.code === 500) {
+        else if (snippetUser.code === 500) {
           setState({ message: GENERIC_ERROR_MESSAGE });
         }
         else {
@@ -78,9 +92,12 @@ export default function View(props) {
             setState({ message: GENERIC_ERROR_MESSAGE });
           }
           else {
-            snippet.user = user;
+            snippetUser.isLoggedIn = snippetUser.username.toLowerCase() === user.usernameLowerCase;
             setDocumentTitle(snippet.title);
-            setState(snippet);
+            setState({
+              snippet,
+              user: snippetUser
+            });
           }
         }
       } catch (e) {
@@ -93,6 +110,11 @@ export default function View(props) {
     }
   }
 
+  function hideNotification() {
+    delete state.notification;
+    setState({ ...state });
+  }
+
   async function downloadFiles() {
     const [{ saveAs }, { default: JSZip }] = await Promise.all([
       import("file-saver"),
@@ -100,13 +122,167 @@ export default function View(props) {
     ]);
     const zip = new JSZip();
 
-    state.files.forEach(file => {
+    state.snippet.files.forEach(file => {
       const { mimeType } = fileInfo[file.type];
 
       zip.folder("files").file(file.name, new Blob([file.value], { type: mimeType }));
     });
     const archive = await zip.generateAsync({ type:"blob" });
-    saveAs(archive, `${state.title}.zip`);
+    saveAs(archive, `${state.snippet.title}.zip`);
+  }
+
+  async function uploadSnippet(snippet) {
+    if (state.notification) {
+      hideNotification();
+    }
+    const data = await createServerSnippet({
+      ...snippet,
+      userId: user._id,
+      type: "private",
+      created: new Date(),
+      id: uuidv4(),
+      files: snippet.files.map(file => ({
+        id: uuidv4(),
+        name: file.name,
+        type: file.type,
+        value: file.value
+      }))
+    });
+
+    if (data.code === 201) {
+      history.replace({
+        pathname: `/users/${user.usernameLowerCase}`,
+        search: "?type=private"
+      });
+    }
+    else if (data.code === 401) {
+      setState({
+        ...state,
+        notification: SESSION_EXPIRATION_MESSAGE
+      });
+    }
+    else {
+      setState({
+        ...state,
+        notification: GENERIC_ERROR_MESSAGE
+      });
+    }
+  }
+
+  function showSnippetRemoveModal(modal) {
+    setRemoveModal(modal);
+  }
+
+  function hideSnippetRemoveModal() {
+    setRemoveModal(null);
+  }
+
+  async function removeSnippet() {
+    hideSnippetRemoveModal();
+
+    if (state.notification) {
+      hideNotification();
+    }
+    const { id, type } = removeModal;
+    const deleted = await deleteSnippet({ snippetId: id, type });
+
+    if (deleted) {
+      history.push({
+        pathname:`/users/${user.usernameLowerCase}`
+      });
+    }
+    else {
+      state.notification = "Snippet removal was unsuccessful.";
+      setState({ ...state });
+    }
+  }
+
+  async function toggleSnippetPrivacy(snippet) {
+    if (state.notification) {
+      hideNotification();
+    }
+    const type = snippet.type === "private" ? "remote" : "private";
+    const data = await updateServerSnippet({
+      id: snippet.id,
+      type
+    });
+
+    if (data.code === 200) {
+      snippet.type = type;
+    }
+    else if (data.code === 401) {
+      state.notification = SESSION_EXPIRATION_MESSAGE;
+    }
+    else {
+      state.notification = GENERIC_ERROR_MESSAGE;
+    }
+    setState({ ...state });
+  }
+
+  async function toggleSnippetFavoriteStatus(snippet) {
+    if (state.notification) {
+      hideNotification();
+    }
+    const data = await favoriteSnippet(user.usernameLowerCase, {
+      snippetId: snippet.id,
+      username: state.user.usernameLowerCase,
+      userId: snippet.userId,
+      type: snippet.type
+    });
+
+    if (data.code === 200) {
+      state.snippet.type = data.type;
+    }
+    else if (data.code === 201) {
+      state.snippet.type = "favorite";
+    }
+    else {
+      state.notification = data.message || GENERIC_ERROR_MESSAGE;
+    }
+    setState({ ...state });
+  }
+
+  async function forkSnippet(snippet) {
+    if (state.notification) {
+      hideNotification();
+    }
+    const data = await createServerSnippet({
+      ...snippet,
+      files: snippet.files.map(file => ({
+        id: uuidv4(),
+        name: file.name,
+        type: file.type,
+        value: file.value
+      })),
+      userId: user._id,
+      created: new Date(),
+      id: uuidv4(),
+      type: "forked",
+      fork: {
+        id: snippet.id,
+        userId: snippet.userId
+      }
+    });
+
+    if (data.code === 201) {
+      history.push({
+        pathname:`/users/${user.usernameLowerCase}`,
+        search: "?type=forked"
+      });
+      return;
+    }
+    else if (data.code === 401) {
+      setState({
+        ...state,
+        notification: SESSION_EXPIRATION_MESSAGE
+      });
+    }
+    else {
+      setState({
+        ...state,
+        notification: GENERIC_ERROR_MESSAGE
+      });
+    }
   }
 
   async function previewMarkdown(file) {
@@ -130,24 +306,36 @@ export default function View(props) {
   if (state.loading) {
     return <PageSpinner/>;
   }
-  else if (!state.title || state.message) {
+  else if (!state.snippet || state.message) {
     return <NoMatch message={state.message} />;
   }
   return (
     <div className="container view">
       <div className="view-header">
-        {state.user ? (
+        {state.user && state.user.username ? (
           <Link to={`/users/${state.user.username}`} className="view-header-user-link">
             <UserProfileImage src={state.user.profileImage.path} size="64px" className="view-header-user-image" />
             <h2 className="view-header-user-username">{state.user.username}</h2>
           </Link>
         ) : null }
         <div className="view-header-bottom">
-          <SnippetInfo snippet={state}/>
+          <SnippetInfo snippet={state.snippet}/>
           <button onClick={downloadFiles} className="btn view-download-btn">Download ZIP</button>
+          <SnippetDropdown toggleBtnClassName="view-dropdown-toggle-btn"
+            snippet={state.snippet} snippetUser={state.user} authUser={user}
+            uploadSnippet={uploadSnippet}
+            removeSnippet={showSnippetRemoveModal}
+            toggleSnippetPrivacy={toggleSnippetPrivacy}
+            toggleSnippetFavoriteStatus={toggleSnippetFavoriteStatus}
+            forkSnippet={forkSnippet}/>
         </div>
+        {state.notification && (
+          <Notification className="view-notification"
+            value={state.notification}
+            dismiss={hideNotification}/>
+        )}
       </div>
-      {state.files.map(file => (
+      {state.snippet.files.map(file => (
         <div className="view-editor" key={file.id}>
           <div className="view-editor-header">
             <Icon name="file" />
@@ -155,11 +343,15 @@ export default function View(props) {
             <FileHeaderDropdown file={file} previewMarkdown={previewMarkdown} />
           </div>
           {file.renderAsMarkdown ? <Markdown content={file.markdown} /> :
-            <Editor file={file} settings={state.settings} handleLoad={handleEditorLoad}
+            <Editor file={file} settings={state.snippet.settings} handleLoad={handleEditorLoad}
               height={file.height} readOnly/>
           }
         </div>
       ))}
+      {removeModal ? <SnippetRemoveModal
+        type={removeModal.type}
+        hide={hideSnippetRemoveModal}
+        removeSnippet={removeSnippet}/> : null}
     </div>
   );
 }

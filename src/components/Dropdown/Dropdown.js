@@ -53,7 +53,7 @@ export default function Dropdown({ toggle, body, children }) {
     <div id={id} className="dropdown-container">
       <button onClick={toggleDropdown}
         title={toggle.title}
-        className={`dropdown-toggle-btn ${toggle.className}${visible ? " active" : ""}`}>
+        className={`${toggle.className}${visible ? " active" : ""}`}>
         {toggle.content}
       </button>
       <div className={`dropdown${body ? ` ${body.className}` : ""}${visible ? " visible" : ""}`}>{children}</div>

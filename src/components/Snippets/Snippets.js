@@ -14,8 +14,7 @@ import Notification from "../Notification";
 import SnippetPreview from "../SnippetPreview";
 import NoMatch from "../NoMatch";
 import UserProfileImage from "../UserProfileImage";
-import SnippetAuthDropdown from "./SnippetAuthDropdown";
-import SnippetDropdown from "./SnippetDropdown";
+import SnippetDropdown from "../SnippetDropdown";
 import SnippetRemoveModal from "./SnippetRemoveModal";
 
 export default function Snippets() {
@@ -274,11 +273,12 @@ export default function Snippets() {
 
     if (data.code === 200) {
       snippet.type = type;
+      state.tabs = updateSnippetTypeCount(state.snippets);
 
       if (state.visibleTabType === "private") {
-        state.tabSnippets = state.tabSnippets.filter(({ id }) => snippet.id !== id);
+        showSnippets(state, state.visibleTabType);
+        return;
       }
-      state.tabs = updateSnippetTypeCount(state.snippets);
     }
     else if (data.code === 401) {
       state.notification = { value: SESSION_EXPIRATION_MESSAGE };
@@ -336,28 +336,24 @@ export default function Snippets() {
       type: snippet.type
     });
 
-    if (data.code === 201) {
+    if (data.code === 200) {
+      state.snippets = state.snippets.filter(({ id }) => snippet.id !== id);
+      state.tabs = updateSnippetTypeCount(state.snippets);
+
+      showSnippets(state, state.visibleTabType);
+    }
+    else if (data.code === 201) {
       history.push({
         pathname: `/users/${user.usernameLowerCase}`,
         search: "?type=favorite"
       });
-      return;
-    }
-    else if (data.code === 204) {
-      state.snippets = state.snippets.filter(({ id }) => snippet.id !== id);
-
-      if (state.visibleTabType) {
-        state.tabSnippets = state.snippets.filter(snippet => snippet.type === "favorite");
-      }
-      else {
-        state.tabSnippets = state.snippets;
-      }
-      state.tabs = updateSnippetTypeCount(state.snippets);
     }
     else {
-      state.notification = { value: data.message || GENERIC_ERROR_MESSAGE };
+      setState({
+        ...state,
+        notification: { value: data.message || GENERIC_ERROR_MESSAGE }
+      });
     }
-    setState({ ...state });
   }
 
   async function uploadSnippet(snippet) {
@@ -377,21 +373,28 @@ export default function Snippets() {
     };
     const data = await createServerSnippet(remoteSnippet);
 
-    if (data.code === 200) {
+    if (data.code === 201) {
       state.snippets.unshift(remoteSnippet);
       state.tabs = updateSnippetTypeCount(state.snippets);
       state.notification = {
         value: "Upload was successful.",
         type: "positive"
       };
+
+      showSnippets(state, state.visibleTabType);
     }
     else if (data.code === 401) {
-      state.notification = { value: SESSION_EXPIRATION_MESSAGE };
+      setState({
+        ...state,
+        notification: { value: SESSION_EXPIRATION_MESSAGE }
+      });
     }
     else {
-      state.notification = { value: GENERIC_ERROR_MESSAGE };
+      setState({
+        ...state,
+        notification: { value: GENERIC_ERROR_MESSAGE }
+      });
     }
-    setState({ ...state });
   }
 
   function hideNotification() {
@@ -538,23 +541,19 @@ export default function Snippets() {
     const { user: snippetUser, tabSnippets, pageSnippets } = state;
 
     if (!tabSnippets.length) {
-      return <p className="snippets-visible-snippet-message">{state.user.isLoggedIn ? "You don't" : "This user doesn't"} have any {state.visibleTabType} snippets.</p>;
+      return <p className="snippets-visible-snippet-message">{snippetUser.isLoggedIn ? "You don't" : "This user doesn't"} have any {state.visibleTabType} snippets.</p>;
     }
     return (
       <Fragment>
         <ul>
           {pageSnippets.map(snippet =>
             <SnippetPreview key={snippet.id} to={getSnippetLink(snippet)} snippet={snippet}>
-              {(snippetUser.isLocal || snippetUser.username === user.username) && snippet.type !== "favorite" ? (
-                <SnippetAuthDropdown user={snippetUser} snippet={snippet}
-                  uploadSnippet={uploadSnippet}
-                  removeSnippet={showSnippetRemoveModal}
-                  toggleSnippetPrivacy={toggleSnippetPrivacy} />
-              ) : (user.username ? (
-                <SnippetDropdown snippet={snippet} authUser={user} snippetUser={snippetUser}
-                  toggleSnippetFavoriteStatus={toggleSnippetFavoriteStatus}
-                  forkSnippet={forkSnippet}/>
-              ) : null)}
+              <SnippetDropdown snippet={snippet} snippetUser={snippetUser} authUser={user}
+                uploadSnippet={uploadSnippet}
+                removeSnippet={showSnippetRemoveModal}
+                toggleSnippetPrivacy={toggleSnippetPrivacy}
+                toggleSnippetFavoriteStatus={toggleSnippetFavoriteStatus}
+                forkSnippet={forkSnippet}/>
             </SnippetPreview>
           )}
         </ul>

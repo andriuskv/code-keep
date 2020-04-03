@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./form.scss";
 import { GENERIC_ERROR_MESSAGE } from "../../messages";
 import { getRandomString, setDocumentTitle, importEditorMode, resetEditorIndentation, markdownToHtml } from "../../utils";
@@ -20,6 +20,7 @@ export default function Form(props) {
   const [state, setState] = useState({
     loading: true
   });
+  const newFileBtnRef = useRef();
   const { usernameLowerCase } = useUser();
   const { files } = state;
 
@@ -81,6 +82,9 @@ export default function Form(props) {
   function addFile() {
     files.push(getNewFile());
     setState({ ...state });
+    requestAnimationFrame(() => {
+      newFileBtnRef.current.scrollIntoView();
+    });
   }
 
   function getNewFile() {
@@ -289,7 +293,7 @@ export default function Form(props) {
     }
     else {
       file.formHeight = file.cm.getWrapperElement().clientHeight;
-      file.value = file.cm.getValue().trimEnd();
+      file.value = file.cm.getValue();
       file.markdown = await markdownToHtml(file.value);
       file.renderAsMarkdown = true;
     }
@@ -349,7 +353,7 @@ export default function Form(props) {
             )}
           </div>
           {file.renderAsMarkdown ? <Markdown content={file.markdown} /> :
-            <Editor file={file} height={file.formHeight} handleLoad={setEditorInstance} settings={state.settings} />
+            <Editor file={file} height={file.formHeight || "332px"} handleLoad={setEditorInstance} settings={state.settings} />
           }
         </div>
       ))}
@@ -359,7 +363,7 @@ export default function Form(props) {
             <div className="form-footer-message">{state.submitMessage}</div>
           )}
           <div className="form-footer-btns">
-            <button className="btn" onClick={addFile}>Add File</button>
+            <button className="btn" onClick={addFile} ref={newFileBtnRef}>Add File</button>
             {state.updating ? (
               <button className="btn form-update-btn"
                 disabled={state.disabledSubmitButton} onClick={handleSubmit}>

@@ -329,26 +329,26 @@ router.post("/:username/favorites", async (req, res) => {
         res.sendStatus(204);
         return;
       }
-      let status = 201;
 
       if (index >= 0) {
         if (!req.body.type) {
-          return res.sendStatus(400);
+          res.sendStatus(400);
         }
-        if (req.body.type === "favorite") {
+        else if (req.body.type === "favorite") {
           user.favorites.splice(index, 1);
-          status = 204;
+          await user.save();
+          res.json({ type: snippet.type });
         }
         else {
-          return res.sendStatus(status);
+          res.sendStatus(201);
         }
       }
       else {
         delete req.body.type;
         user.favorites.push(req.body);
+        await user.save();
+        res.sendStatus(201);
       }
-      await user.save();
-      res.sendStatus(status);
     }
     else {
       res.sendStatus(404);

@@ -65,5 +65,5 @@ export default function Editor({ file, settings, height, readOnly, preview, hand
     handleLoad({ cm, file });
   }
 
-  return <div ref={container} className="cm-container" style={{height: height || "auto"}}></div>;
+  return <div ref={container} className="cm-container" style={{minHeight: height || "auto"}}></div>;
 }

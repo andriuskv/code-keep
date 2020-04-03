@@ -43,6 +43,16 @@
   flex-shrink: 0;
 }
 
+.view-dropdown-toggle-btn {
+  flex-shrink: 0;
+  margin-left: var(--space-md);
+  margin-bottom: var(--space-xs);
+}
+
+.view-notification {
+  margin-top: var(--space-xl);
+}
+
 .view-editor {
   margin-bottom: var(--space-xl);
   border-radius: 4px;

@@ -15,7 +15,7 @@ import SnippetPreview from "../SnippetPreview";
 import NoMatch from "../NoMatch";
 import UserProfileImage from "../UserProfileImage";
 import SnippetDropdown from "../SnippetDropdown";
-import SnippetRemoveModal from "./SnippetRemoveModal";
+import SnippetRemoveModal from "../SnippetRemoveModal";
 
 export default function Snippets() {
   const history = useHistory();

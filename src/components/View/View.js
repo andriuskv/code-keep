@@ -16,7 +16,7 @@ import UserProfileImage from "../UserProfileImage";
 import SnippetInfo from "../SnippetInfo";
 import FileHeaderDropdown from "./FileHeaderDropdown";
 import SnippetDropdown from "../SnippetDropdown";
-import SnippetRemoveModal from "./SnippetRemoveModal";
+import SnippetRemoveModal from "../SnippetRemoveModal";
 import Editor from "../Editor";
 import Markdown from "../Markdown";
 import NoMatch from "../NoMatch";

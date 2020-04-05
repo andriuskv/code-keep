@@ -105,7 +105,7 @@ export default function Search() {
         newState.message = NON_EXISTENT_PAGE_MESSAGE;
       }
       else {
-        newState.notification = GENERIC_ERROR_MESSAGE;
+        newState.notification = { value: GENERIC_ERROR_MESSAGE };
       }
 
       if (state.page !== newState.page) {
@@ -114,7 +114,7 @@ export default function Search() {
       setState(newState);
     } catch (e) {
       console.log(e);
-      newState.notification = GENERIC_ERROR_MESSAGE;
+      newState.notification = { value: GENERIC_ERROR_MESSAGE };
       setState(newState);
     }
   }
@@ -143,9 +143,6 @@ export default function Search() {
   }
 
   async function forkSnippet(snippet) {
-    if (state.notification) {
-      hideNotification();
-    }
     const data = await createServerSnippet({
       ...snippet,
       files: snippet.files.map(file => ({
@@ -172,17 +169,22 @@ export default function Search() {
       return;
     }
     else if (data.code === 401) {
-      setState({ ...state, notification: data.message || SESSION_EXPIRATION_MESSAGE });
+      setState({
+        ...state,
+        notification: {
+          value: data.message || SESSION_EXPIRATION_MESSAGE
+        }});
     }
     else {
-      setState({ ...state, notification: GENERIC_ERROR_MESSAGE });
+      setState({
+        ...state,
+        notification: {
+          value: GENERIC_ERROR_MESSAGE
+        }});
     }
   }
 
   async function toggleSnippetFavoriteStatus(snippet) {
-    if (state.notification) {
-      hideNotification();
-    }
     const data = await favoriteSnippet(user.usernameLowerCase, {
       snippetId: snippet.id,
       username: snippet.user.usernameLowerCase,
@@ -198,7 +200,11 @@ export default function Search() {
       return;
     }
     else {
-      setState({ ...state, notification: data.message || GENERIC_ERROR_MESSAGE });
+      setState({
+        ...state,
+        notification: {
+          value: data.message || GENERIC_ERROR_MESSAGE
+        }});
     }
   }
 
@@ -277,7 +283,7 @@ export default function Search() {
       </form>
       {state.notification && (
         <Notification className="search-notification"
-          value={state.notification}
+          notification={state.notification}
           dismiss={hideNotification}/>
       )}
       {state.loading && <PageSpinner/>}

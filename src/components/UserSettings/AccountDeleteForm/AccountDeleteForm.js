@@ -13,7 +13,7 @@ export default function AccountDeleteForm() {
   const [inputValid, setInputValid] = useState(false);
 
   function hideNotification() {
-    setNotification("");
+    setNotification(null);
   }
 
   function handleKeydown(event) {
@@ -47,12 +47,12 @@ export default function AccountDeleteForm() {
         setUserStatus("deleted");
       }
       else {
-        setNotification(GENERIC_ERROR_MESSAGE);
+        setNotification({ value: GENERIC_ERROR_MESSAGE });
         setSubmitButtonState(false);
       }
     } catch (e) {
       console.log(e);
-      setNotification(GENERIC_ERROR_MESSAGE);
+      setNotification({ value: GENERIC_ERROR_MESSAGE });
       setSubmitButtonState(false);
     }
   }
@@ -62,7 +62,7 @@ export default function AccountDeleteForm() {
       <h3 className="account-delete-form-title">Delete Account</h3>
       {notification && (
         <Notification className="settings-form-notification"
-          value={notification} dismiss={hideNotification}/>
+          notification={notification} dismiss={hideNotification}/>
       )}
       <form onSubmit={handleFormSubmit} onKeyDown={handleKeydown} onInput={handleInput}>
         <p className="account-delete-form-notice">Deleting your account will delete <b>all</b> except your local snippets, also your username will become available to anyone.</p>

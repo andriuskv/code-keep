@@ -7,14 +7,14 @@ import Notification from "../../Notification";
 import logo from "../../../assets/logo.svg";
 
 export default function Login() {
-  const [notification, setNotification] = useState("");
+  const [notification, setNotification] = useState(null);
   const [submitButtonState, setSubmitButtonState] = useState(false);
   const { signInUser } = useUser();
   const history = useHistory();
   const location = useLocation();
 
   function hideNotification() {
-    setNotification("");
+    setNotification(null);
   }
 
   async function handleSignIn(event) {
@@ -23,16 +23,15 @@ export default function Login() {
     event.preventDefault();
 
     try {
-      hideNotification();
       setSubmitButtonState(true);
       const data = await signInUser({ username, password });
       setSubmitButtonState(false);
 
       if (data.code === 400) {
-        setNotification("Incorrect username or password.");
+        setNotification({ value: "Incorrect username or password." });
       }
       else if (data.code === 500) {
-        setNotification(GENERIC_ERROR_MESSAGE);
+        setNotification({ value: GENERIC_ERROR_MESSAGE });
       }
       else if (location.search.startsWith("?redirect=")) {
         const [pathname, search] = location.search.split("?redirect=")[1].split("?");
@@ -50,7 +49,7 @@ export default function Login() {
     } catch (e) {
       console.log(e);
       setSubmitButtonState(false);
-      setNotification(GENERIC_ERROR_MESSAGE);
+      setNotification({ value: GENERIC_ERROR_MESSAGE });
     }
   }
 
@@ -60,7 +59,7 @@ export default function Login() {
       <h2 className="user-form-title">Sign In</h2>
       {notification && (
         <Notification className="user-form-notification"
-          value={notification} dismiss={hideNotification}/>
+          notification={notification} dismiss={hideNotification}/>
       )}
       <label className="user-form-field-group">
         <div className="user-form-field-name">Username</div>

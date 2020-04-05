@@ -12,7 +12,7 @@ export default function ProfileImageForm() {
   const user = useUser();
   const [image, setImage] = useState(null);
   const [submitButtonState, setSubmitButtonState] = useState(false);
-  const [notification, setNotification] = useState({});
+  const [notification, setNotification] = useState(null);
 
   async function handleFormSubmit(event) {
     const formData = new FormData();
@@ -85,8 +85,8 @@ export default function ProfileImageForm() {
         });
       }
 
-      if (notification.value) {
-        setNotification({});
+      if (notification) {
+        setNotification(null);
       }
     }
     else {
@@ -110,10 +110,10 @@ export default function ProfileImageForm() {
   return (
     <div className="settings-item">
       <h3 className="settings-item-title">Change Profile Image</h3>
-      {notification.value && (
+      {notification && (
         <Notification className="settings-form-notification"
-          value={notification.value} type={notification.type}
-          dismiss={() => setNotification({})}/>
+          notification={notification}
+          dismiss={() => setNotification(null)}/>
       )}
       <form className="profile-image-form" onSubmit={handleFormSubmit}>
         {renderImagePreview()}

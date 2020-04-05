@@ -20,7 +20,7 @@ export default function GithubConnect() {
     const params = new URLSearchParams(location.search);
 
     if (params.get("status")) {
-      setNotification(GENERIC_ERROR_MESSAGE);
+      setNotification({ value: GENERIC_ERROR_MESSAGE });
       setInitialized(true);
     }
     else if (user.isGithubConnected) {
@@ -34,17 +34,17 @@ export default function GithubConnect() {
 
   async function init() {
     try {
-      const data = await fetchUser("/me/github");
+      const data = await fetchUser("me/github");
 
       if (data.code === 200) {
         setState(data);
       }
       else {
-        setNotification(GENERIC_ERROR_MESSAGE);
+        setNotification({ value: GENERIC_ERROR_MESSAGE });
       }
     } catch (e) {
       console.log(e);
-      setNotification(GENERIC_ERROR_MESSAGE);
+      setNotification({ value: GENERIC_ERROR_MESSAGE });
     } finally {
       setInitialized(true);
     }
@@ -70,11 +70,11 @@ export default function GithubConnect() {
         });
       }
       else {
-        setNotification(GENERIC_ERROR_MESSAGE);
+        setNotification({ value: GENERIC_ERROR_MESSAGE });
       }
     } catch (e) {
       console.log(e);
-      setNotification(GENERIC_ERROR_MESSAGE);
+      setNotification({ value: GENERIC_ERROR_MESSAGE });
     }
   }
 
@@ -89,7 +89,7 @@ export default function GithubConnect() {
       </h3>
       {state.notification && (
         <Notification className="settings-form-notification"
-          value={state.notification}
+          notification={state.notification}
           dismiss={removeNotification}/>
       )}
       {state.name ? (

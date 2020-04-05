@@ -12,8 +12,8 @@ export default function PasswordForm() {
   const [submitButtonState, setSubmitButtonState] = useState(false);
   const [notification, setNotification] = useState({});
 
-  function setMessage(formName, { value, type = "negative" }) {
-    setNotification({ [formName]: { value, type } });
+  function showNotification(field, { value, type = "negative" }) {
+    setNotification({ [field]: { value, type } });
   }
 
   function hideNotification(name) {
@@ -39,22 +39,19 @@ export default function PasswordForm() {
     event.preventDefault();
 
     if (newPassword.length < 6 || repeatedNewPassword.length < 6) {
-      setMessage("newPassword", { value: "New password must be atleast 6 characters." });
+      showNotification("newPassword", { value: "New password must be atleast 6 characters." });
       return;
     }
     else if (newPassword !== repeatedNewPassword) {
-      setMessage("newPassword", { value: "Passwords don't match." });
+      showNotification("newPassword", { value: "Passwords don't match." });
       return;
     }
     else if (currentPassword === newPassword) {
-      setMessage("newPassword", { value: "New and old passwords cannot be the same.", field: "newPassword" });
+      showNotification("newPassword", { value: "New and old passwords cannot be the same." });
       return;
     }
 
     try {
-      if (notification.form) {
-        hideNotification("form");
-      }
       setSubmitButtonState(true);
       const data = await updateUser(username, {
         currentPassword,
@@ -64,21 +61,21 @@ export default function PasswordForm() {
 
       if (data.code === 204) {
         formElement.current.reset();
-        setMessage("form", {
+        showNotification("form", {
           value: "Password has been changed successfully.",
           type: "positive"
         });
       }
       else if (data.code === 400) {
-        setMessage([data.field], { value: data.message });
+        showNotification([data.field], { value: data.message });
       }
       else {
-        setMessage("form", { value: GENERIC_ERROR_MESSAGE });
+        showNotification("form", { value: GENERIC_ERROR_MESSAGE });
       }
       setSubmitButtonState(false);
     } catch (e) {
       console.log(e);
-      setMessage("form", { value: GENERIC_ERROR_MESSAGE });
+      showNotification("form", { value: GENERIC_ERROR_MESSAGE });
       setSubmitButtonState(false);
     }
   }
@@ -88,7 +85,7 @@ export default function PasswordForm() {
       <h3 className="settings-item-title">Change Password</h3>
       {notification.form && (
         <Notification className="settings-form-notification"
-          value={notification.form.value} type={notification.form.type}
+          notification={notification.form}
           dismiss={() => hideNotification("form")}/>
       )}
       <form ref={formElement} onSubmit={handleFormSubmit} onKeyDown={handleKeydown}>

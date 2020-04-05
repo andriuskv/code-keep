@@ -17,6 +17,10 @@ export default function Register() {
     setNotification({ ...notification });
   }
 
+  function showNotification(field, message) {
+    setNotification({ [field]: { value: message }});
+  }
+
   function handleKeydown(event) {
     if (notification[event.target.name]) {
       hideNotification(event.target.name);
@@ -30,32 +34,31 @@ export default function Register() {
     event.preventDefault();
 
     if (!/^[a-zA-Z0-9]+$/.test(username)) {
-      setNotification({ username: "Username can only contain alphanumeric characters." });
+      showNotification("username", "Username can only contain alphanumeric characters.");
       return;
     }
 
     if (username.length < 3 || username.length > 20) {
-      setNotification({ username: "Username length shuold be between 3 and 20 characters." });
+      showNotification("username", "Username length shuold be between 3 and 20 characters.");
       return;
     }
 
     if (email.length < 6 || email.length > 320) {
-      setNotification({ email: "Invalid email." });
+      showNotification("email", "Invalid email.");
       return;
     }
 
     if (password.length < 6 || repeatedPassword.length < 6) {
-      setNotification({ password: "Password must be atleast 6 characters." });
+      showNotification("password", "Password must be atleast 6 characters.");
       return;
     }
 
     if (password !== repeatedPassword) {
-      setNotification({ password: "Passwords don't match." });
+      showNotification("password", "Passwords don't match.");
       return;
     }
 
     try {
-      setNotification({});
       setSubmitButtonState(true);
       const data = await registerUser({
         username,
@@ -71,15 +74,15 @@ export default function Register() {
         });
       }
       else if (data.code === 400) {
-        setNotification({ [data.field]: data.message || GENERIC_ERROR_MESSAGE });
+        showNotification(data.field, data.message || GENERIC_ERROR_MESSAGE);
       }
       else {
-        setNotification({ form: GENERIC_ERROR_MESSAGE });
+        showNotification("form", GENERIC_ERROR_MESSAGE);
       }
     } catch (e) {
       console.log(e);
       setSubmitButtonState(false);
-      setNotification({ form: GENERIC_ERROR_MESSAGE });
+      showNotification("form", GENERIC_ERROR_MESSAGE);
     }
   }
 
@@ -89,7 +92,8 @@ export default function Register() {
       <h2 className="user-form-title">Sign Up</h2>
       {notification.form && (
         <Notification className="user-form-notification"
-          value={notification.form} dismiss={() => hideNotification("form")}/>
+          notification={notification.form}
+          dismiss={() => hideNotification("form")}/>
       )}
       <label className="user-form-field-group">
         <div className="user-form-field-name">Username</div>
@@ -97,7 +101,7 @@ export default function Register() {
           name="username" required />
       </label>
       {notification.username && (
-        <div className="user-form-field-notification">{notification.username}</div>
+        <div className="user-form-field-notification">{notification.username.value}</div>
       )}
       <label className="user-form-field-group">
         <div className="user-form-field-name">Email</div>
@@ -105,7 +109,7 @@ export default function Register() {
           name="email" required />
       </label>
       {notification.email && (
-        <div className="user-form-field-notification">{notification.email}</div>
+        <div className="user-form-field-notification">{notification.email.value}</div>
       )}
       <div className="user-form-field-groups">
         <label className="user-form-field-group">
@@ -120,7 +124,7 @@ export default function Register() {
         </label>
       </div>
       {notification.password && (
-        <div className="user-form-field-notification">{notification.password}</div>
+        <div className="user-form-field-notification">{notification.password.value}</div>
       )}
       <button className="btn user-form-submit-btn" disabled={submitButtonState}>
         <span>Sign Up</span>

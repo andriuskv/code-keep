@@ -9,15 +9,15 @@ import Notification from "../../Notification";
 export default function UsernameForm() {
   const user = useUser();
   const [submitButtonState, setSubmitButtonState] = useState(false);
-  const [notification, setNotification] = useState({});
+  const [notification, setNotification] = useState(null);
 
   function hideNotification() {
-    setNotification({});
+    setNotification(null);
   }
 
-  function handleKeydown({ target }) {
-    if (notification[target.name]) {
-      hideNotification(target.name);
+  function handleKeydown() {
+    if (notification) {
+      hideNotification();
     }
   }
 
@@ -74,9 +74,9 @@ export default function UsernameForm() {
   return (
     <div className="settings-item">
       <h3 className="settings-item-title">Change Username</h3>
-      {notification.value && (
+      {notification && (
         <Notification className="settings-form-notification"
-          value={notification.value} type={notification.type}
+          notification={notification}
           dismiss={hideNotification}/>
       )}
       <form className="username-form" onSubmit={handleFormSubmit} onKeyDown={handleKeydown}>

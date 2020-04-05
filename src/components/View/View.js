@@ -132,9 +132,6 @@ export default function View(props) {
   }
 
   async function uploadSnippet(snippet) {
-    if (state.notification) {
-      hideNotification();
-    }
     const data = await createServerSnippet({
       ...snippet,
       userId: user._id,
@@ -158,13 +155,13 @@ export default function View(props) {
     else if (data.code === 401) {
       setState({
         ...state,
-        notification: SESSION_EXPIRATION_MESSAGE
+        notification: { value: SESSION_EXPIRATION_MESSAGE }
       });
     }
     else {
       setState({
         ...state,
-        notification: GENERIC_ERROR_MESSAGE
+        notification: { value: GENERIC_ERROR_MESSAGE }
       });
     }
   }
@@ -180,9 +177,6 @@ export default function View(props) {
   async function removeSnippet() {
     hideSnippetRemoveModal();
 
-    if (state.notification) {
-      hideNotification();
-    }
     const { id, type } = removeModal;
     const deleted = await deleteSnippet({ snippetId: id, type });
 
@@ -192,15 +186,12 @@ export default function View(props) {
       });
     }
     else {
-      state.notification = "Snippet removal was unsuccessful.";
+      state.notification = { value: "Snippet removal was unsuccessful." };
       setState({ ...state });
     }
   }
 
   async function toggleSnippetPrivacy(snippet) {
-    if (state.notification) {
-      hideNotification();
-    }
     const type = snippet.type === "private" ? "remote" : "private";
     const data = await updateServerSnippet({
       id: snippet.id,
@@ -211,18 +202,15 @@ export default function View(props) {
       snippet.type = type;
     }
     else if (data.code === 401) {
-      state.notification = SESSION_EXPIRATION_MESSAGE;
+      state.notification = { value: SESSION_EXPIRATION_MESSAGE };
     }
     else {
-      state.notification = GENERIC_ERROR_MESSAGE;
+      state.notification = { value: GENERIC_ERROR_MESSAGE };
     }
     setState({ ...state });
   }
 
   async function toggleSnippetFavoriteStatus(snippet) {
-    if (state.notification) {
-      hideNotification();
-    }
     const data = await favoriteSnippet(user.usernameLowerCase, {
       snippetId: snippet.id,
       username: state.user.usernameLowerCase,
@@ -237,15 +225,12 @@ export default function View(props) {
       state.snippet.type = "favorite";
     }
     else {
-      state.notification = data.message || GENERIC_ERROR_MESSAGE;
+      state.notification = { value: data.message || GENERIC_ERROR_MESSAGE };
     }
     setState({ ...state });
   }
 
   async function forkSnippet(snippet) {
-    if (state.notification) {
-      hideNotification();
-    }
     const data = await createServerSnippet({
       ...snippet,
       files: snippet.files.map(file => ({
@@ -274,13 +259,13 @@ export default function View(props) {
     else if (data.code === 401) {
       setState({
         ...state,
-        notification: SESSION_EXPIRATION_MESSAGE
+        notification: { value: SESSION_EXPIRATION_MESSAGE }
       });
     }
     else {
       setState({
         ...state,
-        notification: GENERIC_ERROR_MESSAGE
+        notification: { value: GENERIC_ERROR_MESSAGE }
       });
     }
   }
@@ -331,7 +316,7 @@ export default function View(props) {
         </div>
         {state.notification && (
           <Notification className="view-notification"
-            value={state.notification}
+            notification={state.notification}
             dismiss={hideNotification}/>
         )}
       </div>

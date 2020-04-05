@@ -47,9 +47,6 @@ export default function RecentSnippets() {
   }
 
   async function forkSnippet(snippet) {
-    if (state.notification) {
-      hideNotification();
-    }
     const data = await createServerSnippet({
       ...snippet,
       files: snippet.files.map(file => ({
@@ -85,9 +82,6 @@ export default function RecentSnippets() {
   }
 
   async function toggleSnippetFavoriteStatus(snippet) {
-    if (state.notification) {
-      hideNotification();
-    }
     const data = await favoriteSnippet(user.usernameLowerCase, {
       snippetId: snippet.id,
       username: snippet.user.usernameLowerCase,
@@ -102,10 +96,11 @@ export default function RecentSnippets() {
       });
       return;
     }
-    else {
-      state.notification = { value: data.message || GENERIC_ERROR_MESSAGE };
-    }
-    setState({ ...state });
+    setState({
+      ...state,
+      notification: {
+        value: data.message || GENERIC_ERROR_MESSAGE
+      }});
   }
 
   function hideNotification() {
@@ -125,7 +120,7 @@ export default function RecentSnippets() {
       <h2 className="recent-snippets-header-title">Most Recent Snippets</h2>
       {state.notification && (
         <Notification className="recent-snippets-notification"
-          value={state.notification}
+          notification={state.notification}
           dismiss={hideNotification}/>
       )}
       <ul className="recent-snippet-items">

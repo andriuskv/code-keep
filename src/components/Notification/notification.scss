@@ -1,8 +1,7 @@
 .notification {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: var(--space-xs) var(--space-xs) var(--space-xs) var(--space-lg);
+  padding: var(--space-xs) var(--space-xs) var(--space-xs) var(--space-md);
   border-radius: 999px;
   background-color: var(--notification-background-color);
   box-shadow: 0 0 0 1px var(--notification-color);
@@ -12,19 +11,55 @@
   &.negative {
     --notification-background-color: var(--color-danger-10);
     --notification-color: var(--color-danger);
+
+    &.flash {
+      animation-name: flash-negative;
+    }
   }
 
   &.positive {
     --notification-background-color: var(--color-success-10);
     --notification-color: var(--color-success);
+
+    &.flash {
+      animation-name: flash-positive;
+    }
   }
+
+    &.flash {
+      animation-duration: 0.32s;
+      animation-fill-mode: forwards;
+      animation-iteration-count: 2;
+    }
+}
+
+.notification-text {
+  margin: 0 var(--space-sm);
 }
 
 .notification-btn {
-  margin-left: var(--space-sm);
+  margin-left: auto;
   color: inherit;
 
   &:hover, &.focus-visible {
     --background-color: var(--notification-background-color);
+  }
+}
+
+@keyframes flash-negative {
+  50% {
+    --notification-color: var(--color-danger-light);
+  }
+  100% {
+    --notification-color: var(--color-danger);
+  }
+}
+
+@keyframes flash-positive {
+  50% {
+    --notification-color: var(--color-success-light);
+  }
+  100% {
+    --notification-color: var(--color-success);
   }
 }

@@ -222,9 +222,6 @@ export default function Snippets() {
   }
 
   async function removeSnippet() {
-    if (state.notification) {
-      hideNotification();
-    }
     const { id, type } = state.removeModal;
     const deleted = await deleteSnippet({ snippetId: id, type });
 
@@ -262,9 +259,6 @@ export default function Snippets() {
   }
 
   async function toggleSnippetPrivacy(snippet) {
-    if (state.notification) {
-      hideNotification();
-    }
     const type = snippet.type === "private" ? "remote" : "private";
     const data = await updateServerSnippet({
       id: snippet.id,
@@ -290,9 +284,6 @@ export default function Snippets() {
   }
 
   async function forkSnippet(snippet) {
-    if (state.notification) {
-      hideNotification();
-    }
     const id = getRandomString();
     const data = await createServerSnippet({
       ...snippet,
@@ -326,9 +317,6 @@ export default function Snippets() {
   }
 
   async function toggleSnippetFavoriteStatus(snippet) {
-    if (state.notification) {
-      hideNotification();
-    }
     const data = await favoriteSnippet(user.usernameLowerCase, {
       snippetId: snippet.id,
       username: state.user.usernameLowerCase,
@@ -357,9 +345,6 @@ export default function Snippets() {
   }
 
   async function uploadSnippet(snippet) {
-    if (state.notification) {
-      hideNotification();
-    }
     const remoteSnippet = {
       ...snippet,
       userId: user._id,
@@ -594,12 +579,16 @@ export default function Snippets() {
         {renderSnippetsTabs()}
         {state.notification && (
           <Notification className="snippets-notification"
-            value={state.notification.value}
-            type={state.notification.type}
+            notification={state.notification}
             dismiss={hideNotification}/>
         )}
         {renderSnippets()}
-        {state.removeModal ? <SnippetRemoveModal type={state.removeModal.type} hide={hideSnippetRemoveModal} removeSnippet={removeSnippet} /> : null}
+        {state.removeModal ? (
+          <SnippetRemoveModal
+            type={state.removeModal.type}
+            hide={hideSnippetRemoveModal}
+            removeSnippet={removeSnippet}/>
+        ) : null}
       </div>
     );
   }

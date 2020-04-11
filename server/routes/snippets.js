@@ -109,12 +109,13 @@ router.post("/", async (req, res) => {
       }
       return res.sendStatus(201);
     }
-    // If user tries to fork same snippet, ignore it.
+
     if (req.body.fork) {
       const snippet = await Snippet.findOne({ $and: [{ "fork.id": req.body.fork.id }, { userId: req.session.user._id }]});
 
+      // If user tries to fork same snippet, ignore it.
       if (snippet) {
-        return res.status(201).json({ id: snippet.id });
+        return res.status(201).json({ snippet });
       }
       const user = await User.findById(req.body.fork.userId);
       req.body.fork.username = user.username;
@@ -124,8 +125,7 @@ router.post("/", async (req, res) => {
     }
     const snippet = new Snippet({ ...req.body, userId: req.session.user._id });
     await snippet.save();
-
-    res.sendStatus(201);
+    res.status(201).json({ snippet });
   } catch (e) {
     console.log(e);
     res.sendStatus(500);
@@ -172,12 +172,12 @@ router.put("/:snippetId", async (req, res) => {
       if (data.message) {
         return res.status(500).json({ message: data.message });
       }
-      return res.sendStatus(200);
+      return res.json({ snippet });
     }
     const snippet = await Snippet.findOneAndUpdate({ $and: [{ id: req.params.snippetId }, { userId: req.session.user._id }]}, req.body);
 
     if (snippet) {
-      return res.sendStatus(200);
+      return res.json({ snippet });
     }
     res.sendStatus(404);
   } catch (e) {

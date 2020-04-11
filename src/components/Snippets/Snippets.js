@@ -2,7 +2,7 @@ import React, { useState, useEffect, Fragment } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import "./snippets.scss";
 import { GENERIC_ERROR_MESSAGE, SESSION_EXPIRATION_MESSAGE, NON_EXISTENT_PAGE_MESSAGE } from "../../messages";
-import { setDocumentTitle, getRandomString } from "../../utils";
+import { setDocumentTitle } from "../../utils";
 import { fetchUser, favoriteSnippet } from "../../services/userService";
 import { fetchIDBSnippets } from "../../services/snippetIDBService";
 import { fetchSnippets, deleteSnippet, sortSnippets } from "../../services/snippetService";
@@ -259,14 +259,13 @@ export default function Snippets() {
   }
 
   async function toggleSnippetPrivacy(snippet) {
-    const type = snippet.type === "private" ? "remote" : "private";
     const data = await updateServerSnippet({
       id: snippet.id,
-      type
+      type: snippet.type === "private" ? "remote" : "private"
     });
 
     if (data.code === 200) {
-      snippet.type = type;
+      snippet.type = data.snippet.type;
       state.tabs = updateSnippetTypeCount(state.snippets);
 
       if (state.visibleTabType === "private") {
@@ -284,26 +283,15 @@ export default function Snippets() {
   }
 
   async function forkSnippet(snippet) {
-    const id = getRandomString();
-    const data = await createServerSnippet({
-      ...snippet,
-      files: snippet.files.map(file => {
-        file.id = getRandomString();
-        return file;
-      }),
-      userId: user._id,
-      created: new Date(),
-      id,
-      type: "forked",
-      fork: {
-        id: snippet.id,
-        userId: snippet.userId
-      }
+    const data = await createServerSnippet(snippet, {
+      isFork: true,
+      userId: user._id
     });
 
     if (data.code === 201) {
       history.push({
-        pathname:`/users/${user.usernameLowerCase}/${data.id ? data.id : id}`
+        pathname: `/users/${user.usernameLowerCase}`,
+        search: "?type=forked"
       });
       return;
     }
@@ -318,14 +306,12 @@ export default function Snippets() {
 
   async function toggleSnippetFavoriteStatus(snippet) {
     const data = await favoriteSnippet(user.usernameLowerCase, {
-      snippetId: snippet.id,
-      username: state.user.usernameLowerCase,
-      userId: snippet.userId,
-      type: snippet.type
+      snippetUserName: state.user.usernameLowerCase,
+      snippet
     });
 
     if (data.code === 200) {
-      state.snippets = state.snippets.filter(({ id }) => snippet.id !== id);
+      state.snippets = state.snippets.filter(({ id }) => data.snippet.id !== id);
       state.tabs = updateSnippetTypeCount(state.snippets);
 
       showSnippets(state, state.visibleTabType);
@@ -345,21 +331,13 @@ export default function Snippets() {
   }
 
   async function uploadSnippet(snippet) {
-    const remoteSnippet = {
-      ...snippet,
-      userId: user._id,
+    const data = await createServerSnippet(snippet, {
       type: "private",
-      created: new Date(),
-      id: getRandomString(),
-      files: snippet.files.map(file => {
-        file.id = getRandomString();
-        return file;
-      })
-    };
-    const data = await createServerSnippet(remoteSnippet);
+      userId: user._id
+    });
 
     if (data.code === 201) {
-      state.snippets.unshift(remoteSnippet);
+      state.snippets.unshift(data.snippet);
       state.tabs = updateSnippetTypeCount(state.snippets);
       state.notification = {
         value: "Upload was successful.",

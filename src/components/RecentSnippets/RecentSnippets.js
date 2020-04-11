@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useHistory } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
 import "./recent-snippets.scss";
 import { GENERIC_ERROR_MESSAGE, SESSION_EXPIRATION_MESSAGE } from "../../messages";
 import { setDocumentTitle } from "../../utils";
@@ -47,22 +46,9 @@ export default function RecentSnippets() {
   }
 
   async function forkSnippet(snippet) {
-    const data = await createServerSnippet({
-      ...snippet,
-      files: snippet.files.map(file => ({
-        id: uuidv4(),
-        name: file.name,
-        type: file.type,
-        value: file.value
-      })),
-      userId: user._id,
-      created: new Date(),
-      id: uuidv4(),
-      type: "forked",
-      fork: {
-        id: snippet.id,
-        userId: snippet.userId
-      }
+    const data = await createServerSnippet(snippet, {
+      isFork: true,
+      userId: user._id
     });
 
     if (data.code === 201) {
@@ -83,10 +69,8 @@ export default function RecentSnippets() {
 
   async function toggleSnippetFavoriteStatus(snippet) {
     const data = await favoriteSnippet(user.usernameLowerCase, {
-      snippetId: snippet.id,
-      username: snippet.user.usernameLowerCase,
-      userId: snippet.userId,
-      type: snippet.type
+      snippetUserName: snippet.user.usernameLowerCase,
+      snippet
     });
 
     if (data.code === 201 || data.code === 204) {

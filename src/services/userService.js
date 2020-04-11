@@ -49,13 +49,18 @@ function uploadProfileImage(username, data) {
   }).then(getResponse);
 }
 
-function favoriteSnippet(username, data) {
+function favoriteSnippet(username, { snippet, snippetUserName }) {
   return fetch(`/users/${username}/favorites`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify({
+      snippetId: snippet.id,
+      username: snippetUserName,
+      userId: snippet.userId,
+      type: snippet.type
+    })
   }).then(getResponse);
 }
 

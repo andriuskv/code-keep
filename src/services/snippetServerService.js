@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from "uuid";
+
 function fetchServerSnippets(userId) {
   return fetch(`/snippets/${userId}`)
     .then(getResponse)
@@ -23,13 +25,35 @@ function fetchServerRecentSnippets(page) {
   return fetch(`/snippets?page=${page}`).then(getResponse);
 }
 
-function createServerSnippet(snippet) {
+function createServerSnippet(snippet, { isFork = false, type = snippet.type, userId = "" } = {}) {
+  let fork = undefined;
+
+  if (isFork) {
+    type = "forked";
+    fork = {
+      id: snippet.id,
+      userId: snippet.userId
+    };
+  }
   return fetch("/snippets", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify(snippet)
+    body: JSON.stringify({
+      ...snippet,
+      type,
+      userId,
+      id: uuidv4(),
+      created: new Date(),
+      fork,
+      files: snippet.files.map(file => ({
+        id: uuidv4(),
+        name: file.name,
+        type: file.type,
+        value: file.value
+      }))
+    })
   }).then(getResponse);
 }
 

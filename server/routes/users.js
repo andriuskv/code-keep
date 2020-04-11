@@ -337,7 +337,12 @@ router.post("/:username/favorites", async (req, res) => {
         else if (req.body.type === "favorite") {
           user.favorites.splice(index, 1);
           await user.save();
-          res.json({ type: snippet.type });
+          res.json({
+            snippet: {
+              type: snippet.type,
+              id: snippet.id
+            }
+          });
         }
         else {
           res.sendStatus(201);

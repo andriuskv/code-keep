@@ -3,7 +3,7 @@ const validator = require("validator");
 const fetch = require("node-fetch");
 const User = require("../models/User");
 const Snippet = require("../models/Snippet");
-const { uploadImage, fetchImage, deleteImage } = require("./users.profile-image");
+const { uploadImage, deleteImage } = require("./users.profile-image");
 const { getStore } = require("../session");
 const reservedUsernames = require("../data/reserved_usernames.json");
 const router = express.Router();
@@ -159,8 +159,6 @@ router.get("/me/github", async (req, res) => {
     res.sendStatus(500);
   }
 });
-
-router.get("/image/:filename", fetchImage);
 
 router.get("/disconnect", async (req, res) => {
   if (!req.session.user) {

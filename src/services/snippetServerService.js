@@ -1,7 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
+import { getResponse } from "../utils";
 
 function fetchServerSnippets(userId) {
-  return fetch(`/snippets/${userId}`)
+  return fetch(`/api/snippets/${userId}`)
     .then(getResponse)
     .then(data => {
       if (data.snippetError) {
@@ -18,11 +19,11 @@ function fetchServerSnippets(userId) {
 }
 
 function fetchServerSnippet({ snippetId, username, status, queryParams }) {
-  return fetch(`/snippets/${username}/${snippetId}${status === "edit" ? "/edit" : ""}${queryParams}`).then(getResponse);
+  return fetch(`/api/snippets/${username}/${snippetId}${status === "edit" ? "/edit" : ""}${queryParams}`).then(getResponse);
 }
 
 function fetchServerRecentSnippets(page) {
-  return fetch(`/snippets?page=${page}`).then(getResponse);
+  return fetch(`/api/snippets?page=${page}`).then(getResponse);
 }
 
 function createServerSnippet(snippet, { isFork = false, type = snippet.type, userId = "" } = {}) {
@@ -35,7 +36,7 @@ function createServerSnippet(snippet, { isFork = false, type = snippet.type, use
       userId: snippet.userId
     };
   }
-  return fetch("/snippets", {
+  return fetch("/api/snippets", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -58,7 +59,7 @@ function createServerSnippet(snippet, { isFork = false, type = snippet.type, use
 }
 
 function updateServerSnippet(snippet) {
-  return fetch(`/snippets/${snippet.id}`, {
+  return fetch(`/api/snippets/${snippet.id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json"
@@ -67,8 +68,18 @@ function updateServerSnippet(snippet) {
   }).then(getResponse);
 }
 
+function patchServerSnippet(snippet) {
+  return fetch(`/api/snippets/${snippet.id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(snippet)
+  }).then(getResponse);
+}
+
 function deleteServerSnippet({ snippetId, type }) {
-  return fetch(`/snippets/${snippetId}`, {
+  return fetch(`/api/snippets/${snippetId}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json"
@@ -77,19 +88,12 @@ function deleteServerSnippet({ snippetId, type }) {
   }).then(res => res.status);
 }
 
-async function getResponse(response) {
-  const contentType = response.headers.get("content-type");
-  const isJson = contentType && contentType.includes("application/json");
-  const json = isJson ? await response.json() : {};
-
-  return { code: response.status, ...json };
-}
-
 export {
   fetchServerSnippets,
   fetchServerSnippet,
   fetchServerRecentSnippets,
   createServerSnippet,
   updateServerSnippet,
+  patchServerSnippet,
   deleteServerSnippet
 };

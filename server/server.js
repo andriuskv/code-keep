@@ -28,9 +28,10 @@ app.use(express.json());
 app.set("trust proxy", 1);
 app.use(getSession());
 
-app.use("/users", require("./routes/users"));
-app.use("/snippets", require("./routes/snippets"));
-app.use("/search", require("./routes/search"));
+app.use("/image", require("./routes/image"));
+app.use("/api/users", require("./routes/users"));
+app.use("/api/snippets", require("./routes/snippets"));
+app.use("/api/search", require("./routes/search"));
 
 app.use(express.static(path.join(__dirname, "build")));
 

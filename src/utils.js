@@ -71,11 +71,20 @@ function renderReadOnlyEditor(CodeMirror, element, { content, mode, preview }) {
   element.querySelector(".editor-content-container").insertAdjacentElement("afterbegin", div);
 }
 
+async function getResponse(response) {
+  const contentType = response.headers.get("content-type");
+  const isJson = contentType && contentType.includes("application/json");
+  const json = isJson ? await response.json() : {};
+
+  return { code: response.status, ...json };
+}
+
 export {
   getRandomString,
   setDocumentTitle,
   importEditorMode,
   resetEditorIndentation,
   markdownToHtml,
-  renderReadOnlyEditor
+  renderReadOnlyEditor,
+  getResponse
 };

@@ -51,5 +51,12 @@ SnippetSchema.methods.getSnippet = function() {
   };
 };
 
+SnippetSchema.set("toJSON", {
+  transform: (doc, snippet) => {
+    delete snippet._id;
+    delete snippet.__v;
+  }
+});
+
 module.exports = mongoose.model("Snippet", SnippetSchema);
 

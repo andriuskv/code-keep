@@ -6,7 +6,7 @@ import { setDocumentTitle } from "../../utils";
 import { fetchUser, favoriteSnippet } from "../../services/userService";
 import { fetchIDBSnippets } from "../../services/snippetIDBService";
 import { fetchSnippets, deleteSnippet, sortSnippets } from "../../services/snippetService";
-import { fetchServerSnippets, createServerSnippet, updateServerSnippet } from "../../services/snippetServerService";
+import { fetchServerSnippets, createServerSnippet, patchServerSnippet } from "../../services/snippetServerService";
 import { useUser } from "../../context/user-context";
 import Icon from "../Icon";
 import PageSpinner from "../PageSpinner";
@@ -259,7 +259,7 @@ export default function Snippets() {
   }
 
   async function toggleSnippetPrivacy(snippet) {
-    const data = await updateServerSnippet({
+    const data = await patchServerSnippet({
       id: snippet.id,
       type: snippet.type === "private" ? "remote" : "private"
     });

@@ -59,7 +59,7 @@ function uploadImage(req, res) {
         deleteImage(user.profileImage);
         user.profileImage = {
           id: req.file.id.toString(),
-          path: `/users/image/${req.file.filename}`,
+          path: `/image/${req.file.filename}`,
           name: req.file.filename
         };
         await user.save();

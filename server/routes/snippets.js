@@ -34,54 +34,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/:userId", async (req, res) => {
-  const types = ["remote", "forked"];
-  let getPrivate = false;
-
-  if (req.session.user) {
-    getPrivate = req.session.user._id === req.params.userId;
-
-    if (getPrivate) {
-      types.push("private");
-    }
-  }
-
-  try {
-    const data = {
-      snippets: []
-    };
-    const [gists, snippets, favorites] = await Promise.all([
-      getPrivate ? fetchGists(req.params.userId) : [],
-      Snippet.find({ $and: [{ userId: req.params.userId }, { type: { $in: types }}]}),
-      fetchFavoriteSnippets(req.params.userId)
-    ]);
-
-    if (Array.isArray(gists)) {
-      data.snippets = data.snippets.concat(gists.map(gist => parseGist(gist, req.params.userId)));
-    }
-    else {
-      data.gistError = true;
-    }
-
-    if (Array.isArray(snippets)) {
-      data.snippets = data.snippets.concat(snippets);
-    }
-    else {
-      data.snippetError = true;
-    }
-    if (Array.isArray(favorites)) {
-      data.snippets = data.snippets.concat(favorites);
-    }
-    else {
-      data.favoriteError = true;
-    }
-    res.json(data);
-  } catch (e) {
-    console.log(e);
-    res.sendStatus(500);
-  }
-});
-
 router.post("/", async (req, res) => {
   if (!req.session.user) {
     return res.sendStatus(401);
@@ -132,6 +84,54 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get("/:userId", async (req, res) => {
+  const types = ["remote", "forked"];
+  let getPrivate = false;
+
+  if (req.session.user) {
+    getPrivate = req.session.user._id === req.params.userId;
+
+    if (getPrivate) {
+      types.push("private");
+    }
+  }
+
+  try {
+    const data = {
+      snippets: []
+    };
+    const [gists, snippets, favorites] = await Promise.all([
+      getPrivate ? fetchGists(req.params.userId) : [],
+      Snippet.find({ $and: [{ userId: req.params.userId }, { type: { $in: types }}]}),
+      fetchFavoriteSnippets(req.params.userId)
+    ]);
+
+    if (Array.isArray(gists)) {
+      data.snippets = data.snippets.concat(gists.map(gist => parseGist(gist, req.params.userId)));
+    }
+    else {
+      data.gistError = true;
+    }
+
+    if (Array.isArray(snippets)) {
+      data.snippets = data.snippets.concat(snippets);
+    }
+    else {
+      data.snippetError = true;
+    }
+    if (Array.isArray(favorites)) {
+      data.snippets = data.snippets.concat(favorites);
+    }
+    else {
+      data.favoriteError = true;
+    }
+    res.json(data);
+  } catch (e) {
+    console.log(e);
+    res.sendStatus(500);
+  }
+});
+
 router.put("/:snippetId", async (req, res) => {
   if (!req.session.user) {
     return res.sendStatus(401);
@@ -174,7 +174,28 @@ router.put("/:snippetId", async (req, res) => {
       }
       return res.json({ snippet });
     }
-    const snippet = await Snippet.findOneAndUpdate({ $and: [{ id: req.params.snippetId }, { userId: req.session.user._id }]}, req.body);
+    const snippet = await Snippet.findOneAndUpdate({
+      $and: [{ id: req.params.snippetId }, { userId: req.session.user._id }]
+    }, req.body, { new: true });
+
+    if (snippet) {
+      return res.json({ snippet });
+    }
+    res.sendStatus(404);
+  } catch (e) {
+    console.log(e);
+    res.sendStatus(500);
+  }
+});
+
+router.patch("/:snippetId", async (req, res) => {
+  if (!req.session.user) {
+    return res.sendStatus(401);
+  }
+  try {
+    const snippet = await Snippet.findOneAndUpdate({
+      $and: [{ id: req.params.snippetId }, { userId: req.session.user._id }]
+    }, req.body, { new: true });
 
     if (snippet) {
       return res.json({ snippet });

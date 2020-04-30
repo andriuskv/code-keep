@@ -5,7 +5,7 @@ import { GENERIC_ERROR_MESSAGE, SESSION_EXPIRATION_MESSAGE } from "../../message
 import { setDocumentTitle, markdownToHtml } from "../../utils";
 import { fetchUser, favoriteSnippet } from "../../services/userService";
 import { fetchIDBSnippet } from "../../services/snippetIDBService";
-import { fetchServerSnippet, createServerSnippet, updateServerSnippet } from "../../services/snippetServerService";
+import { fetchServerSnippet, createServerSnippet, patchServerSnippet } from "../../services/snippetServerService";
 import { deleteSnippet } from "../../services/snippetService";
 import { useUser } from "../../context/user-context";
 import Icon from "../Icon";
@@ -182,7 +182,7 @@ export default function View(props) {
   }
 
   async function toggleSnippetPrivacy(snippet) {
-    const data = await updateServerSnippet({
+    const data = await patchServerSnippet({
       id: snippet.id,
       type: snippet.type === "private" ? "remote" : "private"
     });

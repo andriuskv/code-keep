@@ -88,7 +88,7 @@ export default function GithubConnect() {
         <span>Github</span>
       </h3>
       {state.notification && (
-        <Notification className="settings-form-notification"
+        <Notification margin="bottom"
           notification={state.notification}
           dismiss={removeNotification}/>
       )}

@@ -58,8 +58,9 @@ export default function Login() {
       <img src={logo} className="user-form-image" height="64px" alt="" />
       <h2 className="user-form-title">Sign In</h2>
       {notification && (
-        <Notification className="user-form-notification"
-          notification={notification} dismiss={hideNotification}/>
+        <Notification margin="top"
+          notification={notification}
+          dismiss={hideNotification}/>
       )}
       <label className="user-form-field-group">
         <div className="user-form-field-name">Username</div>

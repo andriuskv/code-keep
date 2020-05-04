@@ -84,7 +84,7 @@ export default function PasswordForm() {
     <div className="settings-item">
       <h3 className="settings-item-title">Change Password</h3>
       {notification.form && (
-        <Notification className="settings-form-notification"
+        <Notification margin="bottom"
           notification={notification.form}
           dismiss={() => hideNotification("form")}/>
       )}

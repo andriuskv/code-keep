@@ -75,7 +75,7 @@ export default function UsernameForm() {
     <div className="settings-item">
       <h3 className="settings-item-title">Change Username</h3>
       {notification && (
-        <Notification className="settings-form-notification"
+        <Notification margin="bottom"
           notification={notification}
           dismiss={hideNotification}/>
       )}

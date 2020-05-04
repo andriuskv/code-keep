@@ -61,8 +61,9 @@ export default function AccountDeleteForm() {
     <div className="settings-item">
       <h3 className="account-delete-form-title">Delete Account</h3>
       {notification && (
-        <Notification className="settings-form-notification"
-          notification={notification} dismiss={hideNotification}/>
+        <Notification margin="bottom"
+          notification={notification}
+          dismiss={hideNotification}/>
       )}
       <form onSubmit={handleFormSubmit} onKeyDown={handleKeydown} onInput={handleInput}>
         <p className="account-delete-form-notice">Deleting your account will delete <b>all</b> except your local snippets, also your username will become available to anyone.</p>

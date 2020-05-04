@@ -1,0 +1,32 @@
+.local-snippets-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.local-snippets-header {
+  display: flex;
+  align-items: center;
+  margin-top: var(--space-xl);
+  margin-bottom: var(--space-xxxl);
+
+  .btn {
+    display: flex;
+    margin-left: auto;
+  }
+}
+
+.local-snippets-header-title {
+  font-size: var(--text-xl);
+  font-weight: 500;
+}
+
+.local-snippets-message-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: auto;
+
+  .btn {
+    margin-top: var(--space-xl);
+  }
+}

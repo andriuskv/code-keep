@@ -8,6 +8,14 @@
   color: var(--notification-color);
   font-size: var(--text-sm);
 
+  &.margin-top {
+    margin-top: var(--space-xl);
+  }
+
+  &.margin-bottom {
+    margin-bottom: var(--space-xl);
+  }
+
   &.negative {
     --notification-background-color: var(--color-danger-10);
     --notification-color: var(--color-danger);
@@ -26,11 +34,11 @@
     }
   }
 
-    &.flash {
-      animation-duration: 0.32s;
-      animation-fill-mode: forwards;
-      animation-iteration-count: 2;
-    }
+  &.flash {
+    animation-duration: 0.32s;
+    animation-fill-mode: forwards;
+    animation-iteration-count: 2;
+  }
 }
 
 .notification-text {

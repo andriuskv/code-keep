@@ -36,8 +36,7 @@ function sortSnippets(snippets) {
     if (aDate < bDate) {
       return 1;
     }
-
-    if (aDate > bDate) {
+    else if (aDate > bDate) {
       return -1;
     }
     return 0;

@@ -4,12 +4,11 @@ import "./snippets.scss";
 import { GENERIC_ERROR_MESSAGE, SESSION_EXPIRATION_MESSAGE, NON_EXISTENT_PAGE_MESSAGE } from "../../messages";
 import { setDocumentTitle } from "../../utils";
 import { fetchUser, favoriteSnippet } from "../../services/userService";
-import { fetchIDBSnippets } from "../../services/snippetIDBService";
 import { fetchSnippets, deleteSnippet, sortSnippets } from "../../services/snippetService";
 import { fetchServerSnippets, createServerSnippet, patchServerSnippet } from "../../services/snippetServerService";
 import { useUser } from "../../context/user-context";
+import Skeleton from "./SnippetsSkeleton";
 import Icon from "../Icon";
-import PageSpinner from "../PageSpinner";
 import Notification from "../Notification";
 import SnippetPreview from "../SnippetPreview";
 import NoMatch from "../NoMatch";
@@ -22,28 +21,33 @@ export default function Snippets() {
   const { username } = useParams();
   const [state, setState] = useState({
     snippets: [],
-    loading: true,
-    user: null
+    loading: true
   });
-  const user = useUser();
+  const [user, setUser] = useState(null);
+  const authUser = useUser();
   const { location } = history;
   const snippetsPerPage = 10;
 
   useEffect(() => {
+    // Reset data then navigating from one user to another.
+    if (!state.loading) {
+      window.scrollTo(0, 0);
+      setState({
+        snippets: [],
+        loading: true
+      });
+
+      if (user) {
+        setUser(null);
+      }
+    }
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, location.pathname]);
+  }, [authUser, location.pathname]);
 
   useEffect(() => {
-    if (location.pathname === "/snippets") {
-      if (state.snippets.length) {
-        showSnippets(state, "");
-      }
-      return;
-    }
-
-    if (state.user?.usernameLowerCase === username.toLowerCase()) {
-      setSnippetState(state);
+    if (user?.usernameLowerCase === username.toLowerCase()) {
+      setSnippetState(state, user.usernameLowerCase);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
@@ -54,15 +58,14 @@ export default function Snippets() {
     }
   }, [state.notification]);
 
-  function setSnippetState(state) {
+  function setSnippetState(state, username) {
     const type = new URLSearchParams(location.search).get("type") || "";
 
-    if (state.user?.usernameLowerCase !== user.usernameLowerCase) {
+    if (username !== authUser.usernameLowerCase) {
       const allowedTypes = ["all", "forked", "favorite"];
 
       if (type && !allowedTypes.includes(type)) {
         setState({ ...state, message: NON_EXISTENT_PAGE_MESSAGE });
-        return;
       }
     }
     delete state.message;
@@ -129,48 +132,31 @@ export default function Snippets() {
   }
 
   async function init() {
-    if (user.status === "logged-out") {
-      user.resetUser();
+    if (authUser.status === "logged-out") {
+      authUser.resetUser();
       return;
     }
 
-    if (location.pathname === "/snippets") {
-      if (user.username) {
-        history.replace({
-          pathname: `/users/${user.usernameLowerCase}`,
-          search: "?type=local"
-        });
-        return;
-      }
-      setSnippetState({
-        snippets: await fetchIDBSnippets(),
-        user: { isLocal: true }
-      });
-      setDocumentTitle("Your Snippets");
+    if (username.toLowerCase() === authUser.usernameLowerCase) {
+      initAuthUser();
     }
-    else if (username) {
-      if (username.toLowerCase() === user.usernameLowerCase) {
-        initAuthUser();
-      }
-      else if (!user.loading) {
-        initUser(username);
-      }
+    else if (!authUser.loading) {
+      initUser(username);
     }
   }
 
   async function initAuthUser() {
+    setUser({ ...authUser, isLoggedIn: true });
+
     try {
-      const data = await fetchSnippets(user._id);
-      const newState = {
-        snippets: data.snippets,
-        user: { ...user, isLoggedIn: true }
-      };
+      const data = await fetchSnippets(authUser._id);
+      const newState = { snippets: data.snippets };
 
       if (data.message) {
         newState.notification = { value: data.message };
       }
-      setSnippetState(newState);
-      setDocumentTitle(`${user.username} Snippets`);
+      setSnippetState(newState, authUser.usernameLowerCase);
+      setDocumentTitle(`${authUser.username} Snippets`);
     } catch (e) {
       console.log(e);
       setState({ message: GENERIC_ERROR_MESSAGE });
@@ -188,21 +174,20 @@ export default function Snippets() {
         setState({ message: GENERIC_ERROR_MESSAGE });
       }
       else {
+        setUser({ ...user });
+
         const data = await fetchServerSnippets(user._id);
 
         if (data.code === 500) {
           setState({ message: GENERIC_ERROR_MESSAGE });
         }
         else {
-          const newState = {
-            snippets: sortSnippets(data.snippets),
-            user
-          };
+          const newState = { snippets: sortSnippets(data.snippets) };
 
           if (data.message) {
             newState.notification = { value: data.message };
           }
-          setSnippetState(newState);
+          setSnippetState(newState, user.usernameLowerCase);
           setDocumentTitle(`${user.username} Snippets`);
         }
       }
@@ -285,12 +270,12 @@ export default function Snippets() {
   async function forkSnippet(snippet) {
     const data = await createServerSnippet(snippet, {
       isFork: true,
-      userId: user._id
+      userId: authUser._id
     });
 
     if (data.code === 201) {
       history.push({
-        pathname: `/users/${user.usernameLowerCase}`,
+        pathname: `/users/${authUser.usernameLowerCase}`,
         search: "?type=forked"
       });
       return;
@@ -305,8 +290,8 @@ export default function Snippets() {
   }
 
   async function toggleSnippetFavoriteStatus(snippet) {
-    const data = await favoriteSnippet(user.usernameLowerCase, {
-      snippetUserName: state.user.usernameLowerCase,
+    const data = await favoriteSnippet(authUser.usernameLowerCase, {
+      snippetUserName: user.usernameLowerCase,
       snippet
     });
 
@@ -318,7 +303,7 @@ export default function Snippets() {
     }
     else if (data.code === 201) {
       history.push({
-        pathname: `/users/${user.usernameLowerCase}`,
+        pathname: `/users/${authUser.usernameLowerCase}`,
         search: "?type=favorite"
       });
     }
@@ -333,7 +318,7 @@ export default function Snippets() {
   async function uploadSnippet(snippet) {
     const data = await createServerSnippet(snippet, {
       type: "private",
-      userId: user._id
+      userId: authUser._id
     });
 
     if (data.code === 201) {
@@ -372,7 +357,7 @@ export default function Snippets() {
     else if (snippet.type === "favorite") {
       return `/users/${snippet.username}/${snippet.id}`;
     }
-    return `/users/${state.user.usernameLowerCase}/${snippet.id}${snippet.type === "gist" ? "?type=gist": ""}`;
+    return `/users/${user.usernameLowerCase}/${snippet.id}${snippet.type === "gist" ? "?type=gist": ""}`;
   }
 
   function getPageOffset() {
@@ -452,37 +437,24 @@ export default function Snippets() {
   }
 
   function renderHeader() {
-    const { user } = state;
-
-    if (user.isLocal) {
-      return (
-        <div className="snippets-header">
-          <h2 className="snippets-header-title">Your local snippets</h2>
-          <Link to="/snippets/create" className="btn btn-secondary">Create Snippet</Link>
-        </div>
-      );
-    }
     return (
       <div className="snippets-header">
-        <UserProfileImage src={user.profileImage.path} size="64px" className="snippets-header-image" />
+        <UserProfileImage src={user.profileImage.path} size="64px" className="snippets-header-image"/>
         <h2 className="snippets-header-title">{user.username}</h2>
       </div>
     );
   }
 
   function renderSnippetsTabs() {
-    if (state.user.isLocal) {
-      return null;
-    }
     return (
       <ul className="snippet-tab-selection">
         {Object.keys(state.tabs).map((key, index) => {
           const tab = state.tabs[key];
 
-          if (tab.require && !state.user.isLoggedIn) {
+          if (tab.require && !user.isLoggedIn) {
             return null;
           }
-          else if (tab.type === "gist" && !state.user.isGithubConnected) {
+          else if (tab.type === "gist" && !user.isGithubConnected) {
             return null;
           }
           return (
@@ -501,17 +473,22 @@ export default function Snippets() {
   }
 
   function renderSnippets() {
-    const { user: snippetUser, tabSnippets, pageSnippets } = state;
+    const { tabSnippets, pageSnippets } = state;
 
     if (!tabSnippets.length) {
-      return <p className="snippets-visible-snippet-message">{snippetUser.isLoggedIn ? "You don't" : "This user doesn't"} have any {state.visibleTabType} snippets.</p>;
+      return (
+        <div className="snippets-message-container">
+          <p>{user.isLoggedIn ? "You don't" : "This user doesn't"} have any {state.visibleTabType} snippets.</p>
+          {user.isLoggedIn && <Link to="/snippets/create" className="btn btn-secondary">Create Snippet</Link>}
+        </div>
+      );
     }
     return (
       <Fragment>
         <ul>
           {pageSnippets.map(snippet =>
             <SnippetPreview key={snippet.id} to={getSnippetLink(snippet)} snippet={snippet}>
-              <SnippetDropdown snippet={snippet} snippetUser={snippetUser} authUser={user}
+              <SnippetDropdown snippet={snippet} snippetUser={user} authUser={authUser}
                 uploadSnippet={uploadSnippet}
                 removeSnippet={showSnippetRemoveModal}
                 toggleSnippetPrivacy={toggleSnippetPrivacy}
@@ -525,58 +502,32 @@ export default function Snippets() {
     );
   }
 
-  function renderMessage() {
-    const { user } = state;
-
-    if (user.isLoggedIn || user.isLocal) {
-      return (
-        <div className="snippets-message-container">
-          <h2>You don't have any {user.isLocal && "local "}snippets yet.</h2>
-          <Link to="/snippets/create" className="btn btn-secondary">Create Snippet</Link>
-        </div>
-      );
-    }
-    return (
-      <div className="snippets-message-container">
-        <h2>This user doesn't have any snippets.</h2>
-      </div>
-    );
-  }
-
   if (state.loading) {
-    return <PageSpinner/>;
-  }
-
-  if (!state.user || state.message) {
-    return <NoMatch message={state.message} />;
-  }
-  else if (state.snippets.length) {
     return (
       <div className="container snippets-container">
-        {renderHeader()}
-        {renderSnippetsTabs()}
-        {state.notification && (
-          <Notification className="snippets-notification"
-            notification={state.notification}
-            dismiss={hideNotification}/>
-        )}
-        {renderSnippets()}
-        {state.removeModal ? (
-          <SnippetRemoveModal
-            type={state.removeModal.type}
-            hide={hideSnippetRemoveModal}
-            removeSnippet={removeSnippet}/>
-        ) : null}
+        <Skeleton/>
       </div>
     );
   }
-  else if (state.user.isLocal) {
-    return renderMessage();
+  else if (!user || state.message) {
+    return <NoMatch message={state.message}/>;
   }
   return (
     <div className="container snippets-container">
       {renderHeader()}
-      {renderMessage()}
+      {renderSnippetsTabs()}
+      {state.notification && (
+        <Notification margin="bottom"
+          notification={state.notification}
+          dismiss={hideNotification}/>
+      )}
+      {renderSnippets()}
+      {state.removeModal ? (
+        <SnippetRemoveModal
+          type={state.removeModal.type}
+          hide={hideSnippetRemoveModal}
+          removeSnippet={removeSnippet}/>
+      ) : null}
     </div>
   );
 }

@@ -10,11 +10,6 @@
   align-items: center;
   margin-top: var(--space-xl);
   margin-bottom: var(--space-xxxl);
-
-  .btn {
-    display: flex;
-    margin-left: auto;
-  }
 }
 
 .snippets-header-image {
@@ -28,10 +23,6 @@
 .snippets-header-title {
   font-size: var(--text-xl);
   font-weight: 500;
-}
-
-.snippets-notification {
-  margin-bottom: var(--space-xl);
 }
 
 .snippet-tab-selection {
@@ -99,14 +90,6 @@
   .btn:first-of-type {
     margin-right: var(--space-md);
   }
-}
-
-.snippets-visible-snippet-message {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 200px;
-  font-size: var(--text-lg);
 }
 
 .snippets-message-container {

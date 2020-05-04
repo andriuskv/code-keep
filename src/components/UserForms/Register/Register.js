@@ -91,7 +91,7 @@ export default function Register() {
       <img src={logo} className="user-form-image" height="64px" alt="" />
       <h2 className="user-form-title">Sign Up</h2>
       {notification.form && (
-        <Notification className="user-form-notification"
+        <Notification margin="top"
           notification={notification.form}
           dismiss={() => hideNotification("form")}/>
       )}

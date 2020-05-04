@@ -266,7 +266,7 @@ export default function Search() {
         </button>
       </form>
       {state.notification && (
-        <Notification className="search-notification"
+        <Notification margin="bottom"
           notification={state.notification}
           dismiss={hideNotification}/>
       )}

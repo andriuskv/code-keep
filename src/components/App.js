@@ -3,10 +3,10 @@ import { HashRouter, Route, Switch } from "react-router-dom";
 import { UserProvider } from "../context/user-context";
 import Header from "./Header";
 import Home from "./Home";
-import PageSpinner from "./PageSpinner";
 
 const Snippets = lazy(() => import("./Snippets"));
 const RecentSnippets = lazy(() => import("./RecentSnippets"));
+const LocalSnippets = lazy(() => import("./LocalSnippets"));
 const View = lazy(() => import("./View"));
 const Form = lazy(() => import("./Form"));
 const Search = lazy(() => import("./Search"));
@@ -20,10 +20,10 @@ export default function App() {
       <UserProvider>
         <Header/>
         <main>
-          <Suspense fallback={<PageSpinner/>}>
+          <Suspense fallback={<div></div>}>
             <Switch>
               <Route path="/" exact component={Home} />
-              <Route path="/snippets" exact component={Snippets} key="local" />
+              <Route path="/snippets" exact component={LocalSnippets} key="local" />
               <Route path="/snippets/create" component={Form} key="create" />
               <Route path="/snippets/recent" component={RecentSnippets} />
               <Route path="/snippets/:id" exact component={View} key="local" />

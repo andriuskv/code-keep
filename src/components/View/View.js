@@ -87,7 +87,7 @@ export default function View(props) {
           if (snippet.code === 404) {
             setState({});
           }
-          if (snippet.code === 500) {
+          else if (snippet.code === 500) {
             setState({ message: GENERIC_ERROR_MESSAGE });
           }
           else {
@@ -266,7 +266,7 @@ export default function View(props) {
     return <PageSpinner/>;
   }
   else if (!state.snippet || state.message) {
-    return <NoMatch message={state.message} />;
+    return <NoMatch message={state.message}/>;
   }
   return (
     <div className="container view">
@@ -289,7 +289,7 @@ export default function View(props) {
             forkSnippet={forkSnippet}/>
         </div>
         {state.notification && (
-          <Notification className="view-notification"
+          <Notification margin="top"
             notification={state.notification}
             dismiss={hideNotification}/>
         )}

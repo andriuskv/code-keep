@@ -2,6 +2,7 @@
 
 .view .CodeMirror {
   min-height: auto;
+  padding-bottom: var(--space-sm);
 
   ::selection {
     background-color: var(--selection-color);
@@ -47,10 +48,6 @@
   flex-shrink: 0;
   margin-left: var(--space-md);
   margin-bottom: var(--space-xs);
-}
-
-.view-notification {
-  margin-top: var(--space-xl);
 }
 
 .view-editor {

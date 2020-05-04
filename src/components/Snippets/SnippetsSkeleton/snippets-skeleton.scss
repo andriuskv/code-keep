@@ -1,0 +1,127 @@
+@import "../../../styles/mixins.scss";
+
+.snippets-skeleton-header {
+  display: flex;
+  align-items: center;
+  margin-top: var(--space-xl);
+  margin-bottom: var(--space-xxxl);
+}
+
+.snippets-skeleton-header-image {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  margin-right: var(--space-xl);
+  border-radius: 50%;
+  background-color: var(--color-grey-dark);
+}
+
+.snippets-skeleton-header-title {
+  height: 25px;
+  width: 100%;
+  max-width: 200px;
+  border-radius: 999px;
+  background-color: var(--color-grey-dark);
+}
+
+.snippets-skeleton-tabs {
+  display: flex;
+  margin-bottom: var(--space-xl);
+}
+
+.snippets-skeleton-tab {
+  height: 38px;
+  border-radius: 999px;
+  background-color: var(--color-grey-dark);
+
+  &:not(:last-of-type) {
+    margin-right: var(--space-md);
+  }
+
+  &-1 {
+    width: 72px;
+  }
+
+  &-2 {
+    width: 125px;
+  }
+
+  &-3 {
+    width: 140px;
+  }
+}
+
+.snippet-skeleton-preview {
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  border-radius: 4px;
+  background-color: var(--color-grey-dark);
+}
+
+.snippet-skeleton-preview-top {
+  display: flex;
+  align-items: center;
+  // margin-bottom: var(--space-xl);
+}
+
+.snippet-skeleton-preview-top-item {
+  flex-shrink: 0;
+  border-radius: 999px;
+  background-color: var(--color-grey);
+
+  &:not(:last-of-type) {
+    margin-right: var(--space-md);
+  }
+
+  &-1 {
+    width: 24px;
+    height: 24px;
+  }
+
+  &-2 {
+    height: 14px;
+    width: 80px;
+  }
+
+  &-3 {
+    width: 24px;
+    height: 24px;
+    margin-left: auto;
+  }
+}
+
+.snippet-skeleton-desc {
+  height: 12px;
+  width: 140px;
+  margin-top: var(--space-md);
+  border-radius: 999px;
+  background-color: var(--color-grey);
+}
+
+.snippet-skeleton-info {
+  height: 10px;
+  width: 160px;
+  margin-top: var(--space-md);
+  margin-bottom: var(--space-xl);
+  border-radius: 999px;
+  background-color: var(--color-grey);
+}
+
+.snippet-skeleton-editor {
+  overflow: hidden;
+  padding: var(--space-md);
+  margin-top: var(--space-sm);
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px var(--color-grey);
+}
+
+.snippet-skeleton-editor-line {
+  height: 12px;
+  border-radius: 999px;
+  background-color: var(--color-grey);
+
+  &:not(:last-of-type) {
+    margin-bottom: var(--space-sm);
+  }
+}
+

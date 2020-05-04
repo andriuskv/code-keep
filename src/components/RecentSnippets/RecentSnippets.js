@@ -103,7 +103,7 @@ export default function RecentSnippets() {
     <div className="container recent-snippets">
       <h2 className="recent-snippets-header-title">Most Recent Snippets</h2>
       {state.notification && (
-        <Notification className="recent-snippets-notification"
+        <Notification margin="bottom"
           notification={state.notification}
           dismiss={hideNotification}/>
       )}

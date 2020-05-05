@@ -85,7 +85,7 @@ export default function View(props) {
           });
 
           if (snippet.code === 404) {
-            setState({});
+            setState({ message: snippet.message });
           }
           else if (snippet.code === 500) {
             setState({ message: GENERIC_ERROR_MESSAGE });

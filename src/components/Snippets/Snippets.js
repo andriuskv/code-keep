@@ -476,10 +476,14 @@ export default function Snippets() {
     const { tabSnippets, pageSnippets } = state;
 
     if (!tabSnippets.length) {
+      const type = state.visibleTabType;
+      const pass = user.isLoggedIn && type !== "forked" && type !== "favorite";
+      const style = pass ? {} : { marginBottom: "50px" };
+
       return (
         <div className="snippets-message-container">
-          <p>{user.isLoggedIn ? "You don't" : "This user doesn't"} have any {state.visibleTabType} snippets.</p>
-          {user.isLoggedIn && <Link to="/snippets/create" className="btn btn-secondary">Create Snippet</Link>}
+          <p style={style}>{user.isLoggedIn ? "You don't" : "This user doesn't"} have any {type} snippets.</p>
+          {pass && <Link to="/snippets/create" className="btn btn-secondary">Create Snippet</Link>}
         </div>
       );
     }

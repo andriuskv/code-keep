@@ -30,6 +30,9 @@ export default function Login() {
       if (data.code === 400) {
         setNotification({ value: "Incorrect username or password." });
       }
+      else if (data.code === 429) {
+        setNotification({ value: data.message });
+      }
       else if (data.code === 500) {
         setNotification({ value: GENERIC_ERROR_MESSAGE });
       }

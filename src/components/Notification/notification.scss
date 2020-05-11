@@ -41,8 +41,12 @@
   }
 }
 
+.notification-icon {
+  flex-shrink: 0;
+}
+
 .notification-text {
-  margin: 0 var(--space-sm);
+  margin: var(--space-xs) var(--space-sm);
 }
 
 .notification-btn {

@@ -5,6 +5,7 @@ const User = require("../models/User");
 const Snippet = require("../models/Snippet");
 const { uploadImage, deleteImage } = require("./users.profile-image");
 const { getStore } = require("../session");
+const { loginAttemptLimter } = require("../middleware/rateLimiter.js");
 const reservedUsernames = require("../data/reserved_usernames.json");
 const router = express.Router();
 
@@ -65,7 +66,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", loginAttemptLimter, async (req, res) => {
   const fieldsValid = validateFields(["username", "password"], req.body);
 
   if (!fieldsValid) {

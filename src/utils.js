@@ -6,6 +6,10 @@ function setDocumentTitle(title) {
   document.title = `${title} | CodeKeep`;
 }
 
+function classNames(...classNames) {
+  return classNames.join(" ");
+}
+
 function importEditorMode(mode) {
   if (mode === "default" || mode === "null") {
     return;
@@ -82,6 +86,7 @@ async function getResponse(response) {
 export {
   getRandomString,
   setDocumentTitle,
+  classNames,
   importEditorMode,
   resetEditorIndentation,
   markdownToHtml,

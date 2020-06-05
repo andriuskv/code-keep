@@ -352,8 +352,9 @@ export default function Form(props) {
               </button>
             )}
           </div>
-          {file.renderAsMarkdown ? <Markdown content={file.markdown} /> :
-            <Editor file={file} height={file.formHeight || "332px"} handleLoad={setEditorInstance} settings={state.settings} />
+          {file.renderAsMarkdown ?
+            <Markdown file={file}/> :
+            <Editor file={file} height={file.formHeight || "332px"} handleLoad={setEditorInstance} settings={state.settings}/>
           }
         </div>
       ))}

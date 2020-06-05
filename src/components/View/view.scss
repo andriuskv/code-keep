@@ -1,11 +1,16 @@
 @import "../../styles/mixins.scss";
 
-.view .CodeMirror {
-  min-height: auto;
-  padding-bottom: var(--space-sm);
+.view {
+  .editor-content-container {
+    padding-bottom: var(--space-sm);
+  }
 
-  ::selection {
-    background-color: var(--selection-color);
+  .CodeMirror {
+    min-height: auto;
+
+    ::selection {
+      background-color: var(--selection-color);
+    }
   }
 }
 

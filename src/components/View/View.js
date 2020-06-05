@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
 import "./view.scss";
 import { GENERIC_ERROR_MESSAGE, SESSION_EXPIRATION_MESSAGE } from "../../messages";
-import { setDocumentTitle, markdownToHtml } from "../../utils";
+import { setDocumentTitle } from "../../utils";
 import { fetchUser, favoriteSnippet } from "../../services/userService";
 import { fetchIDBSnippet } from "../../services/snippetIDBService";
 import { fetchServerSnippet, createServerSnippet, patchServerSnippet } from "../../services/snippetServerService";
@@ -82,6 +82,13 @@ export default function View(props) {
             snippetId,
             username,
             queryParams: props.location.search
+          });
+
+          snippet.files = snippet.files.map(file => {
+            if (file.type === "markdown") {
+              file.renderAsMarkdown = true;
+            }
+            return file;
           });
 
           if (snippet.code === 404) {
@@ -246,19 +253,22 @@ export default function View(props) {
 
   async function previewMarkdown(file) {
     if (file.renderAsMarkdown) {
-      delete file.markdown;
       delete file.renderAsMarkdown;
     }
     else {
-      file.height = file.container.clientHeight;
-      file.markdown = await markdownToHtml(file.value);
       file.renderAsMarkdown = true;
     }
     setState({ ...state });
   }
 
+  function handleMarkdownLoad(file, markdown) {
+    file.markdown = markdown;
+    setState({ ...state });
+  }
+
   function handleEditorLoad({ container, file }) {
     file.container = container;
+    file.height = file.height || file.container.clientHeight;
     setState({ ...state });
   }
 
@@ -301,7 +311,8 @@ export default function View(props) {
             <span className="view-editor-header-filename">{file.name}</span>
             <FileHeaderDropdown file={file} previewMarkdown={previewMarkdown} />
           </div>
-          {file.renderAsMarkdown ? <Markdown content={file.markdown} /> :
+          {file.renderAsMarkdown ?
+            <Markdown file={file} handleLoad={handleMarkdownLoad}/> :
             <Editor file={file} settings={state.snippet.settings} handleLoad={handleEditorLoad}
               height={file.height} readOnly/>
           }

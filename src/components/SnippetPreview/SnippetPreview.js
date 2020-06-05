@@ -3,9 +3,16 @@ import { Link } from "react-router-dom";
 import "./snippet-preview.scss";
 import SnippetInfo from "../SnippetInfo";
 import SnippetUserLink from "../SnippetUserLink";
+import Markdown from "../Markdown";
 import Editor from "../Editor";
 
 export default function SnippetPreview({ snippet, to, children }) {
+  const [file] = snippet.files;
+
+  if (file.type === "markdown") {
+    file.value = file.value.split("\n").slice(0, 10).join("\n");
+  }
+
   return (
     <li className="snippet-preview">
       {snippet.user && <SnippetUserLink user={snippet.user} size="24px"/>}
@@ -14,8 +21,10 @@ export default function SnippetPreview({ snippet, to, children }) {
         {children}
       </div>
       <Link to={to} className="snippet-preview-link">
-        <Editor file={snippet.files[0]} settings={snippet.settings}
-          height={snippet.files[0].height} readOnly preview />
+        {file.type === "markdown" ?
+          <Markdown className="snippet-markdown-preview" file={file}/> :
+          <Editor file={file} settings={snippet.settings} readOnly preview/>
+        }
       </Link>
     </li>
   );

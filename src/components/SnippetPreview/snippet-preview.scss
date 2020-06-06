@@ -29,6 +29,8 @@
   }
 
   .cm-container {
+    overflow: hidden;
+    border-radius: 4px;
     pointer-events: none;
 
     .editor-content-container {
@@ -40,5 +42,6 @@
 .snippet-markdown-preview {
   overflow: hidden;
   max-height: 218px;
+  white-space: nowrap;
 }
 

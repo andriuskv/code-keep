@@ -23,7 +23,7 @@
     "interweave": "^12.5.0",
     "jimp": "^0.13.0",
     "jszip": "^3.4.0",
-    "mongoose": "^5.9.17",
+    "mongoose": "^5.9.18",
     "multer": "^1.4.2",
     "multer-gridfs-storage": "^4.1.0",
     "node-fetch": "^2.6.0",

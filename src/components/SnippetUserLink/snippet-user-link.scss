@@ -6,6 +6,10 @@
   &:hover, &.focus-visible {
     text-decoration: underline;
   }
+
+  &.focus-visible {
+    box-shadow: none;
+  }
 }
 
 .snippet-user-username {

@@ -39,7 +39,7 @@ export default function Register() {
     }
 
     if (username.length < 3 || username.length > 20) {
-      showNotification("username", "Username length shuold be between 3 and 20 characters.");
+      showNotification("username", "Username length should be between 3 and 20 characters.");
       return;
     }
 
@@ -49,7 +49,7 @@ export default function Register() {
     }
 
     if (password.length < 6 || repeatedPassword.length < 6) {
-      showNotification("password", "Password must be atleast 6 characters.");
+      showNotification("password", "Password must be at least 6 characters.");
       return;
     }
 

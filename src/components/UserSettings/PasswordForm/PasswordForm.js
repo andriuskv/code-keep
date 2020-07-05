@@ -39,7 +39,7 @@ export default function PasswordForm() {
     event.preventDefault();
 
     if (newPassword.length < 6 || repeatedNewPassword.length < 6) {
-      showNotification("newPassword", { value: "New password must be atleast 6 characters." });
+      showNotification("newPassword", { value: "New password must be at least 6 characters." });
       return;
     }
     else if (newPassword !== repeatedNewPassword) {

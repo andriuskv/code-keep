@@ -5,14 +5,14 @@ const User = require("../models/User");
 const Snippet = require("../models/Snippet");
 const { uploadImage, deleteImage } = require("./users.profile-image");
 const { getStore } = require("../session");
-const { loginAttemptLimter } = require("../middleware/rateLimiter.js");
+const { loginAttemptLimiter } = require("../middleware/rateLimiter.js");
 const reservedUsernames = require("../data/reserved_usernames.json");
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-  const fieldsValids = validateFields(["username", "email", "password", "repeatedPassword"], req.body);
+  const fieldsValid = validateFields(["username", "email", "password", "repeatedPassword"], req.body);
 
-  if (!fieldsValids) {
+  if (!fieldsValid) {
     return res.sendStatus(400);
   }
 
@@ -21,7 +21,7 @@ router.post("/", async (req, res) => {
   }
 
   if (!validator.isLength(req.body.username, { min: 3, max: 20 })) {
-    return res.status(400).json({ message: "Username length shuold be between 3 and 20 characters.", field: "username" });
+    return res.status(400).json({ message: "Username length should be between 3 and 20 characters.", field: "username" });
   }
 
   if (!validator.isEmail(req.body.email)) {
@@ -29,7 +29,7 @@ router.post("/", async (req, res) => {
   }
 
   if (!validator.isLength(req.body.password, { min: 6, max: 254 })) {
-    return res.status(400).json({ message: "Password must be atleast 6 characters.", field: "password" });
+    return res.status(400).json({ message: "Password must be at least 6 characters.", field: "password" });
   }
 
   if (req.body.password !== req.body.repeatedPassword) {
@@ -41,12 +41,12 @@ router.post("/", async (req, res) => {
   }
 
   try {
-    const exsistingUser = await User.findOne({ $or: [
+    const existingUser = await User.findOne({ $or: [
       { email: req.body.email },
       { usernameLowerCase: { $regex: new RegExp(`^${req.body.username.toLowerCase()}$`, "i") } }
     ]});
 
-    if (exsistingUser) {
+    if (existingUser) {
       return res.status(400).json({ message: "User with that username or email already exists.", field: "form" });
     }
     const user = new User({
@@ -66,7 +66,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.post("/login", loginAttemptLimter, async (req, res) => {
+router.post("/login", loginAttemptLimiter, async (req, res) => {
   const fieldsValid = validateFields(["username", "password"], req.body);
 
   if (!fieldsValid) {
@@ -369,7 +369,7 @@ async function changeUsername(req, res) {
   }
 
   if (!validator.isLength(req.body.newUsername, { min: 3, max: 20 })) {
-    return res.status(400).json({ message: "Username length shuold be between 3 and 20 characters." });
+    return res.status(400).json({ message: "Username length should be between 3 and 20 characters." });
   }
 
   if (req.body.newUsername === req.body.oldUsername) {
@@ -403,7 +403,7 @@ async function changePassword(req, res) {
   if (!validator.isLength(req.body.newPassword, { min: 6, max: 254 }) ||
     !validator.isLength(req.body.repeatedNewPassword, { min: 6, max: 254 })
   ) {
-    return res.status(400).json({ message: "New password must be atleast 6 characters.", field: "newPassword" });
+    return res.status(400).json({ message: "New password must be at least 6 characters.", field: "newPassword" });
   }
   if (req.body.newPassword !== req.body.repeatedNewPassword) {
     return res.status(400).json({ message: "Passwords don't match.", field: "newPassword" });

@@ -10,7 +10,7 @@ const SnippetSchema = new mongoose.Schema({
     required: true
   },
   created: {
-    type: Date,
+    type: Number,
     required: true
   },
   title: {

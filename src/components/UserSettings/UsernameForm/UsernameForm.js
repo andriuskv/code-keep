@@ -32,7 +32,7 @@ export default function UsernameForm() {
     }
 
     if (newUsername.length < 3 || newUsername.length > 20) {
-      setNotification({ value: "Username length shuold be between 3 and 20 characters." });
+      setNotification({ value: "Username length should be between 3 and 20 characters." });
       return;
     }
 

@@ -29,7 +29,7 @@ router.get("/", async (req, res) => {
     if (page > 0 && endIndex <= 0) {
       return res.sendStatus(404);
     }
-    // Reverese array to get most recent items.
+    // Reverse array to get most recent items.
     let pageItems = items.slice(startIndex < 0 ? 0 : startIndex, endIndex).reverse();
 
     if (type !== "users") {

@@ -3,7 +3,7 @@ import "./dropdown.scss";
 import { getRandomString } from "../../utils";
 
 export default function Dropdown({ toggle, body, children }) {
-  const [{ id, visible}, setState] = useState({ visible: false, id: "" });
+  const [{ id, visible }, setState] = useState({ visible: false, id: "" });
   const memoizedWindowClickHandler = useCallback(handleWindowClick, [id]);
   const isMounted = useRef(false);
 
@@ -29,10 +29,10 @@ export default function Dropdown({ toggle, body, children }) {
   }
 
   function handleWindowClick({ target }) {
-    const closestContanier = target.closest(".dropdown-container");
+    const closestContainer = target.closest(".dropdown-container");
     let hideDropdown = true;
 
-    if (closestContanier && closestContanier.id === id) {
+    if (closestContainer && closestContainer.id === id) {
       if (target.closest("[data-dropdown-keep]")) {
         hideDropdown = false;
       }

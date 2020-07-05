@@ -30,13 +30,10 @@ async function deleteSnippet({ snippetId, type }) {
 
 function sortSnippets(snippets) {
   return snippets.sort((a, b) => {
-    const aDate = new Date(a.created);
-    const bDate = new Date(b.created);
-
-    if (aDate < bDate) {
+    if (a.created < b.created) {
       return 1;
     }
-    else if (aDate > bDate) {
+    else if (a.created > b.created) {
       return -1;
     }
     return 0;

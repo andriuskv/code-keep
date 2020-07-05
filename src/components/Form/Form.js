@@ -143,7 +143,7 @@ export default function Form(props) {
 
     const newSnippet = {
       id: state.id || getRandomString(),
-      created: state.created || new Date(),
+      created: state.created || Date.now(),
       title: state.title,
       description: state.description,
       type: state.updating ? state.type : snippetType,

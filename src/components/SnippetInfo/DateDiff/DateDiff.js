@@ -23,7 +23,7 @@ export default function DateDiff({ start }) {
   }
 
   function getDateDiff() {
-    return new Date() - new Date(start);
+    return Date.now() - start;
   }
 
   function renderDateDiffString(elapsed) {

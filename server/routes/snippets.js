@@ -404,7 +404,7 @@ function parseGist(gist, userId) {
   return {
     userId,
     id: gist.id,
-    created: gist.created_at,
+    created: new Date(gist.created_at).getTime(),
     title: getGistTitle(gist.id, gist.files),
     description: gist.description,
     type: "gist",

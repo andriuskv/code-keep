@@ -6,7 +6,7 @@ const { getSession } = require("./session.js");
 
 const app = express();
 
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/code-keep", {
+mongoose.connect(process.env.DB_URI || "mongodb://localhost/code-keep", {
   useUnifiedTopology: true,
   useNewUrlParser: true,
   useCreateIndex: true,

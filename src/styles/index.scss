@@ -187,7 +187,8 @@ main {
 .select {
   min-width: 56px;
   padding: var(--space-sm);
-  border-radius: 2px;
+  border-right: var(--space-sm) solid transparent;
+  border-radius: 4px;
   background-color: var(--color-grey-light);
 }
 
@@ -197,7 +198,7 @@ main {
   align-items: center;
   width: 20px;
   height: 20px;
-  border-radius: 2px;
+  border-radius: 4px;
   background-color: var(--color-grey-light);
 
   &.checked .checkmark {
@@ -209,7 +210,8 @@ main {
   display: none;
   width: 34%;
   height: 68%;
+  margin-bottom: var(--space-sm);
   border-right: 2px solid var(--color-white);
   border-bottom: 2px solid var(--color-white);
-  transform: translate(4%, -10%) rotateZ(45deg);
+  transform: rotateZ(45deg);
 }

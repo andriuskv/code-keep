@@ -143,7 +143,6 @@ export default function Form(props) {
 
     const newSnippet = {
       id: state.id || getRandomString(),
-      created: state.created || Date.now(),
       title: state.title,
       description: state.description,
       type: state.updating ? state.type : snippetType,
@@ -155,6 +154,14 @@ export default function Form(props) {
       }
     };
     const pathname = usernameLowerCase ? `/users/${usernameLowerCase}` : "/snippets";
+    const currentDate = Date.now();
+
+    if (state.createdAt) {
+      newSnippet.modifiedAt = currentDate;
+    }
+    else {
+      newSnippet.createdAt = currentDate;
+    }
 
     if (snippetType === "local") {
       saveSnippet({ ...newSnippet });

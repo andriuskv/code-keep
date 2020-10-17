@@ -43,7 +43,7 @@ export default function SnippetInfo({ snippet }) {
       <div className="snippet-info-details">
         <span className="snippet-info-details-item">{snippet.files.length} {`File${snippet.files.length > 1 ? "s" : ""}`}</span>
 
-        <span className="snippet-info-details-item"><DateDiff start={snippet.created}/></span>
+        <span className="snippet-info-details-item"><DateDiff snippet={snippet}/></span>
         {snippet.fork ? (
           <span className="snippet-info-details-item"><Link
             to={`/users/${snippet.fork.usernameLowerCase}/${snippet.fork.id}`}

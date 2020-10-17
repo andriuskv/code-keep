@@ -9,9 +9,12 @@ const SnippetSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  created: {
+  createdAt: {
     type: Number,
     required: true
+  },
+  modifiedAt: {
+    type: Number
   },
   title: {
     type: String,
@@ -40,7 +43,8 @@ const SnippetSchema = new mongoose.Schema({
 SnippetSchema.methods.getSnippet = function() {
   return {
     id: this.id,
-    created: this.created,
+    createdAt: this.createdAt,
+    modifiedAt: this.modifiedAt,
     title: this.title,
     description: this.description,
     type: this.type,

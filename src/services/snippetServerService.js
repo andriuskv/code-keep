@@ -46,7 +46,7 @@ function createServerSnippet(snippet, { isFork = false, type = snippet.type, use
       type,
       userId,
       id: uuidv4(),
-      created: Date.now(),
+      createdAt: Date.now(),
       fork,
       files: snippet.files.map(file => ({
         id: uuidv4(),

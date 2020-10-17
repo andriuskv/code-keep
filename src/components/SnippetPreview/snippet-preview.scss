@@ -13,6 +13,10 @@
 .snippet-preview-top {
   display: flex;
   margin-bottom: var(--space-xl);
+
+  .dropdown-container {
+    margin-left: var(--space-md);
+  }
 }
 
 .snippet-preview-link {

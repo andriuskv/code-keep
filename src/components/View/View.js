@@ -84,13 +84,6 @@ export default function View(props) {
             queryParams: props.location.search
           });
 
-          snippet.files = snippet.files.map(file => {
-            if (file.type === "markdown") {
-              file.renderAsMarkdown = true;
-            }
-            return file;
-          });
-
           if (snippet.code === 404) {
             setState({ message: snippet.message });
           }
@@ -99,6 +92,12 @@ export default function View(props) {
           }
           else {
             snippetUser.isLoggedIn = snippetUser.username.toLowerCase() === user.usernameLowerCase;
+            snippet.files = snippet.files.map(file => {
+              if (file.type === "markdown") {
+                file.renderAsMarkdown = true;
+              }
+              return file;
+            });
             setDocumentTitle(snippet.title);
             setState({
               snippet,

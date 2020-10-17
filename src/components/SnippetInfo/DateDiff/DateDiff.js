@@ -1,19 +1,16 @@
 import { useState, useEffect } from "react";
 
-export default function DateDiff({ start }) {
+export default function DateDiff({ snippet }) {
   const [dateDiff, setDateDiff] = useState(getDateDiff());
   let id = 0;
 
   useEffect(() => {
-    clearTimeout(id);
-    setDateDiff(getDateDiff());
     update();
 
     return () => {
       clearTimeout(id);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [start]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   function update() {
     id = setTimeout(() => {
@@ -23,10 +20,11 @@ export default function DateDiff({ start }) {
   }
 
   function getDateDiff() {
-    return Date.now() - start;
+    return Date.now() - (snippet.modifiedAt || snippet.createdAt);
   }
 
   function renderDateDiffString(elapsed) {
+    const verb = snippet.modifiedAt ? "Modified" : "Created";
     const second = 1000;
     const minute = second * 60;
     const hour = minute * 60;
@@ -35,26 +33,30 @@ export default function DateDiff({ start }) {
     const year = day * 365.25;
 
     if (elapsed < minute) {
-      return "Created just now";
+      return `${verb} just now`;
     }
-    else if (elapsed < hour) {
-      return getDateDiffString("minute", elapsed, minute);
+    const getDateDiffString = getDateDiffStringFunc(elapsed, verb);
+
+    if (elapsed < hour) {
+      return getDateDiffString("minute", minute);
     }
     else if (elapsed < day) {
-      return getDateDiffString("hour", elapsed, hour);
+      return getDateDiffString("hour", hour);
     }
     else if (elapsed < month) {
-      return getDateDiffString("day", elapsed, day);
+      return getDateDiffString("day", day);
     }
     else if (elapsed < year) {
-      return getDateDiffString("month", elapsed, month);
+      return getDateDiffString("month", month);
     }
-    return getDateDiffString("year", elapsed, year);
+    return getDateDiffString("year", year);
   }
 
-  function getDateDiffString(unitName, elapsed, unitValue) {
-    const value = Math.round(elapsed / unitValue);
-    return `Created ${value} ${unitName}${value > 1 ? "s" : ""} ago`;
+  function getDateDiffStringFunc(elapsed, verb) {
+    return (unitName, unitValue) => {
+      const value = Math.round(elapsed / unitValue);
+      return `${verb} ${value} ${unitName}${value > 1 ? "s" : ""} ago`;
+    };
   }
 
   return renderDateDiffString(dateDiff);

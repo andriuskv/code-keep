@@ -172,7 +172,7 @@ router.put("/:snippetId", async (req, res) => {
       if (data.message) {
         return res.status(500).json({ message: data.message });
       }
-      return res.json({ snippet });
+      return res.sendStatus(200);
     }
     const snippet = await Snippet.findOneAndUpdate({
       $and: [{ id: req.params.snippetId }, { userId: req.session.user._id }]
@@ -404,7 +404,8 @@ function parseGist(gist, userId) {
   return {
     userId,
     id: gist.id,
-    created: new Date(gist.created_at).getTime(),
+    createdAt: new Date(gist.created_at).getTime(),
+    modifiedAt: new Date(gist.updated_at).getTime(),
     title: getGistTitle(gist.id, gist.files),
     description: gist.description,
     type: "gist",

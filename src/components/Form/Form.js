@@ -21,6 +21,7 @@ export default function Form(props) {
     loading: true
   });
   const newFileBtnRef = useRef();
+  const fileModeTimeout = useRef();
   const { usernameLowerCase } = useUser();
   const { files } = state;
 
@@ -90,6 +91,7 @@ export default function Form(props) {
   function getNewFile() {
     return {
       id: getRandomString(),
+      name: "",
       value: "",
       cm: null,
       type: state.files ? state.files[state.files.length - 1].type : "javascript"
@@ -234,7 +236,6 @@ export default function Form(props) {
       }
     }
     await updateFileMode(file, target.value, mode);
-    setState({ ...state });
   }
 
   async function updateFileMode(file, type, mode) {
@@ -242,6 +243,7 @@ export default function Form(props) {
 
     file.type = type;
     file.cm.setOption("mode", mode);
+    setState({ ...state });
   }
 
   async function updateEditorOptions({ wrapLines, indentSize, indentWithSpaces }) {
@@ -273,24 +275,27 @@ export default function Form(props) {
     }
   }
 
-  async function handleFilenameChange({ target }, index) {
+  function handleFilenameChange({ target }, index) {
     const file = files[index];
-    const arr = target.value.split(".");
+    const extension = target.value.split(".")[1];
     file.name = target.value;
 
-    if (arr[1]) {
-      for (const key of Object.keys(fileInfo)) {
-        const obj = fileInfo[key];
-
-        if (obj.extension === arr[1]) {
-          await updateFileMode(file, obj.type, obj.mode);
-          setState({ ...state });
-          return;
-        }
-      }
-      await updateFileMode(file, "default", "default");
-    }
     setState({ ...state });
+
+    if (extension) {
+      clearTimeout(fileModeTimeout.current);
+      fileModeTimeout.current = setTimeout(async () => {
+        for (const key of Object.keys(fileInfo)) {
+          const obj = fileInfo[key];
+
+          if (obj.extension === extension) {
+            await updateFileMode(file, obj.type, obj.mode);
+            return;
+          }
+        }
+        await updateFileMode(file, "default", "default");
+      }, 400);
+    }
   }
 
   async function previewMarkdown(file) {

@@ -28,18 +28,18 @@
     "multer-gridfs-storage": "^4.2.0",
     "node-fetch": "^2.6.1",
     "normalize.css": "^8.0.1",
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "3.4.3",
+    "react-scripts": "3.4.4",
     "showdown": "^1.9.1",
     "uuid": "^8.3.1",
     "validator": "^13.1.17"
   },
   "devDependencies": {
-    "eslint-plugin-react-hooks": "^4.1.2",
+    "eslint-plugin-react-hooks": "^4.2.0",
     "node-sass": "^4.14.1",
-    "nodemon": "^2.0.5",
+    "nodemon": "^2.0.6",
     "workbox-cli": "^5.1.4"
   },
   "browserslist": [

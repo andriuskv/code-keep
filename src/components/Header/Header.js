@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import { Fragment } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import "./header.scss";
 import { useUser } from "../../context/user-context";

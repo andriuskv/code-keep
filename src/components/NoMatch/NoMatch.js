@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { setDocumentTitle } from "../../utils";
 import { NON_EXISTENT_PAGE_MESSAGE } from "../../messages";
 import "./no-match.scss";

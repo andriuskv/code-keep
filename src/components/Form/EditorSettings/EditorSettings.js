@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { getSettings, saveSettings } from "../../../services/editor-settings";
 import "./editor-settings.scss";
 

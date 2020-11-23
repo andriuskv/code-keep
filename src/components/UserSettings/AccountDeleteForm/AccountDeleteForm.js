@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "./account-delete-form.scss";
 import { GENERIC_ERROR_MESSAGE } from "../../../messages";
 import { useUser } from "../../../context/user-context";

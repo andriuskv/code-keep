@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "./user-forms.scss";
 import { setDocumentTitle } from "../../utils";
 import { useUser } from "../../context/user-context";

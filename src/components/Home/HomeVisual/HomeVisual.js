@@ -1,4 +1,3 @@
-import React from "react";
 import "./home-visual.scss";
 
 export default function HomeVisual() {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
 import "./local-snippets.scss";
 import { GENERIC_ERROR_MESSAGE } from "../../messages";

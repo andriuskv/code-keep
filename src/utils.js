@@ -14,7 +14,10 @@ function importEditorMode(mode) {
   if (mode === "default" || mode === "null") {
     return;
   }
-  return import(`codemirror/mode/${mode}/${mode}.js`);
+  // There is eslint bug with import and template literals
+  // return import(`codemirror/mode/${mode}/${mode}.js`);
+  // eslint-disable-next-line prefer-template
+  return import("codemirror/mode/" + mode + "/" + mode + ".js");
 }
 
 function resetEditorIndentation(cm) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
 import "./view.scss";
 import { GENERIC_ERROR_MESSAGE, SESSION_EXPIRATION_MESSAGE } from "../../messages";
@@ -31,8 +31,7 @@ export default function View(props) {
 
   useEffect(() => {
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, props.match.url]);
+  }, [user, props.match.url]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function init() {
     if (user.loading) {

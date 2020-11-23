@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, Fragment } from "react";
+import { useState, useEffect, useRef, Fragment } from "react";
 import { useLocation, useHistory, Link } from "react-router-dom";
 import "./search.scss";
 import { setDocumentTitle } from "../../utils";

@@ -1,7 +1,7 @@
-import React, { useState, useContext, useEffect } from "react";
+import { createContext, useState, useContext, useEffect } from "react";
 import { fetchUser, createUser, loginUser, logoutUser } from "../services/userService";
 
-const UserContext = React.createContext();
+const UserContext = createContext();
 
 function UserProvider({ children }) {
   const [user, setUser] = useState({ loading: true });

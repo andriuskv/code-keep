@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { GENERIC_ERROR_MESSAGE } from "../../../messages";
 import { useUser } from "../../../context/user-context";

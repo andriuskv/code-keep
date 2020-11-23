@@ -1,4 +1,3 @@
-import React from "react";
 import "./user-profile-image.scss";
 import Icon from "../Icon";
 

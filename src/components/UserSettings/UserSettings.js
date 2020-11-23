@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import "./user-settings.scss";
 import { setDocumentTitle } from "../../utils";
 import { useUser } from "../../context/user-context";
@@ -28,8 +28,7 @@ export default function UserSettings(props) {
     else {
       setDocumentTitle("Settings");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (user.loading) {
     return <PageSpinner/>;

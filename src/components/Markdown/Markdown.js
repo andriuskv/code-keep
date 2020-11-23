@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Markup } from "interweave";
 import "./markdown.scss";
 import { markdownToHtml } from "../../utils";
@@ -8,8 +8,7 @@ export default function Markdown({ className, file, handleLoad }) {
 
   useEffect(() => {
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function init() {
     if (state) {

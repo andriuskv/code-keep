@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import "./password-form.scss";
 import { GENERIC_ERROR_MESSAGE } from "../../../messages";
 import { useUser } from "../../../context/user-context";

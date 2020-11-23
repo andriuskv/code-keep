@@ -1,4 +1,3 @@
-import React from "react";
 import "./button-spinner.scss";
 import spinner from "../../assets/ring.svg";
 

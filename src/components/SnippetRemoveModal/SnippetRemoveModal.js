@@ -1,4 +1,3 @@
-import React from "react";
 import "./snippet-remove-modal.scss";
 import Icon from "../Icon";
 

@@ -1,9 +1,9 @@
-import React, { Fragment } from "react";
+import { memo } from "react";
 import "./snippets-skeleton.scss";
 
 function Skeleton() {
   return (
-    <Fragment>
+    <>
       <div className="snippets-skeleton-header">
         <div className="snippets-skeleton-header-image"></div>
         <div className="snippets-skeleton-header-title"></div>
@@ -29,8 +29,8 @@ function Skeleton() {
           </div>
         </li>
       ))}</ul>
-    </Fragment>
+    </>
   );
 }
 
-export default React.memo(Skeleton);
+export default memo(Skeleton);

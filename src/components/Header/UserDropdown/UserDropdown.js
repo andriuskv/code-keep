@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import { Fragment, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import "./user-dropdown.scss";
 import { FAILED_LOGOUT_MESSAGE } from "../../../messages";

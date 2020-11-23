@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import { Fragment } from "react";
 import "./submit-dropdown.scss";
 import Dropdown from "../../Dropdown";
 import Icon from "../../Icon";

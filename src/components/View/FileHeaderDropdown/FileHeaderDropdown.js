@@ -1,4 +1,3 @@
-import React from "react";
 import "./file-header-dropdown.scss";
 import Dropdown from "../../Dropdown";
 import Icon from "../../Icon";
@@ -26,23 +25,23 @@ export default function FileHeaderDropdown({ file, previewMarkdown }) {
 
   return (
     <Dropdown
-      toggle={{ content: <Icon name="dots" />, title: "Toggle action menu", className: "btn icon-btn view-editor-header-menu-toggle-btn" }}
+      toggle={{ content: <Icon name="dots"/>, title: "Toggle action menu", className: "btn icon-btn view-editor-header-menu-toggle-btn" }}
       body={{ className: "view-editor-header-menu-items" }}>
       {file.type === "markdown" && (
         <button onClick={() => previewMarkdown(file)}
           className={`btn icon-text-btn dropdown-btn view-editor-header-btn${file.renderAsMarkdown ? " active" : ""}`}>
-          <Icon name="eye" />
+          <Icon name="eye"/>
           <span>Preview</span>
         </button>
       )}
       <button onClick={() => copyFileContent(file.value)}
         className="btn icon-text-btn dropdown-btn view-editor-header-btn">
-        <Icon name="clipboard" />
+        <Icon name="clipboard"/>
         <span>Copy</span>
       </button>
       <button onClick={() => downloadFile(file)}
         className="btn icon-text-btn dropdown-btn view-editor-header-btn">
-        <Icon name="download" />
+        <Icon name="download"/>
         <span>Download</span>
       </button>
     </Dropdown>

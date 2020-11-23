@@ -7,7 +7,7 @@ import { importEditorMode, resetEditorIndentation, renderReadOnlyEditor } from "
 import { getSettings } from "../../services/editor-settings";
 import fileInfo from "../../data/file-info.json";
 
-export default function Editor({ file, settings, height, readOnly, preview, handleLoad }) {
+export default function Editor({ file, settings, height, readOnly, preview, handleLoad, handleKeypress }) {
   const container = useRef(null);
 
   useEffect(() => {
@@ -65,5 +65,5 @@ export default function Editor({ file, settings, height, readOnly, preview, hand
     handleLoad({ cm, file });
   }
 
-  return <div ref={container} className="cm-container" style={{minHeight: height || "auto"}}></div>;
+  return <div ref={container} className="cm-container" onKeyPress={handleKeypress ? handleKeypress : null} style={{minHeight: height || "auto"}}></div>;
 }

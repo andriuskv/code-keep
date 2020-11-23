@@ -17,17 +17,25 @@ import NoMatch from "../NoMatch";
 import fileInfo from "../../data/file-info.json";
 
 export default function Form(props) {
+  const { usernameLowerCase } = useUser();
   const [state, setState] = useState({
     loading: true
   });
   const newFileBtnRef = useRef();
   const fileModeTimeout = useRef();
-  const { usernameLowerCase } = useUser();
+  const formDirty = useRef(false);
   const { files } = state;
 
   useEffect(() => {
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    window.addEventListener("beforeunload", handleBeforeUnload, { capture: true });
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload, { capture: true });
+    };
   }, []);
 
   async function init() {
@@ -78,6 +86,18 @@ export default function Form(props) {
         fontSize: getSetting("fontSize")
       });
     }
+  }
+
+  function handleBeforeUnload(event) {
+    if (formDirty.current) {
+      event.preventDefault();
+      event.returnValue = "You have unsaved changes. Leave anyway?";
+      return event.returnValue;
+    }
+  }
+
+  function handleKeypress() {
+    formDirty.current = true;
   }
 
   function addFile() {
@@ -366,7 +386,7 @@ export default function Form(props) {
           </div>
           {file.renderAsMarkdown ?
             <Markdown file={file}/> :
-            <Editor file={file} height={file.formHeight || "332px"} handleLoad={setEditorInstance} settings={state.settings}/>
+            <Editor file={file} height={file.formHeight || "332px"} handleLoad={setEditorInstance} settings={state.settings} handleKeypress={handleKeypress}/>
           }
         </div>
       ))}

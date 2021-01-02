@@ -24,14 +24,13 @@ export default function Form(props) {
   const newFileBtnRef = useRef();
   const fileModeTimeout = useRef();
   const sizeTimeout = useRef();
-  const { usernameLowerCase } = useUser();
   const formDirty = useRef(false);
   const { files } = state;
 
   useEffect(() => {
     init();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  
+
   useEffect(() => {
     window.addEventListener("beforeunload", handleBeforeUnload, { capture: true });
 

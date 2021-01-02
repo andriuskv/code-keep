@@ -9,7 +9,7 @@
     "build:server": "cp -r ./server/* ."
   },
   "dependencies": {
-    "codemirror": "^5.58.3",
+    "codemirror": "^5.59.1",
     "connect-mongo": "^3.2.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
@@ -22,7 +22,7 @@
     "interweave": "^12.6.0",
     "jimp": "^0.16.1",
     "jszip": "^3.5.0",
-    "mongoose": "^5.10.15",
+    "mongoose": "^5.11.9",
     "multer": "^1.4.2",
     "multer-gridfs-storage": "^4.2.0",
     "node-fetch": "^2.6.1",
@@ -32,18 +32,18 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.1",
     "showdown": "^1.9.1",
-    "uuid": "^8.3.1",
-    "validator": "^13.1.17",
-    "workbox-core": "^5.1.4",
-    "workbox-expiration": "^5.1.4",
-    "workbox-precaching": "^5.1.4",
-    "workbox-routing": "^5.1.4",
-    "workbox-strategies": "^5.1.4"
+    "uuid": "^8.3.2",
+    "validator": "^13.5.2",
+    "workbox-core": "^6.0.2",
+    "workbox-expiration": "^6.0.2",
+    "workbox-precaching": "^6.0.2",
+    "workbox-routing": "^6.0.2",
+    "workbox-strategies": "^6.0.2"
   },
   "devDependencies": {
     "eslint-plugin-react-hooks": "^4.2.0",
     "nodemon": "^2.0.6",
-    "sass": "^1.29.0"
+    "sass": "^1.32.0"
   },
   "browserslist": [
     "last 4 chrome versions",

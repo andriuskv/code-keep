@@ -10,6 +10,34 @@ function classNames(...classNames) {
   return classNames.join(" ");
 }
 
+function getStringSize(str) {
+  const { size } = new Blob([str]);
+
+  return {
+    size,
+    sizeString: getPrettySize(size)
+  };
+}
+
+function getPrettySize(bytes) {
+  const suffixes = ["B", "kB", "MB"];
+  let size = bytes;
+  let l = 0;
+
+  while (l < suffixes.length) {
+    if (size < 1000) {
+      break;
+    }
+    else {
+      size /= 1000;
+    }
+    l += 1;
+  }
+  size = l > 0 ? size.toFixed(1) : Math.round(size);
+  return `${size} ${suffixes[l]}`;
+}
+
+
 function importEditorMode(mode) {
   if (mode === "default" || mode === "null") {
     return;
@@ -90,6 +118,7 @@ export {
   getRandomString,
   setDocumentTitle,
   classNames,
+  getStringSize,
   importEditorMode,
   resetEditorIndentation,
   markdownToHtml,

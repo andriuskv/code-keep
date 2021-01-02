@@ -24,7 +24,7 @@ export default function DateDiff({ snippet }) {
   }
 
   function renderDateDiffString(elapsed) {
-    const verb = snippet.modifiedAt ? "Modified" : "Created";
+    const verb = snippet.modifiedAt > snippet.createdAt ? "Modified" : "Created";
     const second = 1000;
     const minute = second * 60;
     const hour = minute * 60;

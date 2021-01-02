@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import "./form.scss";
 import { GENERIC_ERROR_MESSAGE } from "../../messages";
-import { getRandomString, setDocumentTitle, importEditorMode, resetEditorIndentation, markdownToHtml } from "../../utils";
+import { getRandomString, setDocumentTitle, getStringSize, importEditorMode, resetEditorIndentation, markdownToHtml } from "../../utils";
 import { fetchIDBSnippet, saveSnippet } from "../../services/snippetIDBService";
 import { fetchServerSnippet, updateServerSnippet, createServerSnippet } from "../../services/snippetServerService";
 import { getSetting, getSettings, saveSettings } from "../../services/editor-settings";
@@ -23,13 +23,15 @@ export default function Form(props) {
   });
   const newFileBtnRef = useRef();
   const fileModeTimeout = useRef();
+  const sizeTimeout = useRef();
+  const { usernameLowerCase } = useUser();
   const formDirty = useRef(false);
   const { files } = state;
 
   useEffect(() => {
     init();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
+  
   useEffect(() => {
     window.addEventListener("beforeunload", handleBeforeUnload, { capture: true });
 
@@ -37,6 +39,33 @@ export default function Form(props) {
       window.removeEventListener("beforeunload", handleBeforeUnload, { capture: true });
     };
   }, []);
+
+  useEffect(() => {
+    if (!state.loaded) {
+      return;
+    }
+
+    function handleChange(cm, file) {
+      clearTimeout(sizeTimeout.current);
+      sizeTimeout.current = setTimeout(() => {
+        const { size, sizeString } = getStringSize(cm.getValue());
+
+        file.size = size;
+        file.sizeString = sizeString;
+
+        setState({ ...state });
+      }, 400);
+    }
+
+    for (const file of state.files) {
+      if (file.cm) {
+        if (file.cm._handlers) {
+          file.cm.off("change", file.cm._handlers.change[0]);
+        }
+        file.cm.on("change", cm => handleChange(cm, file));
+      }
+    }
+  }, [state]);
 
   async function init() {
     if (props.match.path === "/snippets/:id/edit") {
@@ -114,6 +143,7 @@ export default function Form(props) {
       name: "",
       value: "",
       cm: null,
+      sizeString: getStringSize("").sizeString,
       type: state.files ? state.files[state.files.length - 1].type : "javascript"
     };
   }
@@ -145,13 +175,23 @@ export default function Form(props) {
       return;
     }
     const { indentSize, indentWithSpaces, wrapLines } = state.settings || getSettings();
-    const files = state.files.map((file, index) => ({
-      id: file.id,
-      name: getFileName(file, index),
-      initialName: file.initialName,
-      value: file.cm.getValue().trimEnd(),
-      type: file.type
-    }));
+    const files = state.files.map((file, index) => {
+      const value = file.cm.getValue().trimEnd();
+      const { size, sizeString } = getStringSize(value);
+      const newFile = {
+        id: file.id,
+        name: getFileName(file, index),
+        type: file.type,
+        value,
+        size,
+        sizeString
+      };
+
+      if (file.initialName) {
+        newFile.initialName = file.initialName;
+      }
+      return newFile;
+    });
     const hasUniqueFilenames = new Set(files.map(file => file.name)).size === files.length;
 
     if (!hasUniqueFilenames) {
@@ -167,6 +207,7 @@ export default function Form(props) {
       id: state.id || getRandomString(),
       title: state.title,
       description: state.description,
+      createdAt: state.createdAt,
       type: state.updating ? state.type : snippetType,
       files,
       settings: {
@@ -178,12 +219,10 @@ export default function Form(props) {
     const pathname = usernameLowerCase ? `/users/${usernameLowerCase}` : "/snippets";
     const currentDate = Date.now();
 
-    if (state.createdAt) {
-      newSnippet.modifiedAt = currentDate;
-    }
-    else {
+    if (!newSnippet.createdAt) {
       newSnippet.createdAt = currentDate;
     }
+    newSnippet.modifiedAt = currentDate;
 
     if (snippetType === "local") {
       saveSnippet({ ...newSnippet });
@@ -388,6 +427,9 @@ export default function Form(props) {
             <Markdown file={file}/> :
             <Editor file={file} height={file.formHeight || "332px"} handleLoad={setEditorInstance} settings={state.settings} handleKeypress={handleKeypress}/>
           }
+          <div className="from-editor-bottom-bar">
+            <span>Size: {file.sizeString}</span>
+          </div>
         </div>
       ))}
       {state.loaded && (

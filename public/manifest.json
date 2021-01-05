@@ -1,6 +1,6 @@
 {
   "short_name": "CodeKeep",
-  "name": "CodeKeep - Code Snippet Manager",
+  "name": "CodeKeep",
   "icons":[
     {
       "src":"./android-chrome-192x192.png",

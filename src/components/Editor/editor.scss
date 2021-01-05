@@ -11,7 +11,9 @@
 }
 
 .editor-content {
+  width: fit-content;
   padding-left: var(--gutter-width);
+  padding-right: var(--space-sm);
   white-space: pre;
 }
 
@@ -20,7 +22,7 @@
   top: 0;
   left: 0;
   width: var(--gutter-width);
-  padding: 4px 0;
+  padding: var(--space-sm) 0;
   cursor: default;
   user-select: none;
   background-color: var( --editor-background-color, var(--color-grey-dark));

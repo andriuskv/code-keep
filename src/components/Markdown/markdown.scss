@@ -1,6 +1,10 @@
 .markdown-body {
-  padding: var(--space-xxxl) var(--space-xxl);
   color: var(--color-white) !important;
+
+  & > div {
+    width: fit-content;
+    padding: var(--space-xxxl) var(--space-xxl);
+  }
 
   div > :first-child {
     margin-top: 0;

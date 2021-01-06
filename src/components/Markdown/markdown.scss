@@ -1,5 +1,16 @@
+@import "../../styles/mixins.scss";
+
 .markdown-body {
+  @include scrollbar;
+
+  overflow-x: auto;
+  white-space: nowrap;
   color: var(--color-white) !important;
+
+  &.wrap {
+    overflow-x: visible;
+    white-space: normal;
+  }
 
   & > div {
     width: fit-content;

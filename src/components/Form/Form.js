@@ -423,7 +423,7 @@ export default function Form(props) {
             )}
           </div>
           {file.renderAsMarkdown ?
-            <Markdown file={file}/> :
+            <Markdown className={state.settings.wrapLines ? "wrap" : ""} file={file}/> :
             <Editor file={file} height={file.formHeight || "332px"} handleLoad={setEditorInstance} settings={state.settings} handleKeypress={handleKeypress}/>
           }
           <div className="from-editor-bottom-bar">

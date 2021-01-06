@@ -8,6 +8,12 @@
   .CodeMirror {
     min-height: auto;
   }
+
+  .markdown-body {
+    overflow: hidden;
+    max-height: 218px;
+    white-space: nowrap;
+  }
 }
 
 .snippet-preview-top {
@@ -42,10 +48,3 @@
     }
   }
 }
-
-.snippet-markdown-preview {
-  overflow: hidden;
-  max-height: 218px;
-  white-space: nowrap;
-}
-

@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 export default function DateDiff({ snippet }) {
-  const [dateDiff, setDateDiff] = useState(getDateDiff());
+  const location = useLocation();
+  const [dateDiff, setDateDiff] = useState(() => getDateDiff());
   let id = 0;
 
   useEffect(() => {
@@ -20,11 +22,14 @@ export default function DateDiff({ snippet }) {
   }
 
   function getDateDiff() {
-    return Date.now() - (snippet.modifiedAt || snippet.createdAt);
+    const date = location.pathname === "/snippets/recent" ? snippet.createdAt : snippet.modifiedAt || snippet.createdAt;
+    return Date.now() - date;
   }
 
   function renderDateDiffString(elapsed) {
-    const verb = snippet.modifiedAt > snippet.createdAt ? "Modified" : "Created";
+    const verb = location.pathname === "/snippets/recent" ?
+      "Created" :
+      snippet.modifiedAt > snippet.createdAt ? "Modified" : "Created";
     const second = 1000;
     const minute = second * 60;
     const hour = minute * 60;

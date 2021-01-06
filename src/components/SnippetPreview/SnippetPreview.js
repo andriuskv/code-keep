@@ -21,7 +21,7 @@ export default function SnippetPreview({ snippet, to, children }) {
       </div>
       <Link to={to} className="snippet-preview-link">
         {file.type === "markdown" ?
-          <Markdown className="snippet-markdown-preview" file={file}/> :
+          <Markdown file={file}/> :
           <Editor file={file} settings={snippet.settings} readOnly preview/>
         }
       </Link>

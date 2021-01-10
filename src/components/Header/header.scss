@@ -62,20 +62,16 @@
   }
 }
 
-.header-search-item {
-  display: none;
-
-  @include header-breakpoint {
-    display: flex;
-  }
-}
-
 .header-search-link {
-  display: flex;
+  display: none;
   align-items: center;
 
   svg {
-    margin-right: 4px;
+    margin-right: var(--space-md);
+  }
+
+  @include header-breakpoint {
+    display: flex;
   }
 }
 
@@ -92,11 +88,11 @@
   display: flex;
   align-items: center;
 
-  .header-link:not(:first-of-type) {
-    margin-left: var(--space-xl);
+  .header-link:not(:last-of-type) {
+    margin-right: var(--space-xl);
 
     @include header-breakpoint {
-      margin-left: 0;
+      margin-right: 0;
     }
   }
 

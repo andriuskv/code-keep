@@ -15,19 +15,28 @@ export default function Header() {
 
   function renderItems() {
     if (loading) {
-      return <img src={spinner} className="header-spinner" height="20px" alt="" />;
+      return <img src={spinner} className="header-spinner" height="20px" alt=""/>;
     }
+    const items = (
+      <>
+        <NavLink to="/search" className="btn text-btn header-link header-search-link" title="Search">
+          <Icon name="search"/>
+          <span>Search</span>
+        </NavLink>
+        <NavLink to="/snippets/recent" className="btn text-btn header-link" activeClassName="active">Recent</NavLink>
+        <NavLink to={usernameLowerCase ? `/users/${usernameLowerCase}` : "/snippets"} exact
+          className="btn text-btn header-link" activeClassName="active">Snippets</NavLink>
+      </>
+    );
 
     if (usernameLowerCase) {
       return (
         <Fragment>
           <li className="header-nav-item">
             <Dropdown
-              toggle={{ content: <Icon name="menu" />, title: "Toggle navigation menu", className: "btn icon-btn header-nav-dropdown-toggle-btn" }}
+              toggle={{ content: <Icon name="menu"/>, title: "Toggle navigation menu", className: "btn icon-btn header-nav-dropdown-toggle-btn" }}
               body={{ className: "header-nav-dropdown" }}>
-              <NavLink to="/snippets/recent" className="btn text-btn header-link" activeClassName="active">Recent</NavLink>
-              <NavLink to={usernameLowerCase ? `/users/${usernameLowerCase}` : "/snippets"} exact
-                className="btn text-btn header-link" activeClassName="active">Snippets</NavLink>
+              {items}
             </Dropdown>
           </li>
           <li className="header-nav-item"><UserDropdown/></li>
@@ -37,11 +46,9 @@ export default function Header() {
     return (
       <li className="header-nav-item">
         <Dropdown
-          toggle={{ content: <Icon name="menu" />, title: "Toggle navigation menu", className: "btn icon-btn header-nav-dropdown-toggle-btn" }}
+          toggle={{ content: <Icon name="menu"/>, title: "Toggle navigation menu", className: "btn icon-btn header-nav-dropdown-toggle-btn" }}
           body={{ className: "header-nav-dropdown" }}>
-          <NavLink to="/snippets/recent" className="btn text-btn header-link" activeClassName="active">Recent</NavLink>
-          <NavLink to={usernameLowerCase ? `/users/${usernameLowerCase}` : "/snippets"} exact
-            className="btn text-btn header-link" activeClassName="active">Snippets</NavLink>
+          {items}
           <NavLink to="/login" className="btn text-btn header-link" activeClassName="active">Log In</NavLink>
           <NavLink to="/register" className="btn text-btn header-link" activeClassName="active">Sign Up</NavLink>
         </Dropdown>
@@ -55,20 +62,10 @@ export default function Header() {
         <ul className="header-nav-items">
           <li className="header-nav-item">
             <Link to="/" className="header-home-link">
-              <img src={logoFull} height="20px" alt="CodeKeep" />
+              <img src={logoFull} height="20px" alt="CodeKeep"/>
             </Link>
           </li>
-          {location.pathname !== "/search" && (
-            <Fragment>
-              <li className="header-nav-item"><Search/></li>
-              <li className="header-nav-item header-search-item">
-                <NavLink to="/search" className="btn text-btn header-link header-search-link" title="Search">
-                  <Icon name="search"/>
-                  <span>Search</span>
-                </NavLink>
-              </li>
-            </Fragment>
-          )}
+          {location.pathname !== "/search" && <li className="header-nav-item"><Search/></li>}
           {renderItems()}
         </ul>
       </nav>

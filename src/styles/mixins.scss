@@ -1,7 +1,7 @@
 @mixin text-truncate {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 @mixin scrollbar {
@@ -16,20 +16,17 @@
 }
 
 @mixin breakpoint-smaller {
-    @media (max-width: 420px) { @content; }
+  @media (max-width: 520px) { @content; }
 }
 
 @mixin breakpoint-small {
-    @media (max-width: 680px) { @content; }
-}
-@mixin header-breakpoint {
-    @media (max-width: 720px) { @content; }
+  @media (max-width: 680px) { @content; }
 }
 
-@mixin home-breakpoint {
-    @media (max-width: 500px) { @content; }
+@mixin header-breakpoint {
+  @media (max-width: 720px) { @content; }
 }
 
 @mixin form-submit-breakpoint {
-    @media (max-width: 710px) { @content; }
+  @media (max-width: 710px) { @content; }
 }

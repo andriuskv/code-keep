@@ -232,7 +232,7 @@
   background-color: var(--color-grey);
   transform: translateY(-50%) rotateZ(-45deg);
 
-  @include home-breakpoint {
+  @include breakpoint-smaller {
     height: 80%;
   }
 }

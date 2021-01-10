@@ -29,6 +29,14 @@
   display: flex;
   flex-wrap: wrap;
   margin-bottom: var(--space-md);
+
+  @include breakpoint-smaller {
+    @include scrollbar;
+
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding: var(--space-xs) var(--space-xs) var(--space-md) var(--space-xs);
+  }
 }
 
 .snippet-tab-selection-item {
@@ -36,6 +44,10 @@
 
   &:not(:last-of-type) {
     margin-right: var(--space-md);
+  }
+
+  @include breakpoint-smaller {
+    margin-bottom: 0;
   }
 }
 
@@ -45,6 +57,7 @@
   display: flex;
   align-items: center;
   height: 100%;
+  padding-left: var(--space-lg);
   padding-right: var(--space-md);
 
   &.active {

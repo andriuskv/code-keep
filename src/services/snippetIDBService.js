@@ -1,6 +1,6 @@
-import { Store, set, get, keys, del } from "idb-keyval";
+import { createStore, set, get, keys, del } from "idb-keyval";
 
-const store = new Store("code-keep", "snippets");
+const store = createStore("code-keep", "snippets");
 
 function fetchIDBSnippets() {
   return keys(store).then(keys => Promise.all(keys.map(fetchIDBSnippet)))

@@ -1,9 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useRouteMatch } from "react-router-dom";
 import "./snippet-info.scss";
 import DateDiff from "./DateDiff";
 import Icon from "../Icon";
 
-export default function SnippetInfo({ snippet }) {
+export default function SnippetInfo({ snippet, snippetUser, authUser }) {
+  const match = useRouteMatch();
+
   function getIcon(type) {
     const icons = {
       private: {
@@ -17,12 +19,17 @@ export default function SnippetInfo({ snippet }) {
       gist: {
         id: "github",
         title: "This snippet is hosted on GitHub"
-      },
-      favorite: {
-        id: "star",
-        title: "One of your favorite snippets"
       }
     };
+
+    if (match.path === "/users/:username") {
+      icons.favorite = {
+        id: "star",
+        title: snippetUser.usernameLowerCase === authUser.usernameLowerCase ?
+          "One of your favorite snippets" :
+          `${snippetUser.username} favorite snippet`
+      };
+    }
     const icon = icons[type];
 
     if (!icon) {

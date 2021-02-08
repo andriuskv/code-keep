@@ -491,7 +491,7 @@ export default function Snippets() {
       <Fragment>
         <ul>
           {pageSnippets.map(snippet =>
-            <SnippetPreview key={snippet.id} to={getSnippetLink(snippet)} snippet={snippet}>
+            <SnippetPreview key={snippet.id} to={getSnippetLink(snippet)} snippet={snippet} snippetUser={user} authUser={authUser}>
               <SnippetDropdown snippet={snippet} snippetUser={user} authUser={authUser}
                 uploadSnippet={uploadSnippet}
                 removeSnippet={showSnippetRemoveModal}

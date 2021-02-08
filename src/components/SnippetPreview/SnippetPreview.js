@@ -5,7 +5,7 @@ import SnippetUserLink from "../SnippetUserLink";
 import Markdown from "../Markdown";
 import Editor from "../Editor";
 
-export default function SnippetPreview({ snippet, to, children }) {
+export default function SnippetPreview({ snippet, snippetUser, authUser, to, children }) {
   const [file] = snippet.files;
 
   if (file.type === "markdown") {
@@ -16,7 +16,7 @@ export default function SnippetPreview({ snippet, to, children }) {
     <li className="snippet-preview">
       {snippet.user && <SnippetUserLink user={snippet.user} size="24px"/>}
       <div className="snippet-preview-top">
-        <SnippetInfo snippet={snippet}/>
+        <SnippetInfo snippet={snippet} snippetUser={snippetUser} authUser={authUser}/>
         {children}
       </div>
       <Link to={to} className="snippet-preview-link">

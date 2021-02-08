@@ -288,7 +288,6 @@ router.get("/:username/:snippetId/:status?", async (req, res) => {
       sendSnippet(res, {
         snippetId: req.params.snippetId,
         getPrivate,
-        sessionUser: req.session.user,
         userId
       });
     }
@@ -298,7 +297,7 @@ router.get("/:username/:snippetId/:status?", async (req, res) => {
   }
 });
 
-async function sendSnippet(res, { snippetId, getPrivate, sessionUser, userId }) {
+async function sendSnippet(res, { snippetId, getPrivate, userId }) {
   const types = ["remote", "forked"];
 
   if (getPrivate) {
@@ -307,7 +306,7 @@ async function sendSnippet(res, { snippetId, getPrivate, sessionUser, userId }) 
 
   try {
     const [user, snippet] = await Promise.all([
-      User.findById(sessionUser._id),
+      User.findById(userId),
       Snippet.findOne({ $and: [{ id: snippetId }, { userId }, { type: { $in: types }}]})
     ]);
     let type = "";

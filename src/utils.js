@@ -62,7 +62,13 @@ async function markdownToHtml(markdown) {
     import("showdown"),
     import("github-markdown-css")
   ]);
-  const converter = new Converter();
+  const converter = new Converter({
+    extensions: [{
+      type: "html",
+      regex: `<img src="(.*?)".*\/?>`,
+      replace: `<a href="$1" target="_blank">$1</a>`
+    }]
+  });
   converter.setFlavor("github");
   return converter.makeHtml(markdown);
 }

@@ -2,20 +2,23 @@ const express = require("express");
 const path = require("path");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const { getSession } = require("./session.js");
+const { initSession, getSession } = require("./session.js");
 
 const app = express();
 
-mongoose.connect(process.env.DB_URI || "mongodb://localhost/code-keep", {
+const client = mongoose.connect(process.env.DB_URI || "mongodb://localhost/code-keep", {
   useUnifiedTopology: true,
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false
-}).then(() => {
+}).then(mongoose => {
   console.log("Connected to database");
+  return mongoose.connection.getClient();
 }).catch(e => {
   console.log(e);
 });
+
+initSession(client);
 
 app.disable("x-powered-by");
 app.use(cors({

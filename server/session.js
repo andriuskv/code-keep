@@ -1,13 +1,14 @@
 const session = require("express-session");
-const mongoose = require("mongoose");
-const MongoStore = require("connect-mongo")(session);
+const MongoStore = require("connect-mongo");
 
-const store = new MongoStore({
-  mongooseConnection: mongoose.connection,
-  collection: "session"
-});
+let store = null;
 
-function getStore() {
+function initSession(client) {
+  store = new MongoStore({
+    clientPromise: client,
+    collectionName: "session"
+  });
+
   return store;
 }
 
@@ -27,7 +28,12 @@ function getSession() {
   });
 }
 
+function getStore() {
+  return store;
+}
+
 module.exports = {
-  getStore,
-  getSession
+  initSession,
+  getSession,
+  getStore
 };

@@ -25,7 +25,7 @@ router.get("/", async (req, res) => {
       snippets: pageSnippets.map((snippet, index) => {
         snippet.user = users[index].getUser();
         return snippet;
-      }),
+      }).filter(snippet => snippet.user.role !== "admin"),
       hasMore: snippets.length > offset + snippetsPerPage
     });
   } catch (e) {
@@ -89,7 +89,7 @@ router.get("/:userId", async (req, res) => {
   let getPrivate = false;
 
   if (req.session.user) {
-    getPrivate = req.session.user._id === req.params.userId;
+    getPrivate = req.session.user._id === req.params.userId || req.session.user.role === "admin";
 
     if (getPrivate) {
       types.push("private");
@@ -138,6 +138,9 @@ router.put("/:snippetId", async (req, res) => {
   }
   try {
     if (req.body.type === "gist") {
+      if (req.session.user.role === "admin") {
+        return res.sendStatus(401);
+      }
       const files = {};
 
       for (const file of req.body.files) {
@@ -174,8 +177,21 @@ router.put("/:snippetId", async (req, res) => {
       }
       return res.sendStatus(200);
     }
+    let userId = req.session.user._id;
+
+    if (req.session.user.role === "admin") {
+      const user = await User.findUser(req.body.username);
+
+      if (user) {
+        userId = user._id.toString();
+      }
+      else {
+        return res.sendStatus(500);
+      }
+      delete req.body.username;
+    }
     const snippet = await Snippet.findOneAndUpdate({
-      $and: [{ id: req.params.snippetId }, { userId: req.session.user._id }]
+      $and: [{ id: req.params.snippetId }, { userId }]
     }, req.body, { new: true });
 
     if (snippet) {
@@ -193,8 +209,21 @@ router.patch("/:snippetId", async (req, res) => {
     return res.sendStatus(401);
   }
   try {
+    let userId = req.session.user._id;
+
+    if (req.session.user.role === "admin") {
+      const user = await User.findUser(req.body.username);
+
+      if (user) {
+        userId = user._id.toString();
+      }
+      else {
+        return res.sendStatus(500);
+      }
+      delete req.body.username;
+    }
     const snippet = await Snippet.findOneAndUpdate({
-      $and: [{ id: req.params.snippetId }, { userId: req.session.user._id }]
+      $and: [{ id: req.params.snippetId }, { userId }]
     }, req.body, { new: true });
 
     if (snippet) {
@@ -213,6 +242,9 @@ router.delete("/:snippetId", async (req, res) => {
   }
   try {
     if (req.body.type === "gist") {
+      if (req.session.user.role === "admin") {
+        return res.sendStatus(401);
+      }
       const user = await User.findById(req.session.user._id);
 
       if (!user) {
@@ -230,7 +262,19 @@ router.delete("/:snippetId", async (req, res) => {
       }
     }
     else {
-      await Snippet.findOneAndRemove({ $and: [{ id: req.params.snippetId }, { userId: req.session.user._id }]});
+      let userId = req.session.user._id;
+
+      if (req.session.user.role === "admin") {
+        const user = await User.findUser(req.body.username);
+
+        if (user) {
+          userId = user._id.toString();
+        }
+        else {
+          return res.sendStatus(500);
+        }
+      }
+      await Snippet.findOneAndRemove({ $and: [{ id: req.params.snippetId }, { userId }]});
     }
     res.sendStatus(204);
   } catch (e) {
@@ -250,7 +294,7 @@ router.get("/:username/:snippetId/:status?", async (req, res) => {
       userId = user._id.toString();
 
       if (req.session.user) {
-        getPrivate = req.session.user._id === userId;
+        getPrivate = req.session.user._id === userId || req.session.user.role === "admin";
       }
     }
     else {

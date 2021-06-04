@@ -17,7 +17,7 @@ const UserSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
+    required() { return this.role !== "admin"; },
     unique: true,
     trim: true
   },
@@ -26,6 +26,7 @@ const UserSchema = new mongoose.Schema({
     path: String,
     name: String
   },
+  role: String,
   favorites: [{
     snippetId: String,
     userId: String,
@@ -41,7 +42,8 @@ UserSchema.methods.getUser = function() {
     _id: this._id,
     username: this.username,
     usernameLowerCase: this.usernameLowerCase,
-    profileImage: this.profileImage
+    profileImage: this.profileImage,
+    role: this.role
   };
 };
 
@@ -49,7 +51,7 @@ UserSchema.methods.getUserSession = function() {
   return {
     ...this.getUser(),
     email: this.email,
-    isGithubConnected: !!this.accessToken
+    isGithubConnected: this.accessToken ? true : undefined
   };
 };
 

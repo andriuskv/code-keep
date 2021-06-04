@@ -17,12 +17,12 @@ async function fetchSnippets(id) {
   };
 }
 
-async function deleteSnippet({ snippetId, type }) {
+async function deleteSnippet({ snippetId, type, username }) {
   if (type === "local") {
     return deleteIDBSnippet(snippetId);
   }
   else {
-    const status = await deleteServerSnippet({ snippetId, type });
+    const status = await deleteServerSnippet({ snippetId, type, username });
 
     return status === 204;
   }

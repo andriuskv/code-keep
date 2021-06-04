@@ -174,7 +174,7 @@ export default function Snippets() {
         setState({ message: GENERIC_ERROR_MESSAGE });
       }
       else {
-        setUser({ ...user });
+        setUser({ ...user, isLoggedIn: authUser.role === "admin" });
 
         const data = await fetchServerSnippets(user._id);
 
@@ -197,8 +197,8 @@ export default function Snippets() {
     }
   }
 
-  function showSnippetRemoveModal({ id, type }) {
-    setState({ ...state, removeModal: { id, type }});
+  function showSnippetRemoveModal({ id, type, username }) {
+    setState({ ...state, removeModal: { id, type, username }});
   }
 
   function hideSnippetRemoveModal() {
@@ -207,8 +207,8 @@ export default function Snippets() {
   }
 
   async function removeSnippet() {
-    const { id, type } = state.removeModal;
-    const deleted = await deleteSnippet({ snippetId: id, type });
+    const { id, type, username } = state.removeModal;
+    const deleted = await deleteSnippet({ snippetId: id, type, username });
 
     delete state.removeModal;
 
@@ -243,14 +243,16 @@ export default function Snippets() {
     }
   }
 
-  async function toggleSnippetPrivacy(snippet) {
+  async function toggleSnippetPrivacy({ id, type, username }) {
     const data = await patchServerSnippet({
-      id: snippet.id,
-      type: snippet.type === "private" ? "remote" : "private"
+      id,
+      type: type === "private" ? "remote" : "private",
+      username
     });
 
     if (data.code === 200) {
-      snippet.type = data.snippet.type;
+      const snipppet = state.snippets.find(snippet => id === snippet.id);
+      snipppet.type = data.snippet.type;
       state.tabs = updateSnippetTypeCount(state.snippets);
 
       if (state.visibleTabType === "private") {

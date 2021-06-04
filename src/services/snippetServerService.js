@@ -78,13 +78,13 @@ function patchServerSnippet(snippet) {
   }).then(getResponse);
 }
 
-function deleteServerSnippet({ snippetId, type }) {
+function deleteServerSnippet({ snippetId, type, username }) {
   return fetch(`/api/snippets/${snippetId}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ type })
+    body: JSON.stringify({ type, username })
   }).then(res => res.status);
 }
 

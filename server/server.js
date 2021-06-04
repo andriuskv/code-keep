@@ -45,3 +45,21 @@ app.get("/", (req, res) => {
 app.listen(process.env.PORT || 9000, () => {
   console.log(`Server running on port ${process.env.PORT || 9000}`);
 });
+
+(async function() {
+  const User = require("./models/User");
+  const existingUser = await User.findOne({ usernameLowerCase: "admin" });
+
+  if (existingUser) {
+    console.log("User already exists.");
+    return;
+  }
+  const newUser = new User({
+    username: "Admin",
+    usernameLowerCase: "admin",
+    role: "admin"
+  });
+  newUser.setPassword(process.env.PASS);
+  await newUser.save();
+  console.log("User created.");
+})();

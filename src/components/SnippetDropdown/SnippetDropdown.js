@@ -10,7 +10,7 @@ export default function SnippetDropdown(props) {
 
   function editSnippet() {
     const { id, type } = snippet;
-    let path = `/users/${authUser.usernameLowerCase}/${id}/edit`;
+    let path = `/users/${snippetUser.usernameLowerCase}/${id}/edit`;
 
     if (type === "local") {
       path = `/snippets/${id}/edit`;
@@ -26,11 +26,11 @@ export default function SnippetDropdown(props) {
   }
 
   function toggleSnippetPrivacy() {
-    props.toggleSnippetPrivacy(snippet);
+    props.toggleSnippetPrivacy({ ...snippet, username: authUser.role === "admin" ? snippetUser.usernameLowerCase : undefined });
   }
 
   function removeSnippet() {
-    props.removeSnippet(snippet);
+    props.removeSnippet({ ...snippet, username: authUser.role === "admin" ? snippetUser.usernameLowerCase : undefined });
   }
 
   function forkSnippet() {
@@ -45,7 +45,7 @@ export default function SnippetDropdown(props) {
     const dropdownOptions = [];
     const isAuth = snippetUser.isLocal || snippetUser._id === authUser._id;
 
-    if (isAuth && snippet.type !== "favorite") {
+    if (isAuth && snippet.type !== "favorite" || authUser.role === "admin") {
       dropdownOptions.push({
         name: "Edit",
         icon: "edit",
@@ -76,7 +76,8 @@ export default function SnippetDropdown(props) {
         callback: removeSnippet
       });
     }
-    else if (authUser._id) {
+
+    if (!isAuth && authUser._id) {
       dropdownOptions.push({
         name: "Fork",
         icon: "fork",

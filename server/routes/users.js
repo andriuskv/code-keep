@@ -244,7 +244,7 @@ router.get("/:username", async (req, res) => {
   try {
     const user = await User.findUser(req.params.username);
 
-    if (user) {
+    if (user && (user.role !== "admin" || req.session.user?.role === "admin")) {
       return res.json(user.getUser());
     }
     res.sendStatus(404);

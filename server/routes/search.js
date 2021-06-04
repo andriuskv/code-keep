@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
     const offset = page * itemsPerPage;
     const [snippets, users] = await Promise.all([
       Snippet.find({ title: { $regex: new RegExp(escapeRegExp(q), "i") }, type: "remote" }),
-      User.find({ usernameLowerCase: { $regex: new RegExp(escapeRegExp(q), "i") } })
+      User.find({ usernameLowerCase: { $regex: new RegExp(escapeRegExp(q), "i") }, role: { $ne: "admin" } })
     ]);
     const items = type === "users" ? users : snippets;
     const endIndex = items.length - offset;
@@ -37,7 +37,7 @@ router.get("/", async (req, res) => {
       pageItems = pageItems.map((snippet, index) => {
         snippet.user = snippetUsers[index].getUser();
         return snippet;
-      });
+      }).filter(snippet => snippet.user.role !== "admin");
     }
     else {
       pageItems = pageItems.map(user => user.getUser());

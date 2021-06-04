@@ -17,7 +17,7 @@ import NoMatch from "../NoMatch";
 import fileInfo from "../../data/file-info.json";
 
 export default function Form(props) {
-  const { usernameLowerCase } = useUser();
+  const { usernameLowerCase, role: userRole } = useUser();
   const [state, setState] = useState({
     loading: true
   });
@@ -232,6 +232,7 @@ export default function Form(props) {
       if (state.updating && snippetType) {
         const gistFilesToRemove = state.gistFilesToRemove || [];
         newSnippet.files = gistFilesToRemove.concat(newSnippet.files);
+        newSnippet.username = userRole === "admin" ? props.match.params.username : undefined;
       }
       delete state.submitMessage;
       setState({ ...state, disabledSubmitButton: snippetType });

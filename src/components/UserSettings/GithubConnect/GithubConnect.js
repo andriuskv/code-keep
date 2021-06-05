@@ -61,7 +61,7 @@ export default function GithubConnect() {
 
   async function disconnect() {
     try {
-      const status = await fetch("/users/disconnect").then(res => res.status);
+      const status = await fetch("/api/users/disconnect").then(res => res.status);
 
       if (status === 204) {
         setState({});
@@ -86,6 +86,11 @@ export default function GithubConnect() {
       <h3 className="settings-item-title settings-item-title-with-icon">
         <Icon name="github" className="settings-item-title-icon"/>
         <span>Github</span>
+        {state.name ? (
+          <button className="btn danger-btn github-header-btn" onClick={disconnect}>Disconnect</button>
+        ) : initialized ? (
+          <a href={`${process.env.REACT_APP_PROXY_SERVER_URL || ""}/api/users/connect/github`} className="btn github-header-btn">Connect</a>
+        ) : null}
       </h3>
       {state.notification && (
         <Notification margin="bottom"
@@ -102,13 +107,9 @@ export default function GithubConnect() {
               <span className="github-profile-username">{state.username}</span>
             </a>
           </div>
-          <button className="btn danger-btn github-profile-disconnect-btn" onClick={disconnect}>Disconnect</button>
         </div>
       ) : initialized ? (
-        <div className="github-connect-container">
-          <p>Connect to GitHub to enable access and modification of your gists.</p>
-          <a href={`${process.env.REACT_APP_PROXY_SERVER_URL || ""}/users/connect/github`} className="btn github-connect-link">Connect</a>
-        </div>
+        <p>Connect to GitHub to gain access to your gists.</p>
       ) : null}
     </div>
   );

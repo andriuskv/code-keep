@@ -8,6 +8,7 @@
 
 .editor-content {
   width: fit-content;
+  min-height: 29px;
   padding-left: var(--gutter-width);
   padding-right: var(--space-sm);
   white-space: pre;

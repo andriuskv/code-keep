@@ -35,11 +35,11 @@ export default function SubmitDropdown({ disabledSubmitButton, username, handleS
             <span>Private</span>
             {disabledSubmitButton === "private" && <ButtonSpinner/>}
           </button>
-          <button className="btn dropdown-btn form-submit-btn form-submit-remote-btn" disabled={disabledSubmitButton}
-            onClick={() => handleSubmit("remote")}>
+          <button className="btn dropdown-btn form-submit-btn form-submit-public-btn" disabled={disabledSubmitButton}
+            onClick={() => handleSubmit("public")}>
             <span className="form-submit-btn-label-part">Create</span>
-            <span>Remote</span>
-            {disabledSubmitButton === "remote" && <ButtonSpinner/>}
+            <span>Public</span>
+            {disabledSubmitButton === "public" && <ButtonSpinner/>}
           </button>
         </Fragment>) : null}
     </Dropdown>

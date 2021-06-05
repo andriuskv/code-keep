@@ -53,8 +53,9 @@
       margin-bottom: var(--space-md);
     }
 
-    &.form-submit-remote-btn {
+    &.form-submit-public-btn {
       display: flex;
+      align-items: center;
       padding-left: 40px;
     }
   }

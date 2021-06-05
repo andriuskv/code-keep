@@ -19,7 +19,7 @@ router.get("/", async (req, res) => {
     const itemsPerPage = 10;
     const offset = page * itemsPerPage;
     const [snippets, users] = await Promise.all([
-      Snippet.find({ title: { $regex: new RegExp(escapeRegExp(q), "i") }, type: "remote" }),
+      Snippet.find({ title: { $regex: new RegExp(escapeRegExp(q), "i") }, type: "public" }),
       User.find({ usernameLowerCase: { $regex: new RegExp(escapeRegExp(q), "i") }, role: { $ne: "admin" } })
     ]);
     const items = type === "users" ? users : snippets;

@@ -79,9 +79,9 @@ export default function Snippets() {
         type: "",
         count: 0
       },
-      remote: {
-        name: "Remote",
-        type: "remote",
+      public: {
+        name: "Public",
+        type: "public",
         require: true,
         count: 0
       },
@@ -123,8 +123,8 @@ export default function Snippets() {
     for (const snippet of snippets) {
       tabs.all.count += 1;
 
-      if (snippet.type === "private" || snippet.type === "forked") {
-        tabs.remote.count += 1;
+      if (snippet.type === "forked") {
+        tabs.public.count += 1;
       }
       tabs[snippet.type].count += 1;
     }
@@ -246,7 +246,7 @@ export default function Snippets() {
   async function toggleSnippetPrivacy({ id, type, username }) {
     const data = await patchServerSnippet({
       id,
-      type: type === "private" ? "remote" : "private",
+      type: type === "private" ? "public" : "private",
       username
     });
 
@@ -375,10 +375,9 @@ export default function Snippets() {
     if (!type || type === "all") {
       return snippets;
     }
-    else if (type === "remote") {
+    else if (type === "public") {
       return snippets.filter(snippet => (
         snippet.type === type ||
-        snippet.type === "private" ||
         snippet.type === "forked"
       ));
     }

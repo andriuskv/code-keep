@@ -189,7 +189,7 @@ export default function View(props) {
   async function toggleSnippetPrivacy(snippet) {
     const data = await patchServerSnippet({
       id: snippet.id,
-      type: snippet.type === "private" ? "remote" : "private"
+      type: snippet.type === "private" ? "public" : "private"
     });
 
     if (data.code === 200) {

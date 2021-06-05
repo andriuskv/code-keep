@@ -5,13 +5,26 @@ const Snippet = require("../models/Snippet");
 const User = require("../models/User");
 const router = express.Router();
 
+if (process.env.CHANGE_SNIPPET_TYPE) {
+  (async () => {
+    const snippets = await Snippet.find({});
+
+    for (const snippet of snippets) {
+      if (snippet.type === "remote") {
+        snippet.type = "public";
+        await snippet.save();
+      }
+    }
+  })();
+}
+
 router.get("/", async (req, res) => {
   try {
     let page = parseInt(req.query.page, 10);
     page = Number.isNaN(page) || page < 0 ? 0 : page - 1;
     const snippetsPerPage = 10;
     const offset = page * snippetsPerPage;
-    const snippets = await Snippet.find({ type: "remote" });
+    const snippets = await Snippet.find({ type: "public" });
     const endIndex = snippets.length - offset;
 
     if (endIndex <= 0) {
@@ -85,7 +98,7 @@ router.post("/", async (req, res) => {
 });
 
 router.get("/:userId", async (req, res) => {
-  const types = ["remote", "forked"];
+  const types = ["public", "forked"];
   let getPrivate = false;
 
   if (req.session.user) {
@@ -342,7 +355,7 @@ router.get("/:username/:snippetId/:status?", async (req, res) => {
 });
 
 async function sendSnippet(res, { snippetId, getPrivate, userId }) {
-  const types = ["remote", "forked"];
+  const types = ["public", "forked"];
 
   if (getPrivate) {
     types.push("private");

@@ -2,7 +2,7 @@ const User = require("../models/User");
 const mongoose = require("mongoose");
 const { ObjectID } = require("mongodb");
 const multer = require("multer");
-const GridFsStorage = require("multer-gridfs-storage");
+const { GridFsStorage } = require("multer-gridfs-storage");
 let gfs = null;
 let upload = null;
 

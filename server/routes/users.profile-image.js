@@ -78,13 +78,12 @@ function uploadImage(req, res) {
 async function fetchImage(req, res) {
   const stream = gfs.openDownloadStreamByName(req.params.filename);
 
-  stream.on("error", err => {
+  stream.pipe(res).on("error", err => {
     if (err.code === "ENOENT") {
       return res.sendStatus(404);
     }
     res.sendStatus(500);
   });
-  stream.pipe(res);
 }
 
 function deleteImage(image) {

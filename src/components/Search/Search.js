@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, Fragment } from "react";
-import { useLocation, useHistory, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import "./search.scss";
 import { setDocumentTitle } from "../../utils";
 import { GENERIC_ERROR_MESSAGE, SESSION_EXPIRATION_MESSAGE, NON_EXISTENT_PAGE_MESSAGE } from "../../messages";
@@ -18,7 +18,7 @@ import SnippetDropdown from "../SnippetDropdown";
 
 export default function Search() {
   const location = useLocation();
-  const history = useHistory();
+  const navigate = useNavigate();
   const user = useUser();
   const inputRef = useRef(null);
   const [state, setState] = useState({
@@ -126,19 +126,22 @@ export default function Search() {
 
     search.delete("page");
     search.set("tab", tabName);
-    history.replace({
+
+    navigate({
       pathname: location.pathname,
       search: search.toString()
-    });
+    }, { replace: true });
   }
 
   function setQueryParam(name, value) {
     const search = new URLSearchParams(location.search);
+
     search.set(name, value);
-    history.replace({
+
+    navigate({
       pathname: location.pathname,
       search: search.toString()
-    });
+    }, { replace: true });
   }
 
   async function forkSnippet(snippet) {
@@ -148,7 +151,7 @@ export default function Search() {
     });
 
     if (data.code === 201) {
-      history.push({
+      navigate({
         pathname: `/users/${user.usernameLowerCase}`,
         search: "?type=forked"
       });
@@ -177,7 +180,7 @@ export default function Search() {
     });
 
     if (data.code === 201 || data.code === 204) {
-      history.push({
+      navigate({
         pathname: `/users/${user.usernameLowerCase}`,
         search: "?type=favorite"
       });

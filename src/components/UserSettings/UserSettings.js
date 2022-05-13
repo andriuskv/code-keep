@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./user-settings.scss";
 import { setDocumentTitle } from "../../utils";
 import { useUser } from "../../context/user-context";
@@ -9,7 +10,9 @@ import UsernameForm from "./UsernameForm";
 import PasswordForm from "./PasswordForm";
 import AccountDeleteForm from "./AccountDeleteForm";
 
-export default function UserSettings(props) {
+export default function UserSettings() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const user = useUser();
 
   useEffect(() => {
@@ -17,13 +20,13 @@ export default function UserSettings(props) {
       user.resetUser();
     }
     else if (user.status === "deleted") {
-      props.history.replace("/login");
+      navigate("/login", { replace: true });
     }
     else if (!user.loading && !user.username) {
-      props.history.replace({
+      navigate({
         pathname: "/login",
-        search: `?redirect=${props.match.url}`
-      });
+        search: `?redirect=${location.pathname}`
+      }, { replace: true });
     }
     else {
       setDocumentTitle("Settings");

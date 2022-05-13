@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import "./view.scss";
 import { GENERIC_ERROR_MESSAGE, SESSION_EXPIRATION_MESSAGE } from "../../messages";
 import { setDocumentTitle } from "../../utils";
@@ -21,8 +21,10 @@ import Markdown from "../Markdown";
 import NoMatch from "../NoMatch";
 import fileInfo from "../../data/file-info.json";
 
-export default function View(props) {
-  const history = useHistory();
+export default function View() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const params = useParams();
   const [state, setState] = useState({
     loading: true
   });
@@ -31,7 +33,7 @@ export default function View(props) {
 
   useEffect(() => {
     init();
-  }, [user, props.match.url]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user, location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function init() {
     if (user.loading) {
@@ -43,9 +45,9 @@ export default function View(props) {
       return;
     }
 
-    if (props.match.path === "/snippets/:id") {
-      const { id } = props.match.params;
+    const { id, username, snippetId } = params;
 
+    if (id) {
       if (id) {
         const snippet = await fetchIDBSnippet(id);
 
@@ -65,9 +67,8 @@ export default function View(props) {
         }
       }
     }
-    else if (props.match.path === "/users/:username/:snippetId") {
+    else if (username && snippetId) {
       try {
-        const { username, snippetId } = props.match.params;
         const snippetUser = await fetchUser(username);
 
         if (snippetUser.code === 404) {
@@ -80,7 +81,7 @@ export default function View(props) {
           const snippet = await fetchServerSnippet({
             snippetId,
             username,
-            queryParams: props.location.search
+            queryParams: location.search
           });
 
           if (snippet.code === 404) {
@@ -142,10 +143,10 @@ export default function View(props) {
     });
 
     if (data.code === 201) {
-      history.replace({
+      navigate({
         pathname: `/users/${user.usernameLowerCase}`,
         search: "?type=private"
-      });
+      }, { replace: true });
     }
     else if (data.code === 401) {
       setState({
@@ -172,13 +173,11 @@ export default function View(props) {
   async function removeSnippet() {
     hideSnippetRemoveModal();
 
-    const { id, type } = removeModal;
-    const deleted = await deleteSnippet({ snippetId: id, type });
+    const { id, type, username } = removeModal;
+    const deleted = await deleteSnippet({ snippetId: id, type, username });
 
     if (deleted) {
-      history.push({
-        pathname:`/users/${user.usernameLowerCase}`
-      });
+      navigate(`/users/${username || user.usernameLowerCase}`);
     }
     else {
       state.notification = { value: "Snippet removal was unsuccessful." };
@@ -229,7 +228,7 @@ export default function View(props) {
     });
 
     if (data.code === 201) {
-      history.push({
+      navigate({
         pathname:`/users/${user.usernameLowerCase}`,
         search: "?type=forked"
       });
@@ -286,7 +285,7 @@ export default function View(props) {
           </Link>
         ) : null }
         <div className="view-header-bottom">
-          <SnippetInfo snippet={state.snippet}/>
+          <SnippetInfo snippet={state.snippet} snippetUser={state.user} authUser={user}/>
           <button onClick={downloadFiles} className="btn view-download-btn">Download ZIP</button>
           <SnippetDropdown toggleBtnClassName="view-dropdown-toggle-btn"
             snippet={state.snippet} snippetUser={state.user} authUser={user}

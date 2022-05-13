@@ -1,5 +1,5 @@
 import { Fragment, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./user-dropdown.scss";
 import { FAILED_LOGOUT_MESSAGE } from "../../../messages";
 import { useUser } from "../../../context/user-context";
@@ -10,7 +10,7 @@ import UserProfileImage from "../../UserProfileImage";
 export default function UserDropdown() {
   const [logout, setLogout] = useState({ buttonDisabled: false, message: "" });
   const { username, email, profileImage, signOutUser } = useUser();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   async function handleLogout() {
     try {
@@ -18,7 +18,7 @@ export default function UserDropdown() {
       const didLogout = await signOutUser();
 
       if (didLogout) {
-        history.replace("/login");
+        navigate("/login", { replace: true });
       }
       else {
         setLogout({ buttonDisabled: false, message: FAILED_LOGOUT_MESSAGE });

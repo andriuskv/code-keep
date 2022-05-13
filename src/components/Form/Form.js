@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "./form.scss";
 import { GENERIC_ERROR_MESSAGE } from "../../messages";
 import { getRandomString, setDocumentTitle, getStringSize, importEditorMode, resetEditorIndentation, markdownToHtml } from "../../utils";
@@ -16,7 +17,10 @@ import Markdown from "../Markdown";
 import NoMatch from "../NoMatch";
 import fileInfo from "../../data/file-info.json";
 
-export default function Form(props) {
+export default function Form() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const params = useParams();
   const { usernameLowerCase, role: userRole } = useUser();
   const [state, setState] = useState({
     loading: true
@@ -67,8 +71,9 @@ export default function Form(props) {
   }, [state]);
 
   async function init() {
-    if (props.match.path === "/snippets/:id/edit") {
-      const { id } = props.match.params;
+    const { id, username, snippetId } = params;
+
+    if (id) {
       const snippet = await fetchIDBSnippet(id);
 
       if (snippet) {
@@ -77,20 +82,19 @@ export default function Form(props) {
         saveSettings({...getSettings(), ...snippet.settings });
       }
     }
-    else if (props.match.path === "/users/:username/:snippetId/edit") {
-      const { username, snippetId } = props.match.params;
+    else if (username && snippetId) {
       const data = await fetchServerSnippet({
         snippetId,
         username,
         status: "edit",
-        queryParams: props.location.search
+        queryParams: location.search
       });
 
       if (data.code === 401) {
-        props.history.replace({
+        navigate({
           pathname: "/login",
-          search: `?redirect=${props.location.pathname + props.location.search}`
-        });
+          search: `?redirect=${location.pathname + location.search}`
+        }, { replace: true });
       }
       else if (data.code === 404 || data.code === 500) {
         setState({ error: true });
@@ -225,14 +229,14 @@ export default function Form(props) {
 
     if (snippetType === "local") {
       saveSnippet({ ...newSnippet });
-      props.history.push({ pathname });
+      navigate(pathname);
       return;
     }
     try {
       if (state.updating && snippetType) {
         const gistFilesToRemove = state.gistFilesToRemove || [];
         newSnippet.files = gistFilesToRemove.concat(newSnippet.files);
-        newSnippet.username = userRole === "admin" ? props.match.params.username : undefined;
+        newSnippet.username = userRole === "admin" ? params.username : undefined;
       }
       delete state.submitMessage;
       setState({ ...state, disabledSubmitButton: snippetType });
@@ -240,7 +244,7 @@ export default function Form(props) {
       const data = await callback(newSnippet);
 
       if (data.code === 200 || data.code === 201) {
-        props.history.push({ pathname });
+        navigate(pathname);
         return;
       }
       setState({

@@ -1,10 +1,10 @@
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./snippet-dropdown.scss";
 import Dropdown from "../Dropdown";
 import Icon from "../Icon";
 
 export default function SnippetDropdown(props) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { snippet, authUser, snippetUser } = props;
   const dropdownOptions = getDropdownOptions();
 
@@ -18,7 +18,7 @@ export default function SnippetDropdown(props) {
     else if (type === "gist") {
       path = `${path}?type=gist`;
     }
-    history.push(path);
+    navigate(path);
   }
 
   function uploadSnippet() {

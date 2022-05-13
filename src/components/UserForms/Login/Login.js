@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useHistory, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { GENERIC_ERROR_MESSAGE } from "../../../messages";
 import { useUser } from "../../../context/user-context";
 import ButtonSpinner from "../../ButtonSpinner";
@@ -10,7 +10,7 @@ export default function Login() {
   const [notification, setNotification] = useState(null);
   const [submitButtonState, setSubmitButtonState] = useState(false);
   const { signInUser } = useUser();
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
 
   function hideNotification() {
@@ -39,15 +39,15 @@ export default function Login() {
       else if (location.search.startsWith("?redirect=")) {
         const [pathname, search] = location.search.split("?redirect=")[1].split("?");
 
-        history.replace({
+        navigate({
           pathname,
           search: search ? `?${search}` : ""
-        });
+        }, { replace: true });
       }
       else {
-        history.replace({
+        navigate({
           pathname: `/users/${data.usernameLowerCase}`
-        });
+        }, { replace: true });
       }
     } catch (e) {
       console.log(e);

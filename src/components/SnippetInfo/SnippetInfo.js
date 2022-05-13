@@ -1,10 +1,10 @@
-import { Link, useRouteMatch } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import "./snippet-info.scss";
 import DateDiff from "./DateDiff";
 import Icon from "../Icon";
 
 export default function SnippetInfo({ snippet, snippetUser, authUser }) {
-  const match = useRouteMatch();
+  const { username } = useParams();
 
   function getIcon(type) {
     const icons = {
@@ -22,7 +22,7 @@ export default function SnippetInfo({ snippet, snippetUser, authUser }) {
       }
     };
 
-    if (match.path === "/users/:username") {
+    if (username) {
       icons.favorite = {
         id: "star",
         title: snippetUser.usernameLowerCase === authUser.usernameLowerCase ?

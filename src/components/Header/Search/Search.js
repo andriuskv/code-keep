@@ -1,13 +1,13 @@
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./search.scss";
 import Icon from "../../Icon";
 
 export default function Search() {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   function handleInput(event) {
     if (event.key === "Enter" && event.target.value) {
-      history.push({
+      navigate({
         pathname: "/search",
         search: `?q=${event.target.value}`
       });

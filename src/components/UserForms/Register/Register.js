@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { GENERIC_ERROR_MESSAGE } from "../../../messages";
 import { useUser } from "../../../context/user-context";
 import ButtonSpinner from "../../ButtonSpinner";
@@ -7,10 +7,10 @@ import Notification from "../../Notification";
 import logo from "../../../assets/logo.svg";
 
 export default function Register() {
+  const navigate = useNavigate();
   const [notification, setNotification] = useState({});
   const [submitButtonState, setSubmitButtonState] = useState(false);
   const { registerUser } = useUser();
-  const history = useHistory();
 
   function hideNotification(name) {
     delete notification[name];
@@ -69,7 +69,7 @@ export default function Register() {
       setSubmitButtonState(false);
 
       if (data.username) {
-        history.push({
+        navigate({
           pathname: `/users/${data.username}`
         });
       }

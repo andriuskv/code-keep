@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { HashRouter, Route, Switch } from "react-router-dom";
+import { HashRouter, Route, Routes } from "react-router-dom";
 import { UserProvider } from "../context/user-context";
 import Header from "./Header";
 import Home from "./Home";
@@ -20,23 +20,23 @@ export default function App() {
       <UserProvider>
         <Header/>
         <main>
-          <Suspense fallback={<div></div>}>
-            <Switch>
-              <Route path="/" exact component={Home}/>
-              <Route path="/snippets" exact component={LocalSnippets} key="local"/>
-              <Route path="/snippets/create" component={Form} key="create"/>
-              <Route path="/snippets/recent" component={RecentSnippets}/>
-              <Route path="/snippets/:id" exact component={View} key="local"/>
-              <Route path="/snippets/:id/edit" component={Form} key="edit"/>
-              <Route path="/users/:username" exact component={Snippets} key="remote"/>
-              <Route path="/users/:username/:snippetId" exact component={View} key="remote"/>
-              <Route path="/users/:username/:snippetId/edit" component={Form} key="remote"/>
-              <Route path="/search" component={Search}/>
-              <Route path="/login" component={UserForms} key="login"/>
-              <Route path="/register" component={UserForms} key="register"/>
-              <Route path="/settings" component={UserSettings}/>
-              <Route component={NoMatch}/>
-            </Switch>
+          <Suspense fallback={null}>
+            <Routes>
+              <Route path="/" element={<Home/>}/>
+              <Route path="/snippets" element={<LocalSnippets/>} key="local"/>
+              <Route path="/snippets/create" element={<Form/>} key="create"/>
+              <Route path="/snippets/recent" element={<RecentSnippets/>}/>
+              <Route path="/snippets/:id" element={<View/>}/>
+              <Route path="/snippets/:id/edit" element={<Form/>} key="edit"/>
+              <Route path="/users/:username" element={<Snippets/>}/>
+              <Route path="/users/:username/:snippetId" element={<View/>}/>
+              <Route path="/users/:username/:snippetId/edit" element={<Form/>} key="remote"/>
+              <Route path="/search" element={<Search/>}/>
+              <Route path="/login" element={<UserForms/>} key="login"/>
+              <Route path="/register" element={<UserForms/>} key="register"/>
+              <Route path="/settings" element={<UserSettings/>}/>
+              <Route path="*" element={<NoMatch/>}/>
+            </Routes>
           </Suspense>
         </main>
       </UserProvider>

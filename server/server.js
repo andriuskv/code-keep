@@ -6,11 +6,9 @@ const { initSession, getSession } = require("./session.js");
 
 const app = express();
 
-const client = mongoose.connect(process.env.DB_URI || "mongodb://localhost/code-keep", {
+const client = mongoose.connect(process.env.DB_URI || "mongodb://127.0.0.1/code-keep", {
   useUnifiedTopology: true,
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  useFindAndModify: false
+  useNewUrlParser: true
 }).then(mongoose => {
   console.log("Connected to database");
   return mongoose.connection.getClient();

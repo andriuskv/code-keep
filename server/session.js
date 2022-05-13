@@ -4,7 +4,7 @@ const MongoStore = require("connect-mongo");
 let store = null;
 
 function initSession(client) {
-  store = new MongoStore({
+  store = MongoStore.create({
     clientPromise: client,
     collectionName: "session"
   });

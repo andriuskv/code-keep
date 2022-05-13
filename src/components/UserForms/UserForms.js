@@ -1,28 +1,31 @@
 import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./user-forms.scss";
 import { setDocumentTitle } from "../../utils";
 import { useUser } from "../../context/user-context";
 import Login from "./Login";
 import Register from "./Register";
 
-export default function UserForms(props) {
+export default function UserForms() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [state, setState] = useState("");
   const { usernameLowerCase, loading } = useUser();
 
   useEffect(() => {
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
+  }, [loading, location.pathname]);
 
   function init() {
     if (loading) {
       return;
     }
 
-    if (props.match.path === "/login") {
-      if(usernameLowerCase) {
-        if (props.location.search.startsWith("?redirect=")) {
-          redirectUser(props.location.search.split("?redirect=")[1]);
+    if (location.pathname === "/login") {
+      if (usernameLowerCase) {
+        if (location.search.startsWith("?redirect=")) {
+          redirectUser(location.search.split("?redirect=")[1]);
         }
         else {
           redirectUser(`/users/${usernameLowerCase}`);
@@ -33,8 +36,8 @@ export default function UserForms(props) {
         setDocumentTitle("Sign in");
       }
     }
-    else if (props.match.path === "/register") {
-      if(usernameLowerCase) {
+    else if (location.pathname === "/register") {
+      if (usernameLowerCase) {
         redirectUser(`/users/${usernameLowerCase}`);
       }
       else {
@@ -47,17 +50,17 @@ export default function UserForms(props) {
   function redirectUser(path) {
     const [pathname, search] = path.split("?");
 
-    props.history.replace({
+    navigate({
       pathname,
       search: search ? `?${search}` : ""
-    });
+    }, { replace: true });
   }
 
   if (state === "register") {
-    return <Register />;
+    return <Register/>;
   }
   else if (state === "login") {
-    return <Login />;
+    return <Login/>;
   }
   return null;
 }

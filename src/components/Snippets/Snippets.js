@@ -1,5 +1,5 @@
 import { useState, useEffect, Fragment } from "react";
-import { Link, useHistory, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import "./snippets.scss";
 import { GENERIC_ERROR_MESSAGE, SESSION_EXPIRATION_MESSAGE, NON_EXISTENT_PAGE_MESSAGE } from "../../messages";
 import { setDocumentTitle } from "../../utils";
@@ -17,7 +17,8 @@ import SnippetDropdown from "../SnippetDropdown";
 import SnippetRemoveModal from "../SnippetRemoveModal";
 
 export default function Snippets() {
-  const history = useHistory();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { username } = useParams();
   const [state, setState] = useState({
     snippets: [],
@@ -25,7 +26,6 @@ export default function Snippets() {
   });
   const [user, setUser] = useState(null);
   const authUser = useUser();
-  const { location } = history;
   const snippetsPerPage = 10;
 
   useEffect(() => {
@@ -223,10 +223,10 @@ export default function Snippets() {
 
         setState({ ...state, snippets, tabs });
         search.set("page", page - 1);
-        history.replace({
+        navigate({
           pathname: location.pathname,
           search: search.toString()
-        });
+        }, { replace: true });
         return;
       }
       setState({
@@ -276,7 +276,7 @@ export default function Snippets() {
     });
 
     if (data.code === 201) {
-      history.push({
+      navigate({
         pathname: `/users/${authUser.usernameLowerCase}`,
         search: "?type=forked"
       });
@@ -304,7 +304,7 @@ export default function Snippets() {
       showSnippets(state, state.visibleTabType);
     }
     else if (data.code === 201) {
-      history.push({
+      navigate({
         pathname: `/users/${authUser.usernameLowerCase}`,
         search: "?type=favorite"
       });
@@ -411,10 +411,10 @@ export default function Snippets() {
   }
 
   function changeTab(type) {
-    history.replace({
+    navigate({
       pathname: location.pathname,
       search: type ? `?type=${type}` : ""
-    });
+    }, { replace: true });
   }
 
   function renderPageLinks() {

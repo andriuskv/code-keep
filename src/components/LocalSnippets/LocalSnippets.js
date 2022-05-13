@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./local-snippets.scss";
 import { GENERIC_ERROR_MESSAGE } from "../../messages";
 import { setDocumentTitle } from "../../utils";
@@ -12,7 +12,7 @@ import SnippetPreview from "../SnippetPreview";
 import SnippetRemoveModal from "../SnippetRemoveModal";
 
 export default function LocalSnippets() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const authUser = useUser();
   const [state, setState] = useState(null);
 
@@ -26,10 +26,10 @@ export default function LocalSnippets() {
       return;
     }
     else if (authUser.username) {
-      history.replace({
+      navigate({
         pathname: `/users/${authUser.usernameLowerCase}`,
         search: "?type=local"
-      });
+      }, { replace: true });
       return;
     }
     try {

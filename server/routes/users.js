@@ -1,6 +1,5 @@
 const express = require("express");
 const validator = require("validator");
-const fetch = require("node-fetch");
 const User = require("../models/User");
 const Snippet = require("../models/Snippet");
 const { uploadImage, deleteImage } = require("./users.profile-image");

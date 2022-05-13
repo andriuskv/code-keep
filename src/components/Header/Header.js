@@ -13,6 +13,15 @@ export default function Header() {
   const location = useLocation();
   const { usernameLowerCase, loading } = useUser();
 
+  function getNavLinkClassName({ isActive }) {
+    let className = "btn text-btn header-link";
+
+    if (isActive) {
+      className += " active";
+    }
+    return className;
+  }
+
   function renderItems() {
     if (loading) {
       return <img src={spinner} className="header-spinner" height="20px" alt=""/>;
@@ -23,9 +32,8 @@ export default function Header() {
           <Icon name="search"/>
           <span>Search</span>
         </NavLink>
-        <NavLink to="/snippets/recent" className="btn text-btn header-link" activeClassName="active">Recent</NavLink>
-        <NavLink to={usernameLowerCase ? `/users/${usernameLowerCase}` : "/snippets"} exact
-          className="btn text-btn header-link" activeClassName="active">Snippets</NavLink>
+        <NavLink to="/snippets/recent" className={getNavLinkClassName}>Recent</NavLink>
+        <NavLink to={usernameLowerCase ? `/users/${usernameLowerCase}` : "/snippets"} end className={getNavLinkClassName}>Snippets</NavLink>
       </>
     );
 
@@ -49,8 +57,8 @@ export default function Header() {
           toggle={{ content: <Icon name="menu"/>, title: "Toggle navigation menu", className: "btn icon-btn header-nav-dropdown-toggle-btn" }}
           body={{ className: "header-nav-dropdown" }}>
           {items}
-          <NavLink to="/login" className="btn text-btn header-link" activeClassName="active">Log In</NavLink>
-          <NavLink to="/register" className="btn text-btn header-link" activeClassName="active">Sign Up</NavLink>
+          <NavLink to="/login" className={getNavLinkClassName}>Log In</NavLink>
+          <NavLink to="/register" className={getNavLinkClassName}>Sign Up</NavLink>
         </Dropdown>
       </li>
     );

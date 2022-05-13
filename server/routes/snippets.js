@@ -1,22 +1,8 @@
 const express = require("express");
-const fetch = require("node-fetch");
 const { v4: uuidv4 } = require("uuid");
 const Snippet = require("../models/Snippet");
 const User = require("../models/User");
 const router = express.Router();
-
-if (process.env.CHANGE_SNIPPET_TYPE) {
-  (async () => {
-    const snippets = await Snippet.find({});
-
-    for (const snippet of snippets) {
-      if (snippet.type === "remote") {
-        snippet.type = "public";
-        await snippet.save();
-      }
-    }
-  })();
-}
 
 router.get("/", async (req, res) => {
   try {
@@ -28,7 +14,7 @@ router.get("/", async (req, res) => {
     const endIndex = snippets.length - offset;
 
     if (endIndex <= 0) {
-      return res.sendStatus(404);
+      return res.json({ snippets: [] });
     }
     const startIndex = endIndex - snippetsPerPage;
     const pageSnippets = snippets.slice(startIndex < 0 ? 0 : startIndex, endIndex).reverse();

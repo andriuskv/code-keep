@@ -51,24 +51,53 @@ export default function ProfileImageForm() {
   }
 
   async function resizeImage(file) {
-    const { default: Jimp } = await import("jimp/es");
-    const reader = new FileReader();
+    const image = new Image();
 
-    reader.onload = async function(event) {
-      try {
-        const image = await Jimp.read(event.target.result);
+    image.onload = async function() {
+      const size = 64;
+      let width = image.width;
+      let height = image.height;
 
-        image.resize(Jimp.AUTO, 64);
+      if (width > height) {
+        if (width > size) {
+          height = height * (size / width);
+          width = size;
+
+          if (height < size) {
+            width = width * (size / height);
+            height = size;
+          }
+        }
+      }
+      else if (height > size) {
+        width = width * (size / height);
+        height = size;
+
+        if (width < size) {
+          height = height * (size / width);
+          width = size;
+        }
+      }
+
+      URL.revokeObjectURL(image.src);
+      image.onload = null;
+
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      canvas.width = width;
+      canvas.height = height;
+
+      ctx.drawImage(image, 0, 0, width, height);
+
+      canvas.toBlob(blob => {
         setImage({
           name: file.name,
-          blob: new Blob([await image.getBufferAsync(file.type)], { type: file.type })
+          blob
         });
-      } catch (e) {
-        console.log(e);
-        setNotification({ value: e.message ? e.message : e });
-      }
+      }, file.type);
     };
-    reader.readAsArrayBuffer(file);
+    image.src = URL.createObjectURL(file);
   }
 
   function handleFileUpload({ target }) {

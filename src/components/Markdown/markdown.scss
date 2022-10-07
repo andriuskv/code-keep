@@ -1,28 +1,25 @@
 @import "../../styles/mixins.scss";
 
 .markdown-body {
-  @include scrollbar;
-
   overflow-x: auto;
-  white-space: nowrap;
+  padding: var(--space-xxxl) var(--space-xxl);
+  background-color: transparent !important;
   color: var(--color-white) !important;
 
-  &.wrap {
-    overflow-x: visible;
-    white-space: normal;
-  }
-
-  & > div {
-    width: fit-content;
-    padding: var(--space-xxxl) var(--space-xxl);
-  }
-
-  div > :first-child {
+  span > :first-child {
     margin-top: 0;
   }
 
   h1, h2 {
-    border-bottom: 1px solid var(--color-grey-light) !important;
+    border-bottom: 1px solid transparent !important;
+  }
+
+  ul {
+    list-style: disc;
+  }
+
+  hr {
+    background-color: var(--color-grey-light) !important;
   }
 
   code {

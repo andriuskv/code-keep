@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import "./form.scss";
 import { GENERIC_ERROR_MESSAGE } from "../../messages";
-import { getRandomString, setDocumentTitle, getStringSize, importEditorMode, resetEditorIndentation, markdownToHtml } from "../../utils";
+import { getRandomString, setDocumentTitle, getStringSize, markdownToHtml } from "../../utils";
 import { fetchIDBSnippet, saveSnippet } from "../../services/snippetIDBService";
 import { fetchServerSnippet, updateServerSnippet, createServerSnippet } from "../../services/snippetServerService";
-import { getSetting, getSettings, saveSettings } from "../../services/editor-settings";
+import { getSettings, saveSettings } from "../../services/editor-settings";
 import { useUser } from "../../context/user-context";
 import SubmitDropdown from "./SubmitDropdown";
 import EditorSettings from "./EditorSettings";
@@ -16,6 +15,7 @@ import Editor from "../Editor";
 import Markdown from "../Markdown";
 import NoMatch from "../NoMatch";
 import fileInfo from "../../data/file-info.json";
+import "./form.scss";
 
 export default function Form() {
   const navigate = useNavigate();
@@ -29,6 +29,8 @@ export default function Form() {
   const fileModeTimeout = useRef();
   const sizeTimeout = useRef();
   const formDirty = useRef(false);
+  const updateEditorLanguage = useRef(null);
+  const handleEditorStateChange = useRef(null);
   const { files } = state;
 
   useEffect(() => {
@@ -44,31 +46,8 @@ export default function Form() {
   }, []);
 
   useEffect(() => {
-    if (!state.loaded) {
-      return;
-    }
-
-    function handleChange(cm, file) {
-      clearTimeout(sizeTimeout.current);
-      sizeTimeout.current = setTimeout(() => {
-        const { size, sizeString } = getStringSize(cm.getValue());
-
-        file.size = size;
-        file.sizeString = sizeString;
-
-        setState({ ...state });
-      }, 400);
-    }
-
-    for (const file of state.files) {
-      if (file.cm) {
-        if (file.cm._handlers) {
-          file.cm.off("change", file.cm._handlers.change[0]);
-        }
-        file.cm.on("change", cm => handleChange(cm, file));
-      }
-    }
-  }, [state]);
+    handleEditorStateChange.current = handleChange;
+  });
 
   async function init() {
     const { id, username, snippetId } = params;
@@ -77,9 +56,15 @@ export default function Form() {
       const snippet = await fetchIDBSnippet(id);
 
       if (snippet) {
+        const settings = {...getSettings(), ...snippet.settings };
+
         setDocumentTitle(`Editing ${snippet.title}`);
-        setState({ ...snippet, fontSize: getSetting("fontSize"), updating: true });
-        saveSettings({...getSettings(), ...snippet.settings });
+        setState({
+          ...snippet,
+          updating: true,
+          settings
+        });
+        saveSettings(settings);
       }
     }
     else if (username && snippetId) {
@@ -100,13 +85,15 @@ export default function Form() {
         setState({ error: true });
       }
       else {
+        const settings = {...getSettings(), ...data.settings };
+
         setDocumentTitle(`Editing ${data.title}`);
         setState({
           ...data,
-          fontSize: getSetting("fontSize"),
+          settings,
           updating: true
         });
-        saveSettings({...getSettings(), ...data.settings });
+        saveSettings(settings);
       }
     }
     else {
@@ -115,7 +102,7 @@ export default function Form() {
         title: "",
         description: "",
         files: [getNewFile()],
-        fontSize: getSetting("fontSize")
+        settings: {...getSettings() }
       });
     }
   }
@@ -151,9 +138,11 @@ export default function Form() {
     };
   }
 
-  function setEditorInstance({ cm, file }) {
+  function setEditorInstance({ cm, updateLanguage, file }) {
+    updateEditorLanguage.current = updateLanguage;
     file.cm = cm;
-    setState({ ...state, loaded: true });
+
+    setState({ ...state });
   }
 
   function getFileName({ name, type }, index) {
@@ -179,7 +168,7 @@ export default function Form() {
     }
     const { indentSize, indentWithSpaces, wrapLines } = state.settings || getSettings();
     const files = state.files.map((file, index) => {
-      const value = file.cm.getValue().trimEnd();
+      const value = file.cm.state.doc.toString().trimEnd();
       const { size, sizeString } = getStringSize(value);
       const newFile = {
         id: file.id,
@@ -287,9 +276,9 @@ export default function Form() {
     setState({ ...state, settingsVisible: true });
   }
 
-  async function handleFileTypeChange({ target }, index) {
+  function handleFileTypeChange({ target }, index) {
     const file = files[index];
-    const { extension, mode } = fileInfo[target.value];
+    const { extension } = fileInfo[target.value];
 
     if (file.name) {
       const arr = file.name.split(".");
@@ -298,43 +287,20 @@ export default function Form() {
         file.name = `${arr[0]}.${extension}`;
       }
     }
-    await updateFileMode(file, target.value, mode);
+    updateFileMode(file, target.value);
   }
 
-  async function updateFileMode(file, type, mode) {
-    await importEditorMode(mode);
-
+  function updateFileMode(file, type) {
     file.type = type;
-    file.cm.setOption("mode", mode);
-    setState({ ...state });
-  }
 
-  async function updateEditorOptions({ wrapLines, indentSize, indentWithSpaces }) {
-    for (const { cm } of files) {
-      cm.setOption("indentUnit", indentSize);
-      cm.setOption("tabSize", indentSize);
-      cm.setOption("lineWrapping", wrapLines);
-      cm.setOption("indentWithTabs", !indentWithSpaces);
-      resetEditorIndentation(cm);
-      cm.refresh();
-    }
+    updateEditorLanguage.current(file.cm, type);
+
+    setState({ ...state });
   }
 
   async function hideSettings({ target, currentTarget }, isCloseBtn) {
     if (currentTarget === target || isCloseBtn) {
-      const settings = getSettings();
-      const data = {
-        settingsVisible: false,
-        settings
-      };
-
-      if (state.fontSize !== settings.fontSize) {
-        data.fontSize = settings.fontSize;
-      }
-      requestAnimationFrame(() => {
-        updateEditorOptions(settings);
-      });
-      setState({ ...state, ...data });
+      setState({ ...state, settingsVisible: false, settings: getSettings() });
     }
   }
 
@@ -347,18 +313,35 @@ export default function Form() {
 
     if (extension) {
       clearTimeout(fileModeTimeout.current);
-      fileModeTimeout.current = setTimeout(async () => {
+      fileModeTimeout.current = setTimeout(() => {
         for (const key of Object.keys(fileInfo)) {
           const obj = fileInfo[key];
 
           if (obj.extension === extension) {
-            await updateFileMode(file, obj.type, obj.mode);
+            updateFileMode(file, obj.type, obj.mode);
             return;
           }
         }
-        await updateFileMode(file, "default", "default");
+        updateFileMode(file, "default", "default");
       }, 400);
     }
+  }
+
+  function handleChange(viewUpdate, index) {
+    clearTimeout(sizeTimeout.current);
+    sizeTimeout.current = setTimeout(() => {
+      const file = files[index];
+      const value = viewUpdate.state.doc.toString();
+
+      if (file.value !== value) {
+        const { size, sizeString } = getStringSize(value);
+
+        file.size = size;
+        file.sizeString = sizeString;
+
+        setState({ ...state });
+      }
+    }, 400);
   }
 
   async function previewMarkdown(file) {
@@ -367,8 +350,7 @@ export default function Form() {
       delete file.renderAsMarkdown;
     }
     else {
-      file.formHeight = file.cm.getWrapperElement().clientHeight;
-      file.value = file.cm.getValue();
+      file.value = file.cm.state.doc.toString();
       file.markdown = await markdownToHtml(file.value);
       file.renderAsMarkdown = true;
     }
@@ -384,9 +366,9 @@ export default function Form() {
   }
 
   return (
-    <div className="container form" style={{ "--cm-font-size": `${state.fontSize}px` }}>
+    <div className="container form">
       <button className="btn icon-text-btn form-settings-btn" onClick={showSettings}>
-        <Icon name="settings" />
+        <Icon name="settings"/>
         <span>Settings</span>
       </button>
       <div className="form-input-group">
@@ -428,35 +410,33 @@ export default function Form() {
             )}
           </div>
           {file.renderAsMarkdown ?
-            <Markdown className={state.settings.wrapLines ? "wrap" : ""} file={file}/> :
-            <Editor file={file} height={file.formHeight || "332px"} handleLoad={setEditorInstance} settings={state.settings} handleKeypress={handleKeypress}/>
+            <Markdown file={file}/> :
+            <Editor file={file} height="332px" handleLoad={setEditorInstance} settings={state.settings} handleKeypress={handleKeypress} handleChange={update => handleEditorStateChange.current(update, index)}/>
           }
           <div className="from-editor-bottom-bar">
             <span>Size: {file.sizeString}</span>
           </div>
         </div>
       ))}
-      {state.loaded && (
-        <div>
-          {state.submitMessage && (
-            <div className="form-footer-message">{state.submitMessage}</div>
+      <div>
+        {state.submitMessage && (
+          <div className="form-footer-message">{state.submitMessage}</div>
+        )}
+        <div className="form-footer-btns">
+          <button className="btn" onClick={addFile} ref={newFileBtnRef}>Add File</button>
+          {state.updating ? (
+            <button className="btn form-update-btn"
+              disabled={state.disabledSubmitButton} onClick={handleSubmit}>
+              <span>Update</span>
+              {state.disabledSubmitButton && <ButtonSpinner/>}
+            </button>
+          ) : (
+            <SubmitDropdown username={usernameLowerCase}
+              disabledSubmitButton={state.disabledSubmitButton}
+              handleSubmit={handleSubmit} />
           )}
-          <div className="form-footer-btns">
-            <button className="btn" onClick={addFile} ref={newFileBtnRef}>Add File</button>
-            {state.updating ? (
-              <button className="btn form-update-btn"
-                disabled={state.disabledSubmitButton} onClick={handleSubmit}>
-                <span>Update</span>
-                {state.disabledSubmitButton && <ButtonSpinner/>}
-              </button>
-            ) : (
-              <SubmitDropdown username={usernameLowerCase}
-                disabledSubmitButton={state.disabledSubmitButton}
-                handleSubmit={handleSubmit} />
-            )}
-          </div>
         </div>
-      )}
+      </div>
       {state.settingsVisible && <EditorSettings hide={hideSettings} snippetSettings={state.settings} />}
     </div>
   );

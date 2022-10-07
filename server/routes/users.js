@@ -130,6 +130,7 @@ router.get("/me/github", async (req, res) => {
     if (!user) {
       return res.sendStatus(500);
     }
+    const { default: fetch } = await import("node-fetch");
     const data = await fetch("https://api.github.com/user", {
       method: "GET",
       headers: {
@@ -202,6 +203,7 @@ router.get("/connect/github/redirect", async (req, res) => {
       const clientId = process.env.CLIENT_ID;
       const clientSecret = process.env.CLIENT_SECRET;
       const params = `client_id=${clientId}&client_secret=${clientSecret}&code=${req.query.code}&state=${req.query.state}`;
+      const { default: fetch } = await import("node-fetch");
       const data = await fetch(`https://github.com/login/oauth/access_token?${params}`, {
         method: "POST",
         headers: {

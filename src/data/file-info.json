@@ -64,7 +64,7 @@
   },
   "jsx": {
     "mimeType": "text/javascript",
-    "extension": "js",
+    "extension": "jsx",
     "mode": "jsx",
     "type": "jsx",
     "displayName": "JSX"
@@ -83,11 +83,11 @@
     "type": "markdown",
     "displayName": "Markdown"
   },
-  "objectivec": {
+  "objective-c": {
     "mimeType": "text/x-objective-c",
     "extension": "m",
     "mode": "clike",
-    "type": "objectivec",
+    "type": "objective-c",
     "displayName": "Objective-C"
   },
   "php": {
@@ -152,5 +152,12 @@
     "mode": "swift",
     "type": "swift",
     "displayName": "Swift"
+  },
+  "typescript": {
+    "mimeType": "text/typescript",
+    "extension": "ts",
+    "mode": "typescript",
+    "type": "typescript",
+    "displayName": "TypeScript"
   }
 }

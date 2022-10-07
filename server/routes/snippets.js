@@ -47,6 +47,7 @@ router.post("/", async (req, res) => {
           return files;
         }, {})
       };
+      const { default: fetch } = await import("node-fetch");
       const data = await fetch("https://api.github.com/gists", {
         method: "POST",
         headers: {
@@ -160,6 +161,7 @@ router.put("/:snippetId", async (req, res) => {
       if (!user) {
         return res.sendStatus(500);
       }
+      const { default: fetch } = await import("node-fetch");
       const data = await fetch(`https://api.github.com/gists/${req.params.snippetId}`, {
         method: "PATCH",
         headers: {
@@ -249,6 +251,7 @@ router.delete("/:snippetId", async (req, res) => {
       if (!user) {
         return res.sendStatus(500);
       }
+      const { default: fetch } = await import("node-fetch");
       const response = await fetch(`https://api.github.com/gists/${req.params.snippetId}`, {
         method: "DELETE",
         headers: {
@@ -313,6 +316,7 @@ router.get("/:username/:snippetId/:status?", async (req, res) => {
       if (!user.accessToken) {
         return res.status(404).json({ message: "Snippet not found." });
       }
+      const { default: fetch } = await import("node-fetch");
       const data = await fetch(`https://api.github.com/gists/${req.params.snippetId}`, {
         method: "GET",
         headers: {
@@ -420,6 +424,8 @@ async function fetchGists(userId) {
     else if (!user.accessToken) {
       return [];
     }
+    const { default: fetch } = await import("node-fetch");
+
     const data = await fetch("https://api.github.com/gists", {
       method: "GET",
       headers: {
@@ -428,7 +434,7 @@ async function fetchGists(userId) {
     }).then(res => res.json());
 
     if (Array.isArray(data)) {
-      return Promise.all(data.map(({ url }) => {
+      return Promise.all(data.map(async ({ url }) => {
         return fetch(url, {
           method: "GET",
           headers: {

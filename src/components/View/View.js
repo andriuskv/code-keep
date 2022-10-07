@@ -263,18 +263,13 @@ export default function View() {
     setState({ ...state });
   }
 
-  function handleEditorLoad({ container, file }) {
-    file.container = container;
-    file.height = file.height || file.container.clientHeight;
-    setState({ ...state });
-  }
-
   if (state.loading) {
     return <PageSpinner/>;
   }
   else if (!state.snippet || state.message) {
     return <NoMatch message={state.message}/>;
   }
+
   return (
     <div className="container view">
       <div className="view-header">
@@ -310,8 +305,7 @@ export default function View() {
           </div>
           {file.renderAsMarkdown ?
             <Markdown file={file} handleLoad={handleMarkdownLoad}/> :
-            <Editor file={file} settings={state.snippet.settings} handleLoad={handleEditorLoad}
-              height={file.height} readOnly/>
+            <Editor file={file} settings={{ wrapLines: false }} readOnly/>
           }
         </div>
       ))}

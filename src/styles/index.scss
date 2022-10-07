@@ -94,6 +94,15 @@ main {
   box-shadow: 0 0 0 1px var(--color-primary);
 }
 
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-grey-light);
+}
+
 .input {
   --background-color: var(--color-grey-light);
 
@@ -190,6 +199,10 @@ main {
   border-right: var(--space-sm) solid transparent;
   border-radius: 4px;
   background-color: var(--color-grey-light);
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--color-grey-darker);
+  }
 }
 
 .checkbox {

@@ -1,22 +1,5 @@
 @import "../../styles/mixins.scss";
 
-.form {
-  .CodeMirror {
-    ::-webkit-scrollbar {
-      width: 10px;
-      height: 10px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background-color: var(--color-grey-light);
-    }
-  }
-
-  .CodeMirror-scroll {
-    min-height: 332px;
-  }
-}
-
 .form-input-group {
   padding-bottom: var(--space-xl);
 }
@@ -68,6 +51,10 @@
   &.visible {
     opacity: 1;
     visibility: visible;
+  }
+
+  .cm-container {
+    overflow: auto;
   }
 }
 

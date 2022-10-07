@@ -22,6 +22,7 @@ export default function Markdown({ className, file, handleLoad }) {
       handleLoad(file, markdown);
     }
   }
+
   return (
     <div className="markdown-container">
       <div className={`markdown-body${className ? ` ${className}` : ""}`}><Markup content={state}/></div>

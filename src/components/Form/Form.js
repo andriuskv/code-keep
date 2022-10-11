@@ -22,9 +22,8 @@ export default function Form() {
   const location = useLocation();
   const params = useParams();
   const { usernameLowerCase, role: userRole } = useUser();
-  const [state, setState] = useState({
-    loading: true
-  });
+  const [state, setState] = useState({ loading: true });
+  const [settingsVisible, setSettingsVisible] = useState(false);
   const newFileBtnRef = useRef();
   const fileModeTimeout = useRef();
   const sizeTimeout = useRef();
@@ -273,7 +272,7 @@ export default function Form() {
   }
 
   function showSettings() {
-    setState({ ...state, settingsVisible: true });
+    setSettingsVisible(true);
   }
 
   function handleFileTypeChange({ target }, index) {
@@ -300,7 +299,8 @@ export default function Form() {
 
   async function hideSettings({ target, currentTarget }, isCloseBtn) {
     if (currentTarget === target || isCloseBtn) {
-      setState({ ...state, settingsVisible: false, settings: getSettings() });
+      setState({ ...state, settings: getSettings() });
+      setSettingsVisible(false);
     }
   }
 
@@ -338,6 +338,7 @@ export default function Form() {
 
         file.size = size;
         file.sizeString = sizeString;
+        file.value = value;
 
         setState({ ...state });
       }
@@ -437,7 +438,7 @@ export default function Form() {
           )}
         </div>
       </div>
-      {state.settingsVisible && <EditorSettings hide={hideSettings} snippetSettings={state.settings} />}
+      {settingsVisible && <EditorSettings hide={hideSettings} snippetSettings={state.settings} />}
     </div>
   );
 }

@@ -1,10 +1,21 @@
-import { createContext, useState, useContext, useEffect } from "react";
+import { createContext, useState, useContext, useEffect, useMemo } from "react";
 import { fetchUser, createUser, loginUser, logoutUser } from "../services/userService";
 
 const UserContext = createContext();
 
 function UserProvider({ children }) {
   const [user, setUser] = useState({ loading: true });
+  const memoizedValue = useMemo(() => {
+    return {
+      ...user,
+      registerUser,
+      signInUser,
+      signOutUser,
+      resetUser,
+      updateUser,
+      setUserStatus
+    };
+  }, [user]);
 
   useEffect(() => {
     getLoggedUser();
@@ -66,7 +77,7 @@ function UserProvider({ children }) {
     setUser({ ...user, ...data });
   }
 
-  return <UserContext.Provider value={{ ...user, registerUser, signInUser, signOutUser, resetUser, updateUser, setUserStatus }}>{ children }</UserContext.Provider>;
+  return <UserContext.Provider value={memoizedValue}>{ children }</UserContext.Provider>;
 }
 
 function useUser() {

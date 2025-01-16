@@ -85,7 +85,7 @@ export default function GithubConnect() {
     <div className="settings-item">
       <h3 className="settings-item-title settings-item-title-with-icon">
         <Icon name="github" className="settings-item-title-icon"/>
-        <span>Github</span>
+        <span>GitHub</span>
         {state.name ? (
           <button className="btn danger-btn github-header-btn" onClick={disconnect}>Disconnect</button>
         ) : initialized ? (

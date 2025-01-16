@@ -21,7 +21,7 @@ initSession(client);
 app.disable("x-powered-by");
 app.use(cors({
   credentials: true,
-  origin: ["https://code-keep.herokuapp.com"],
+  origin: process.env.ORGINS.split(","),
   allowedHeaders: ["Content-Type", "Cookie", "Set-Cookie"]
 }));
 app.use(express.json());
